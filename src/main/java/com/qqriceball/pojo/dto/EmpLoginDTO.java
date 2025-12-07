@@ -6,7 +6,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-@AllArgsConstructor
 @Data
 @Schema(description = "登入傳入的資料")
 public class EmpLoginDTO implements Serializable {
