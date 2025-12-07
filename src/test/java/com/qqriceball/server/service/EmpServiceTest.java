@@ -44,7 +44,7 @@ class EmpServiceTest {
 
         AccountNotExistException ex = assertThrows(AccountNotExistException.class,
                 () -> empService.login(empLoginDTO));
-        assertEquals(MessageEnum.ACCOUNT_NOT_FOUND.getMessage(), ex.getMessage());
+        assertEquals(MessageEnum.ACCOUNT_NOT_EXIST.getMessage(), ex.getMessage());
 
         verify(empMapper, times(1)).getByUsername("NotExist");
 

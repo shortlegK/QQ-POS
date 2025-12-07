@@ -19,7 +19,7 @@ public class EmpLoginVO implements Serializable {
     private Integer id;
 
     @Schema(description = "帳號")
-    private String userName;
+    private String username;
 
     @Schema(description = "姓名")
     private String name;

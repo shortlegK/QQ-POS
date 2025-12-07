@@ -32,7 +32,7 @@ public class EmpService {
         Emp emp = empMapper.getByUsername(username);
 
         if (emp == null){
-            throw new AccountNotExistException(MessageEnum.ACCOUNT_NOT_FOUND);
+            throw new AccountNotExistException(MessageEnum.ACCOUNT_NOT_EXIST);
         }
 
         if (!passwordEncoder.matches(password,emp.getPassword())){

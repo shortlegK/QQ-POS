@@ -59,7 +59,7 @@ public class LoginController {
 
         EmpLoginVO empLoginVO = EmpLoginVO.builder()
                 .id(emp.getId())
-                .userName(emp.getUsername())
+                .username(emp.getUsername())
                 .name(emp.getName())
                 .token(token)
                 .build();

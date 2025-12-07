@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED) // 回傳 HTTP 401 Unauthorized
     public Result<Object> handleAccountNotFound(AccountNotExistException ex) {
         log.error("登入異常 - 帳號不存在: {}", ex.getMessage());
-        return Result.error(MessageEnum.ACCOUNT_NOT_FOUND);
+        return Result.error(MessageEnum.ACCOUNT_NOT_EXIST);
     }
 
     @ExceptionHandler(PasswordErrorException.class)
