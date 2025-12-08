@@ -1,4 +1,4 @@
-package com.qqriceball.server.service;
+package com.qqriceball.unit.server.service;
 
 
 import com.qqriceball.common.exception.AccountInactiveException;
@@ -9,6 +9,7 @@ import com.qqriceball.constant.StatusEnum;
 import com.qqriceball.pojo.dto.EmpLoginDTO;
 import com.qqriceball.pojo.entity.Emp;
 import com.qqriceball.server.mapper.EmpMapper;
+import com.qqriceball.server.service.EmpService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +35,7 @@ class EmpServiceTest {
 
 
     @Test
-    @DisplayName("登入帳號不存在，應回傳 AccountNotExistException")
+    @DisplayName("[Unit] EmpService - 登入帳號不存在，應回傳 AccountNotExistException")
     void testLoginAccountNotExist() {
 
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
@@ -52,7 +53,7 @@ class EmpServiceTest {
     }
 
     @Test
-    @DisplayName("登入密碼錯誤，應回傳 PasswordErrorException")
+    @DisplayName("[Unit] EmpService - 登入密碼錯誤，應回傳 PasswordErrorException")
     void testLoginPasswordError() {
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
         empLoginDTO.setUsername("admin");
@@ -74,7 +75,7 @@ class EmpServiceTest {
     }
 
     @Test
-    @DisplayName("登入帳號已停用，應回傳 AccountInactiveException")
+    @DisplayName("[Unit] EmpService - 登入帳號已停用，應回傳 AccountInactiveException")
     void testLoginAccountInactive() {
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
         empLoginDTO.setUsername("admin");
@@ -98,7 +99,7 @@ class EmpServiceTest {
 
 
     @Test
-    @DisplayName("登入帳號啓用中，應可正常登入回傳 token")
+    @DisplayName("[Unit] EmpService - 登入帳號啓用中，應可正常登入回傳 token")
     void testLoginAccountActive() {
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
         empLoginDTO.setUsername("admin");

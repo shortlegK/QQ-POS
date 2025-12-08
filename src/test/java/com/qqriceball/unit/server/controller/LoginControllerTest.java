@@ -1,4 +1,4 @@
-package com.qqriceball.server.controller;
+package com.qqriceball.unit.server.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qqriceball.common.exception.AccountInactiveException;
@@ -9,6 +9,7 @@ import com.qqriceball.constant.MessageEnum;
 import com.qqriceball.constant.StatusEnum;
 import com.qqriceball.pojo.dto.EmpLoginDTO;
 import com.qqriceball.pojo.entity.Emp;
+import com.qqriceball.server.controller.LoginController;
 import com.qqriceball.server.service.EmpService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,7 +47,7 @@ class LoginControllerTest {
 
 
     @Test
-    @DisplayName("登入成功")
+    @DisplayName("[Unit] LoginController - 登入帳號成功應回傳 200 及 token")
     void testLoginSuccess() throws Exception {
 
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
@@ -79,14 +80,14 @@ class LoginControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.id").value(1))
                 .andExpect(jsonPath("$.data.username").value("admin"))
                 .andExpect(jsonPath("$.data.token").isNotEmpty());
     }
 
     @Test
-    @DisplayName("登入失敗，帳號不存在")
+    @DisplayName("[Unit] LoginController - 登入失敗，帳號不存在應回傳 401 及指定訊息")
     void testLoginAccountNotExist() throws Exception {
 
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
@@ -103,13 +104,14 @@ class LoginControllerTest {
                         .content(jsonBody)
         );
 
-        resultActions.andExpect(status().isUnauthorized());
-        resultActions.andExpect(jsonPath("$.code").value(1002));
+        resultActions
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXIST.getCode()));
 
     }
 
     @Test
-    @DisplayName("登入失敗，密碼錯誤")
+    @DisplayName("[Unit] LoginController - 登入失敗，密碼錯誤應回傳 401 及指定訊息")
     void testLoginPasswordError() throws Exception {
 
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
@@ -127,14 +129,15 @@ class LoginControllerTest {
                         .content(jsonBody)
         );
 
-        resultActions.andExpect(status().isUnauthorized());
-        resultActions.andExpect(jsonPath("$.code").value(1001));
+        resultActions
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value(MessageEnum.PASSWORD_ERROR.getCode()));
 
 
     }
 
     @Test
-    @DisplayName("登入失敗，帳號停用")
+    @DisplayName("[Unit] LoginController - 登入失敗，帳號停用應回傳 403 及指定訊息")
     void testLoginAccountInactive() throws Exception {
 
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
@@ -152,23 +155,25 @@ class LoginControllerTest {
                         .content(jsonBody)
         );
 
-        resultActions.andExpect(status().isForbidden());
-        resultActions.andExpect(jsonPath("$.code").value(1003));
+        resultActions
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_INACTIVE.getCode()));
 
 
     }
 
 
     @Test
-    @DisplayName("登出帳號成功")
+    @DisplayName("[Unit] LoginController - 登出帳號成功應回傳 200")
     void logout() throws  Exception {
 
         ResultActions resultActions = mockMvc.perform(
                 post("/logout")
         );
 
-        resultActions.andExpect(status().isOk());
-        resultActions.andExpect(jsonPath("$.code").value(200));
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()));
 
     }
 }

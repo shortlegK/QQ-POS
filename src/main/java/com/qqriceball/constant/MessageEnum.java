@@ -5,6 +5,8 @@ import lombok.Getter;
 @Getter
 public enum MessageEnum {
 
+    SUCCESS(200, "成功"),
+
     // 登入/帳號相關
     PASSWORD_ERROR(1001, "密碼錯誤"),
     ACCOUNT_NOT_EXIST(1002, "帳號錯誤"),
