@@ -17,9 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Slf4j
 @RestController
 @Tag(name = "登入登出")
@@ -44,18 +41,16 @@ public class LoginController {
     })
     public Result<EmpLoginVO> login(@RequestBody EmpLoginDTO empLoginDTO) {
 
-        log.info("員工登入:{}", empLoginDTO);
+        log.info("1001 登入帳號:{}", empLoginDTO);
 
         Emp emp = empService.login(empLoginDTO);
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("id", emp.getId());
-        claims.put("name", emp.getName());
 
-        String token = JwtUtil.createJwt(
-                jwtProperties.getAdminSecretKey(),
-                jwtProperties.getAdminTtl(),
-                claims);
+        String token = JwtUtil.generateToken(
+                jwtProperties.getSecretKey(),
+                emp.getId(),
+                emp.getUsername(),
+                jwtProperties.getTtlMillis());
 
         EmpLoginVO empLoginVO = EmpLoginVO.builder()
                 .id(emp.getId())

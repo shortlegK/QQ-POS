@@ -2,10 +2,8 @@ package com.qqriceball.common.exception;
 
 import com.qqriceball.constant.MessageConstant;
 
-public class PasswordErrorException extends BaseException {
-
-    public PasswordErrorException(MessageConstant messageConstant) {
+public class AlreadyExistsException extends BaseException {
+    public AlreadyExistsException(MessageConstant messageConstant) {
         super(messageConstant);
     }
-
 }

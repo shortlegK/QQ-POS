@@ -2,36 +2,43 @@ package com.qqriceball.common.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.Map;
 
 public class JwtUtil {
 
+    // 產生 Token
+    public static String generateToken(String secretKey, Integer userId, String username, long ttlMillis) {
+        long nowMillis = System.currentTimeMillis();
+        Date now = new Date(nowMillis);
 
-    public static String createJwt(String secretKey,long ttlMillis, Map<String, Object> claims) {
-        SecretKey key = getSecretKey(secretKey);
-         return Jwts.builder()
-                .claims(claims) // Payload
-                .expiration(new Date(System.currentTimeMillis() + ttlMillis)) //設定時效
+        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+
+        return Jwts.builder()
+                // 使用者 ID
+                .setSubject(String.valueOf(userId))
+                // 使用者名稱
+                .claim("username", username)
+                // 簽發時間
+                .setIssuedAt(now)
+                // 過期時間
+                .setExpiration(new Date(nowMillis + ttlMillis))
+                // HS256 by default
                 .signWith(key)
                 .compact();
     }
 
-    public static Claims parseJwt(String secretKey, String jwt) {
-        SecretKey key = getSecretKey(secretKey);
+    // 解析 Token，回傳 Claims
+    public static Claims parseToken(String secretKey, String token) {
+        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 
-        return Jwts.parser()
-                .verifyWith(key)
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
                 .build()
-                .parseSignedClaims(jwt)
-                .getPayload();
+                .parseClaimsJws(token)
+                .getBody();
     }
-
-    private static SecretKey getSecretKey(String secretKey) {
-        return io.jsonwebtoken.security.Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-    }
-
 }

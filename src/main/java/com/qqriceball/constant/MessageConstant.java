@@ -3,9 +3,9 @@ package com.qqriceball.constant;
 import lombok.Getter;
 
 @Getter
-public enum MessageEnum {
+public enum MessageConstant {
 
-    SUCCESS(200, "成功"),
+    SUCCESS(200, "執行成功"),
 
     // 登入/帳號相關
     PASSWORD_ERROR(1001, "密碼錯誤"),
@@ -13,10 +13,14 @@ public enum MessageEnum {
     ACCOUNT_INACTIVE(1003, "帳號已停用"),
     USER_NOT_LOGIN(1004, "用戶未登入"),
     PASSWORD_EDIT_FAILED(1005, "修改密碼失敗"),
+    TOKEN_INVALID(1006, "Token 無效"),
+    NO_PERMISSION(1007, "權限不足"),
+    USERNAME_ALREADY_EXIST(1008,"使用者帳號已存在"),
 
     //通用錯誤
     UNKNOWN_ERROR(2001, "未知的錯誤"),
-    ALREADY_EXISTS(2002, "已存在"),
+    ALREADY_EXISTS(2002, "資源已存在"),
+    BAD_REQUEST(2003, "請求參數格式不正確"),
 
     //業務邏輯相關
     DISH_ON_SALE(3001, "販賣中的餐點無法刪除"),
@@ -28,7 +32,7 @@ public enum MessageEnum {
     private final int code;
     private final String message;
 
-    MessageEnum(int code, String message) {
+    MessageConstant(int code, String message) {
         this.code = code;
         this.message = message;
     }

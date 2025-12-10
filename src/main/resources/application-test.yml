@@ -1,17 +1,21 @@
-spring:
-  application:
-    name: QQ-POS
+# 測試環境設定
 
-  # DB Connect
+# DB Connect
+spring:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL_TEST}
     username: ${DB_USERNAME_TEST}
     password: ${DB_PASSWORD_TEST}
 
 qq-pos:
   jwt:
-    admin-secret-key: ${JWT_SECRET_KEY_TEST}
-    admin-ttl: 7200000
-    admin-token-name: token
+    secret-key: ${JWT_SECRET_KEY_TEST}
+#    issuer: ${JWT_ISSUER_TEST}
+#    audience: ${JWT_AUDIENCE_TEST}
 
+logging:
+  file:
+    name: logs/qq-pos-test.log
+  level:
+    root: info
+    com.qqriceball.server.mapper: debug

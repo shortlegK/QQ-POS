@@ -4,8 +4,8 @@ package com.qqriceball.unit.server.service;
 import com.qqriceball.common.exception.AccountInactiveException;
 import com.qqriceball.common.exception.AccountNotExistException;
 import com.qqriceball.common.exception.PasswordErrorException;
-import com.qqriceball.constant.MessageEnum;
-import com.qqriceball.constant.StatusEnum;
+import com.qqriceball.constant.MessageConstant;
+import com.qqriceball.constant.StatusConstant;
 import com.qqriceball.pojo.dto.EmpLoginDTO;
 import com.qqriceball.pojo.entity.Emp;
 import com.qqriceball.server.mapper.EmpMapper;
@@ -45,7 +45,7 @@ class EmpServiceTest {
 
         AccountNotExistException ex = assertThrows(AccountNotExistException.class,
                 () -> empService.login(empLoginDTO));
-        assertEquals(MessageEnum.ACCOUNT_NOT_EXIST.getMessage(), ex.getMessage());
+        assertEquals(MessageConstant.ACCOUNT_NOT_EXIST.getMessage(), ex.getMessage());
 
         verify(empMapper, times(1)).getByUsername("NotExist");
 
@@ -68,7 +68,7 @@ class EmpServiceTest {
 
         PasswordErrorException ex = assertThrows(PasswordErrorException.class,
                 () -> empService.login(empLoginDTO));
-        assertEquals(MessageEnum.PASSWORD_ERROR.getMessage(), ex.getMessage());
+        assertEquals(MessageConstant.PASSWORD_ERROR.getMessage(), ex.getMessage());
 
         verify(empMapper, times(1)).getByUsername(empLoginDTO.getUsername());
         verify(passwordEncoder, times(1)).matches(empLoginDTO.getPassword(), fakeEmp.getPassword());
@@ -84,14 +84,14 @@ class EmpServiceTest {
         Emp fakeEmp = new Emp();
         fakeEmp.setUsername("admin");
         fakeEmp.setPassword("Password");
-        fakeEmp.setStatus(StatusEnum.INACTIVE.getValue());
+        fakeEmp.setStatus(StatusConstant.INACTIVE.getValue());
 
         when(empMapper.getByUsername(empLoginDTO.getUsername())).thenReturn(fakeEmp);
         when(passwordEncoder.matches(empLoginDTO.getPassword(), fakeEmp.getPassword())).thenReturn(true);
 
         AccountInactiveException ex = assertThrows(AccountInactiveException.class,
                 () -> empService.login(empLoginDTO));
-        assertEquals(MessageEnum.ACCOUNT_INACTIVE.getMessage(), ex.getMessage());
+        assertEquals(MessageConstant.ACCOUNT_INACTIVE.getMessage(), ex.getMessage());
 
         verify(empMapper, times(1)).getByUsername(empLoginDTO.getUsername());
         verify(passwordEncoder, times(1)).matches(empLoginDTO.getPassword(), fakeEmp.getPassword());
@@ -108,7 +108,7 @@ class EmpServiceTest {
         Emp fakeEmp = new Emp();
         fakeEmp.setUsername("admin");
         fakeEmp.setPassword("Password");
-        fakeEmp.setStatus(StatusEnum.ACTIVE.getValue());
+        fakeEmp.setStatus(StatusConstant.ACTIVE.getValue());
 
         when(empMapper.getByUsername(empLoginDTO.getUsername())).thenReturn(fakeEmp);
         when(passwordEncoder.matches(empLoginDTO.getPassword(), fakeEmp.getPassword())).thenReturn(true);
@@ -117,7 +117,7 @@ class EmpServiceTest {
 
         assertAll(
                 () -> assertEquals(empLoginDTO.getUsername(), result.getUsername()),
-                () -> assertEquals(StatusEnum.ACTIVE.getValue(), result.getStatus())
+                () -> assertEquals(StatusConstant.ACTIVE.getValue(), result.getStatus())
         );
 
         verify(empMapper, times(1)).getByUsername(empLoginDTO.getUsername());

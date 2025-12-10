@@ -1,0 +1,21 @@
+# 開發環境設定
+logging:
+  file:
+    # 開發時的日誌檔名
+    name: logs/qq-pos-dev.log
+  level:
+    # 開發時，我們希望看到更詳細的日誌，方便除錯
+    root: info
+    com.qqriceball.server.mapper: debug
+
+qq-pos:
+  jwt:
+    secret-key: ${JWT_SECRET_KEY_DEV}
+    # issuer: ${JWT_ISSUER_DEV}
+    # audience: ${JWT_AUDIENCE_DEV}
+
+spring:
+  datasource:
+    url: ${DB_URL_DEV}
+    username: ${DB_USERNAME_DEV}
+    password: ${DB_PASSWORD_DEV}

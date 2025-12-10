@@ -1,6 +1,6 @@
 package com.qqriceball.common.result;
 
-import com.qqriceball.constant.MessageEnum;
+import com.qqriceball.constant.MessageConstant;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -14,21 +14,30 @@ public class Result<T> implements Serializable {
 
     public static <T> Result<T> success() {
         Result<T> result = new Result<>();
-        result.code = MessageEnum.SUCCESS.getCode();
+        result.code = MessageConstant.SUCCESS.getCode();
+        result.msg = MessageConstant.SUCCESS.getMessage();
         return result;
     }
 
     public static <T> Result<T> success(T object) {
         Result<T> result = new Result<>();
         result.data = object;
-        result.code = MessageEnum.SUCCESS.getCode();
+        result.code = MessageConstant.SUCCESS.getCode();
+        result.msg = MessageConstant.SUCCESS.getMessage();
         return result;
     }
 
-    public static <T> Result<T> error(MessageEnum messageEnum) {
+    public static <T> Result<T> error(MessageConstant messageConstant) {
         Result<T> result = new Result<>();
-        result.msg = messageEnum.getMessage();
-        result.code = messageEnum.getCode();
+        result.msg = messageConstant.getMessage();
+        result.code = messageConstant.getCode();
+        return result;
+    }
+
+    public static <T> Result<T> error(MessageConstant messageConstant,String message) {
+        Result<T> result = new Result<>();
+        result.msg = message;
+        result.code = messageConstant.getCode();
         return result;
     }
 

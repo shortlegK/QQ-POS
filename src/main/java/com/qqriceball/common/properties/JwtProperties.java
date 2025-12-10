@@ -9,8 +9,11 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "qq-pos.jwt")
 public class JwtProperties {
 
-    private String adminSecretKey;
-    private long adminTtl;
-    private String adminTokenName;
+    private String secretKey;
+    private long ttlMillis;
+    private String tokenName;
+    private String tokenPrefix = "Bearer ";
 
 }
+
+

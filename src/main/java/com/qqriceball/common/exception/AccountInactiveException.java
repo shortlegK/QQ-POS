@@ -1,10 +1,10 @@
 package com.qqriceball.common.exception;
 
-import com.qqriceball.constant.MessageEnum;
+import com.qqriceball.constant.MessageConstant;
 
 public class AccountInactiveException extends BaseException {
 
-    public AccountInactiveException(MessageEnum messageEnum) {
-        super(messageEnum);
+    public AccountInactiveException(MessageConstant messageConstant) {
+        super(messageConstant);
     }
 }
