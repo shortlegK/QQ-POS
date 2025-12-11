@@ -12,7 +12,7 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "登入結果回傳資料")
+@Schema(description = "員工登入結果資料")
 public class EmpLoginVO implements Serializable {
 
     @Schema(description = "員工 id")

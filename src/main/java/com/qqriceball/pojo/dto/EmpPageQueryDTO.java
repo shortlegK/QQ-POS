@@ -7,6 +7,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
+@Schema(description = "員工分頁查詢資料")
 public class EmpPageQueryDTO implements Serializable {
 
     @Schema(description = "員工姓名")

@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
+@Schema(description = "員工新增資料")
 public class EmpCreateDTO implements Serializable {
 
 

@@ -9,7 +9,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-@Schema(description = "登入傳入的資料")
+@Schema(description = "員工登入資料")
 public class EmpLoginDTO implements Serializable {
 
     @Schema(description = "帳號")

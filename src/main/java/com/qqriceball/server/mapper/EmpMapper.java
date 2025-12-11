@@ -22,4 +22,5 @@ public interface EmpMapper {
 
     List<EmpPageQueryVO> pageQuery(EmpPageQueryDTO empPageQueryDTO);
 
+    void updateById(Emp emp);
 }

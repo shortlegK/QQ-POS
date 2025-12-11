@@ -9,6 +9,7 @@ import com.qqriceball.constant.StatusConstant;
 import com.qqriceball.pojo.dto.EmpCreateDTO;
 import com.qqriceball.pojo.dto.EmpLoginDTO;
 import com.qqriceball.pojo.dto.EmpPageQueryDTO;
+import com.qqriceball.pojo.dto.EmpStatusDTO;
 import com.qqriceball.pojo.entity.Emp;
 import com.qqriceball.pojo.vo.EmpPageQueryVO;
 import com.qqriceball.server.mapper.EmpMapper;
@@ -91,7 +92,16 @@ public class EmpService {
         }
     }
 
+    public void updateStatus(EmpStatusDTO empStatusDTO, Integer id, String createUser) {
 
+        Emp emp = new Emp();
+        emp.setId(id);
+        emp.setStatus(empStatusDTO.getStatus());
+        emp.setUpdateUser(createUser);
+        emp.setUpdateTime(LocalDateTime.now());
+
+        empMapper.updateById(emp);
+    }
 
 
 

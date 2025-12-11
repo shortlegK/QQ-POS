@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,7 +40,7 @@ public class LoginController {
             @ApiResponse(responseCode = "403", description = "帳號已停用"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
-    public Result<EmpLoginVO> login(@RequestBody EmpLoginDTO empLoginDTO) {
+    public Result<EmpLoginVO> login(@Valid @RequestBody EmpLoginDTO empLoginDTO) {
 
         log.info("1001 登入帳號:{}", empLoginDTO);
 

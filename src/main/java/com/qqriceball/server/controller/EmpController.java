@@ -5,6 +5,7 @@ import com.qqriceball.common.result.PageResult;
 import com.qqriceball.common.result.Result;
 import com.qqriceball.pojo.dto.EmpCreateDTO;
 import com.qqriceball.pojo.dto.EmpPageQueryDTO;
+import com.qqriceball.pojo.dto.EmpStatusDTO;
 import com.qqriceball.pojo.entity.Emp;
 import com.qqriceball.server.service.EmpService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,8 +41,8 @@ public class EmpController {
     })
     public Result<Void> createEmp(@AuthenticationPrincipal Emp currentEmp,
                             @Valid @RequestBody EmpCreateDTO empCreateDTO){
-        log.info("2001 新增員工,操作人員:{},新增帳號:{}", currentEmp.getName(), empCreateDTO.getUsername());
-        empService.create(empCreateDTO, currentEmp.getName());
+        log.info("2001 新增員工,操作人員:{},新增帳號:{}", currentEmp.getUsername(), empCreateDTO.getUsername());
+        empService.create(empCreateDTO, currentEmp.getUsername());
         return Result.success();
     }
 
@@ -53,8 +54,8 @@ public class EmpController {
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
     public Result<PageResult> page(@AuthenticationPrincipal Emp currentEmp,
-                                   EmpPageQueryDTO empPageQueryDTO){
-        log.info("2002 員工分頁查詢,操作人員:{},參數:{}", currentEmp.getName(),empPageQueryDTO);
+                                   @Valid EmpPageQueryDTO empPageQueryDTO){
+        log.info("2002 員工分頁查詢,操作人員:{},參數:{}", currentEmp.getUsername(),empPageQueryDTO);
 
         PageResult pageResult = empService.pageQuery(empPageQueryDTO);
 
@@ -62,4 +63,20 @@ public class EmpController {
     }
 
 
+    @Operation(summary = "2003 啟用/停用員工帳號")
+    @PatchMapping("/{id}/status")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "執行成功"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+
+    public Result<Void> updateEmpStauts(@AuthenticationPrincipal Emp currentEmp,
+                                        @PathVariable Integer id,
+                                        @Valid @RequestBody EmpStatusDTO empStatusDTO){
+        log.info("2002 啟用/停用員工帳號,操作人員:{},參數:{}", currentEmp.getUsername(), empStatusDTO);
+        empService.updateStatus(empStatusDTO, id, currentEmp.getUsername());
+        return Result.success();
+
+
+    }
 }
