@@ -9,7 +9,7 @@ public enum MessageConstant {
 
     // 登入/帳號相關
     PASSWORD_ERROR(1001, "密碼錯誤"),
-    ACCOUNT_NOT_EXIST(1002, "帳號錯誤"),
+    ACCOUNT_NOT_EXIST(1002, "帳號不存在"),
     ACCOUNT_INACTIVE(1003, "帳號已停用"),
     USER_NOT_LOGIN(1004, "用戶未登入"),
     PASSWORD_EDIT_FAILED(1005, "修改密碼失敗"),

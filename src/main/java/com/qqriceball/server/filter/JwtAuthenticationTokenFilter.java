@@ -9,6 +9,7 @@ import com.qqriceball.common.utils.JwtUtil;
 import com.qqriceball.constant.MessageConstant;
 import com.qqriceball.constant.RoleConstant;
 import com.qqriceball.pojo.entity.Emp;
+import com.qqriceball.pojo.vo.EmpVO;
 import com.qqriceball.server.service.EmpService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -64,10 +65,10 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             String subject = claims.getSubject(); // 這裡放的是 userId
             Integer empId = Integer.valueOf(subject);
 
-            Emp emp = empService.checkActiveEmpById(empId);
+            EmpVO empVO = empService.checkActiveEmpById(empId);
 
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            if (Objects.equals(emp.getRole(), RoleConstant.MANAGER.getValue())) {
+            if (Objects.equals(empVO.getRole(), RoleConstant.MANAGER.getValue())) {
                 authorities.add(new SimpleGrantedAuthority(RoleConstant.MANAGER.getRoleName()));
             } else {
                 authorities.add(new SimpleGrantedAuthority(RoleConstant.STAFF.getRoleName()));
@@ -75,7 +76,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
             // 建立 Authentication 物件，放 userId
             UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(emp, null, authorities);
+                    new UsernamePasswordAuthenticationToken(empVO, null, authorities);
 
             // 塞進 SecurityContext，Controller 就可以取得「目前使用者」
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);

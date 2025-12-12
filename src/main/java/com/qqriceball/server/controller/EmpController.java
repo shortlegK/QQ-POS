@@ -4,9 +4,11 @@ package com.qqriceball.server.controller;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.common.result.Result;
 import com.qqriceball.pojo.dto.EmpCreateDTO;
+import com.qqriceball.pojo.dto.EmpEditDTO;
 import com.qqriceball.pojo.dto.EmpPageQueryDTO;
 import com.qqriceball.pojo.dto.EmpStatusDTO;
 import com.qqriceball.pojo.entity.Emp;
+import com.qqriceball.pojo.vo.EmpVO;
 import com.qqriceball.server.service.EmpService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,7 +41,7 @@ public class EmpController {
             @ApiResponse(responseCode = "409", description = "帳號已存在"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
-    public Result<Void> createEmp(@AuthenticationPrincipal Emp currentEmp,
+    public Result<Void> createEmp(@AuthenticationPrincipal EmpVO currentEmp,
                             @Valid @RequestBody EmpCreateDTO empCreateDTO){
         log.info("2001 新增員工,操作人員:{},新增帳號:{}", currentEmp.getUsername(), empCreateDTO.getUsername());
         empService.create(empCreateDTO, currentEmp.getUsername());
@@ -53,7 +55,7 @@ public class EmpController {
             @ApiResponse(responseCode = "200", description = "查詢成功"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
-    public Result<PageResult> page(@AuthenticationPrincipal Emp currentEmp,
+    public Result<PageResult> page(@AuthenticationPrincipal EmpVO currentEmp,
                                    @Valid EmpPageQueryDTO empPageQueryDTO){
         log.info("2002 員工分頁查詢,操作人員:{},參數:{}", currentEmp.getUsername(),empPageQueryDTO);
 
@@ -69,14 +71,44 @@ public class EmpController {
             @ApiResponse(responseCode = "200", description = "執行成功"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
-
-    public Result<Void> updateEmpStauts(@AuthenticationPrincipal Emp currentEmp,
-                                        @PathVariable Integer id,
-                                        @Valid @RequestBody EmpStatusDTO empStatusDTO){
+    public Result<Void> updateStatus(@AuthenticationPrincipal EmpVO currentEmp,
+                                     @PathVariable Integer id,
+                                     @Valid @RequestBody EmpStatusDTO empStatusDTO){
         log.info("2002 啟用/停用員工帳號,操作人員:{},參數:{}", currentEmp.getUsername(), empStatusDTO);
         empService.updateStatus(empStatusDTO, id, currentEmp.getUsername());
         return Result.success();
 
 
     }
+
+    @Operation(summary = "2004 根據 ID 查詢員工資料")
+    @GetMapping("/{id}")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "執行成功"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<EmpVO> getById(@AuthenticationPrincipal EmpVO currentEmp,
+                                      @PathVariable Integer id){
+        log.info("2004 查詢員工資料,操作人員:{},id:{}", currentEmp.getUsername(), id);
+        EmpVO empVO = empService.getById(id);
+        return Result.success(empVO);
+
+    }
+
+
+    @Operation(summary = "2005 修改員工資料")
+    @PutMapping
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "執行成功"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<Void> getById(@AuthenticationPrincipal EmpVO currentEmp,
+                                 @Valid @RequestBody EmpEditDTO empEditDTO){
+        log.info("2005 修改員工資料,操作人員:{},參數:{}", currentEmp.getUsername(), empEditDTO);
+        empService.updateById(empEditDTO, currentEmp.getUsername());
+        return Result.success();
+
+    }
+
+
 }

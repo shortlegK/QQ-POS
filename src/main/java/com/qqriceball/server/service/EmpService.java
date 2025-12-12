@@ -6,12 +6,10 @@ import com.qqriceball.common.exception.*;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.constant.MessageConstant;
 import com.qqriceball.constant.StatusConstant;
-import com.qqriceball.pojo.dto.EmpCreateDTO;
-import com.qqriceball.pojo.dto.EmpLoginDTO;
-import com.qqriceball.pojo.dto.EmpPageQueryDTO;
-import com.qqriceball.pojo.dto.EmpStatusDTO;
+import com.qqriceball.pojo.dto.*;
 import com.qqriceball.pojo.entity.Emp;
 import com.qqriceball.pojo.vo.EmpPageQueryVO;
+import com.qqriceball.pojo.vo.EmpVO;
 import com.qqriceball.server.mapper.EmpMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -59,16 +57,16 @@ public class EmpService {
 
     }
 
-    public void create(EmpCreateDTO empCreateDTO, String createUser) {
+    public void create(EmpCreateDTO empCreateDTO, String currentUser) {
         Emp emp = new Emp();
 
         // 將 empDTO 內容 copy 至 emp
         BeanUtils.copyProperties(empCreateDTO, emp);
 
         emp.setPassword(passwordEncoder.encode(emp.getPassword()));
-        emp.setCreateUser(createUser);
+        emp.setCreateUser(currentUser);
         emp.setCreateTime(LocalDateTime.now());
-        emp.setUpdateUser(createUser);
+        emp.setUpdateUser(currentUser);
         emp.setUpdateTime(LocalDateTime.now());
 
         try{
@@ -92,34 +90,51 @@ public class EmpService {
         }
     }
 
-    public void updateStatus(EmpStatusDTO empStatusDTO, Integer id, String createUser) {
+    public void updateStatus(EmpStatusDTO empStatusDTO, Integer id, String currentUser) {
 
         Emp emp = new Emp();
         emp.setId(id);
         emp.setStatus(empStatusDTO.getStatus());
-        emp.setUpdateUser(createUser);
+        emp.setUpdateUser(currentUser);
         emp.setUpdateTime(LocalDateTime.now());
 
         empMapper.updateById(emp);
     }
 
+    public EmpVO getById(Integer id){
 
+        return empMapper.getById(id);
+    }
 
+    public void updateById(EmpEditDTO empEditDTO,String currentUser) {
 
+        if (empMapper.getById(empEditDTO.getId()) == null){
 
+            throw new AccountNotExistException(MessageConstant.ACCOUNT_NOT_EXIST);
 
+        }else{
 
+            Emp emp = new Emp();
+            BeanUtils.copyProperties(empEditDTO, emp);
+            emp.setUpdateUser(currentUser);
+            emp.setUpdateTime(LocalDateTime.now());
+
+            empMapper.updateById(emp);
+        }
+
+    }
 
     // 確認 Emp 啟用狀態
-    public Emp checkActiveEmpById(Integer id){
-        Emp emp = empMapper.getById(id);
-        if (emp == null){
+    public EmpVO checkActiveEmpById(Integer id){
+        EmpVO empVO = empMapper.getById(id);
+        if (empVO == null){
             throw new AccountNotExistException(MessageConstant.ACCOUNT_NOT_EXIST);
         }
-        if (emp.getStatus().equals(StatusConstant.INACTIVE.getValue())){
+        if (empVO.equals(StatusConstant.INACTIVE.getValue())){
             throw new AccountInactiveException(MessageConstant.ACCOUNT_INACTIVE);
         }
-        return emp;
+
+        return empVO;
     }
 
 }
