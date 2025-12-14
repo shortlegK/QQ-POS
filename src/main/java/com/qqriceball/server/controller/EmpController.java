@@ -43,8 +43,8 @@ public class EmpController {
     })
     public Result<Void> createEmp(@AuthenticationPrincipal EmpVO currentEmp,
                             @Valid @RequestBody EmpCreateDTO empCreateDTO){
-        log.info("2001 新增員工,操作人員:{},新增帳號:{}", currentEmp.getUsername(), empCreateDTO.getUsername());
-        empService.create(empCreateDTO, currentEmp.getUsername());
+        log.info("2001 新增員工,操作id:{},新增帳號:{}", currentEmp.getId(), empCreateDTO.getUsername());
+        empService.create(empCreateDTO, currentEmp.getId());
         return Result.success();
     }
 
@@ -57,7 +57,7 @@ public class EmpController {
     })
     public Result<PageResult> page(@AuthenticationPrincipal EmpVO currentEmp,
                                    @Valid EmpPageQueryDTO empPageQueryDTO){
-        log.info("2002 員工分頁查詢,操作人員:{},參數:{}", currentEmp.getUsername(),empPageQueryDTO);
+        log.info("2002 員工分頁查詢,操作id:{},參數:{}", currentEmp.getId(),empPageQueryDTO);
 
         PageResult pageResult = empService.pageQuery(empPageQueryDTO);
 
@@ -74,8 +74,8 @@ public class EmpController {
     public Result<Void> updateStatus(@AuthenticationPrincipal EmpVO currentEmp,
                                      @PathVariable Integer id,
                                      @Valid @RequestBody EmpStatusDTO empStatusDTO){
-        log.info("2002 啟用/停用員工帳號,操作人員:{},參數:{}", currentEmp.getUsername(), empStatusDTO);
-        empService.updateStatus(empStatusDTO, id, currentEmp.getUsername());
+        log.info("2002 啟用/停用員工帳號,操作id:{},參數:{}", currentEmp.getId(), empStatusDTO);
+        empService.updateStatus(empStatusDTO, id, currentEmp.getId());
         return Result.success();
 
 
@@ -89,7 +89,7 @@ public class EmpController {
     })
     public Result<EmpVO> getById(@AuthenticationPrincipal EmpVO currentEmp,
                                       @PathVariable Integer id){
-        log.info("2004 查詢員工資料,操作人員:{},id:{}", currentEmp.getUsername(), id);
+        log.info("2004 查詢員工資料,操作id:{},id:{}", currentEmp.getId(), id);
         EmpVO empVO = empService.getById(id);
         return Result.success(empVO);
 
@@ -104,8 +104,8 @@ public class EmpController {
     })
     public Result<Void> getById(@AuthenticationPrincipal EmpVO currentEmp,
                                  @Valid @RequestBody EmpEditDTO empEditDTO){
-        log.info("2005 修改員工資料,操作人員:{},參數:{}", currentEmp.getUsername(), empEditDTO);
-        empService.updateById(empEditDTO, currentEmp.getUsername());
+        log.info("2005 修改員工資料,操作id:{},參數:{}", currentEmp.getId(), empEditDTO);
+        empService.updateById(empEditDTO, currentEmp.getId());
         return Result.success();
 
     }

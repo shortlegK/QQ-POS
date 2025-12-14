@@ -57,16 +57,16 @@ public class EmpService {
 
     }
 
-    public void create(EmpCreateDTO empCreateDTO, String currentUser) {
+    public void create(EmpCreateDTO empCreateDTO, Integer currentUserId) {
         Emp emp = new Emp();
 
         // 將 empDTO 內容 copy 至 emp
         BeanUtils.copyProperties(empCreateDTO, emp);
 
         emp.setPassword(passwordEncoder.encode(emp.getPassword()));
-        emp.setCreateUser(currentUser);
+        emp.setCreateId(currentUserId);
         emp.setCreateTime(LocalDateTime.now());
-        emp.setUpdateUser(currentUser);
+        emp.setUpdateId(currentUserId);
         emp.setUpdateTime(LocalDateTime.now());
 
         try{
@@ -90,12 +90,12 @@ public class EmpService {
         }
     }
 
-    public void updateStatus(EmpStatusDTO empStatusDTO, Integer id, String currentUser) {
+    public void updateStatus(EmpStatusDTO empStatusDTO, Integer id, Integer currentUserId) {
 
         Emp emp = new Emp();
         emp.setId(id);
         emp.setStatus(empStatusDTO.getStatus());
-        emp.setUpdateUser(currentUser);
+        emp.setUpdateId(currentUserId);
         emp.setUpdateTime(LocalDateTime.now());
 
         empMapper.updateById(emp);
@@ -106,7 +106,7 @@ public class EmpService {
         return empMapper.getById(id);
     }
 
-    public void updateById(EmpEditDTO empEditDTO,String currentUser) {
+    public void updateById(EmpEditDTO empEditDTO,Integer currentUserId) {
 
         if (empMapper.getById(empEditDTO.getId()) == null){
 
@@ -116,7 +116,7 @@ public class EmpService {
 
             Emp emp = new Emp();
             BeanUtils.copyProperties(empEditDTO, emp);
-            emp.setUpdateUser(currentUser);
+            emp.setUpdateId(currentUserId);
             emp.setUpdateTime(LocalDateTime.now());
 
             empMapper.updateById(emp);

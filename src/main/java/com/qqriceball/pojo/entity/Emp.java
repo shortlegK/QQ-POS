@@ -37,14 +37,14 @@ public class Emp {
     @Schema(description = "入職日期")
     private LocalDate entryDate;
 
-    @Schema(description = "建立人員")
-    private String createUser;
+    @Schema(description = "建立人員 id")
+    private int createId;
 
     @Schema(description = "建立時間")
     private LocalDateTime createTime;
 
-    @Schema(description = "更新人員")
-    private String updateUser;
+    @Schema(description = "更新人員 id")
+    private int updateId;
 
     @Schema(description = "更新時間")
     private LocalDateTime updateTime;

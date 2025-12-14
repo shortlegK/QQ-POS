@@ -62,8 +62,8 @@ class LoginControllerTest {
 
         when(empService.login(any(EmpLoginDTO.class))).thenReturn(fakeEmp);
 
-        when(jwtProperties.getAdminSecretKey()).thenReturn(secretkey);
-        when(jwtProperties.getAdminTtl()).thenReturn(3600000L);
+        when(jwtProperties.getSecretKey()).thenReturn(secretkey);
+        when(jwtProperties.getTtlMillis()).thenReturn(3600000L);
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
