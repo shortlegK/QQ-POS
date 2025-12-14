@@ -15,25 +15,25 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    // 登入異常處理
+
     @ExceptionHandler(AccountNotExistException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED) // 回傳 HTTP 401 Unauthorized
     public Result<Object> handleAccountNotFound(AccountNotExistException ex) {
-        log.error("登入異常 - 帳號不存在: {}", ex.getMessage());
+        log.error("操作異常: {}", ex.getMessage());
         return Result.error(ex.getMessageConstant());
     }
 
     @ExceptionHandler(PasswordErrorException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED) // 回傳 HTTP 401 Unauthorized
     public Result<Object> handlePasswordError(PasswordErrorException ex) {
-        log.error("登入異常 - 密碼錯誤: {}", ex.getMessage());
+        log.error("操作異常: {}", ex.getMessage());
         return Result.error(ex.getMessageConstant());
     }
 
     @ExceptionHandler(AccountInactiveException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN) // 回傳 HTTP 403 Forbidden
     public Result<Object> handleAccountLocked(AccountInactiveException ex) {
-        log.error("登入異常 - 帳號已停用: {}", ex.getMessage());
+        log.error("操作異常: {}", ex.getMessage());
         return Result.error(ex.getMessageConstant());
     }
 
@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT) // 回傳 HTTP 409 Conflict
     public Result<Object> handleAlreadyExists(AlreadyExistsException ex) {
-        log.error("建立異常 - 資源已存在: {}", ex.getMessageConstant().getMessage());
+        log.error("操作異常: {}", ex.getMessageConstant().getMessage());
         return Result.error(ex.getMessageConstant());
     }
 

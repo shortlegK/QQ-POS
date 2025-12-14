@@ -46,10 +46,12 @@ public class EmpService {
         }
 
         if (!passwordEncoder.matches(password, emp.getPassword())) {
+            log.error("登入密碼錯誤,username: {}",username);
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
         }
 
         if (emp.getStatus().equals(StatusConstant.INACTIVE.getValue())) {
+            log.error("登入帳號未啟用,username: {}",username);
             throw new AccountInactiveException(MessageConstant.ACCOUNT_INACTIVE);
         }
 
@@ -92,6 +94,8 @@ public class EmpService {
 
     public void updateStatus(EmpStatusDTO empStatusDTO, Integer id, Integer currentUserId) {
 
+        this.getById(id);
+
         Emp emp = new Emp();
         emp.setId(id);
         emp.setStatus(empStatusDTO.getStatus());
@@ -103,37 +107,37 @@ public class EmpService {
 
     public EmpVO getById(Integer id){
 
-        return empMapper.getById(id);
+        EmpVO empVO = empMapper.getById(id);
+
+        if (empVO == null){
+            log.error("查無資料,ID: {}", id);
+            throw new AccountNotExistException(MessageConstant.ACCOUNT_NOT_EXIST);
+        }else{
+            return  empVO;
+        }
     }
 
     public void updateById(EmpEditDTO empEditDTO,Integer currentUserId) {
 
-        if (empMapper.getById(empEditDTO.getId()) == null){
+        this.getById(empEditDTO.getId());
 
-            throw new AccountNotExistException(MessageConstant.ACCOUNT_NOT_EXIST);
+        Emp emp = new Emp();
+        BeanUtils.copyProperties(empEditDTO, emp);
+        emp.setUpdateId(currentUserId);
+        emp.setUpdateTime(LocalDateTime.now());
 
-        }else{
-
-            Emp emp = new Emp();
-            BeanUtils.copyProperties(empEditDTO, emp);
-            emp.setUpdateId(currentUserId);
-            emp.setUpdateTime(LocalDateTime.now());
-
-            empMapper.updateById(emp);
-        }
+        empMapper.updateById(emp);
 
     }
 
     // 確認 Emp 啟用狀態
     public EmpVO checkActiveEmpById(Integer id){
-        EmpVO empVO = empMapper.getById(id);
-        if (empVO == null){
-            throw new AccountNotExistException(MessageConstant.ACCOUNT_NOT_EXIST);
-        }
-        if (empVO.equals(StatusConstant.INACTIVE.getValue())){
+        EmpVO empVO = this.getById(id);
+
+        if (empVO.equals(StatusConstant.INACTIVE.getValue())) {
+            log.error("未啟用,ID: {}", id);
             throw new AccountInactiveException(MessageConstant.ACCOUNT_INACTIVE);
         }
-
         return empVO;
     }
 
