@@ -1,9 +1,9 @@
-package com.qqriceball.constant;
+package com.qqriceball.enumeration;
 
 import lombok.Getter;
 
 @Getter
-public enum MessageConstant {
+public enum MessageEnum {
 
     SUCCESS(200, "執行成功"),
 
@@ -32,7 +32,7 @@ public enum MessageConstant {
     private final int code;
     private final String message;
 
-    MessageConstant(int code, String message) {
+    MessageEnum(int code, String message) {
         this.code = code;
         this.message = message;
     }

@@ -6,9 +6,8 @@ import com.qqriceball.common.exception.AccountNotExistException;
 import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.Result;
 import com.qqriceball.common.utils.JwtUtil;
-import com.qqriceball.constant.MessageConstant;
-import com.qqriceball.constant.RoleConstant;
-import com.qqriceball.pojo.entity.Emp;
+import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.pojo.vo.EmpVO;
 import com.qqriceball.server.service.EmpService;
 import io.jsonwebtoken.Claims;
@@ -68,10 +67,10 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             EmpVO empVO = empService.checkActiveEmpById(empId);
 
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            if (Objects.equals(empVO.getRole(), RoleConstant.MANAGER.getValue())) {
-                authorities.add(new SimpleGrantedAuthority(RoleConstant.MANAGER.getRoleName()));
+            if (Objects.equals(empVO.getRole(), RoleEnum.MANAGER.getValue())) {
+                authorities.add(new SimpleGrantedAuthority(RoleEnum.MANAGER.getRoleName()));
             } else {
-                authorities.add(new SimpleGrantedAuthority(RoleConstant.STAFF.getRoleName()));
+                authorities.add(new SimpleGrantedAuthority(RoleEnum.STAFF.getRoleName()));
             }
 
             // 建立 Authentication 物件，放 userId
@@ -83,17 +82,17 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
         }catch (AccountNotExistException e) {
             log.warn("JWT 驗證失敗：帳號不存在");
-            writeError(response, HttpStatus.UNAUTHORIZED, MessageConstant.ACCOUNT_NOT_EXIST);
+            writeError(response, HttpStatus.UNAUTHORIZED, MessageEnum.ACCOUNT_NOT_EXIST);
             return;
         }catch (AccountInactiveException e){
             log.warn("JWT 驗證失敗：帳號已停用");
-            writeError(response, HttpStatus.FORBIDDEN, MessageConstant.ACCOUNT_INACTIVE);
+            writeError(response, HttpStatus.FORBIDDEN, MessageEnum.ACCOUNT_INACTIVE);
             return;
         } catch (Exception e) {
             // token 過期、簽名錯誤、格式錯誤等
             log.warn("JWT Token 解析或驗證失敗, type = {}, msg = {}",
                     e.getClass().getSimpleName(), e.getMessage());
-            writeError(response, HttpStatus.UNAUTHORIZED, MessageConstant.TOKEN_INVALID);
+            writeError(response, HttpStatus.UNAUTHORIZED, MessageEnum.TOKEN_INVALID);
             return;
         }
 
@@ -103,10 +102,10 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
     private void writeError(HttpServletResponse response,
                             HttpStatus status,
-                            MessageConstant messageConstant) throws IOException {
+                            MessageEnum messageEnum) throws IOException {
         response.setStatus(status.value());
         response.setContentType("application/json;charset=UTF-8");
-        Result<Object> body = Result.error(messageConstant);
+        Result<Object> body = Result.error(messageEnum);
         String json = objectMapper.writeValueAsString(body);
         response.getWriter().write(json);
     }

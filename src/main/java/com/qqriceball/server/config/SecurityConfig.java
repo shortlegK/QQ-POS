@@ -1,6 +1,6 @@
 package com.qqriceball.server.config;
 
-import com.qqriceball.constant.RoleConstant;
+import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.server.filter.JwtAuthenticationTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -39,7 +39,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**"
                         ).permitAll()
-                        .requestMatchers("/emp/**").hasAuthority(RoleConstant.MANAGER.getRoleName())
+                        .requestMatchers("/emp/**").hasAuthority(RoleEnum.MANAGER.getRoleName())
                         .anyRequest().authenticated()
                 )
 

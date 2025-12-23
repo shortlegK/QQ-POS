@@ -40,3 +40,4 @@ out/
 
 /.github/git-commit-instructions.md
 /logs/qq-pos-dev.log
+/logs/qq-pos-test.log

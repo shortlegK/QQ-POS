@@ -38,13 +38,13 @@ public class Emp {
     private LocalDate entryDate;
 
     @Schema(description = "建立人員 id")
-    private int createId;
+    private Integer createId;
 
     @Schema(description = "建立時間")
     private LocalDateTime createTime;
 
     @Schema(description = "更新人員 id")
-    private int updateId;
+    private Integer updateId;
 
     @Schema(description = "更新時間")
     private LocalDateTime updateTime;

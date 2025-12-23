@@ -4,8 +4,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.qqriceball.common.exception.*;
 import com.qqriceball.common.result.PageResult;
-import com.qqriceball.constant.MessageConstant;
-import com.qqriceball.constant.StatusConstant;
+import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.pojo.dto.*;
 import com.qqriceball.pojo.entity.Emp;
 import com.qqriceball.pojo.vo.EmpPageQueryVO;
@@ -18,7 +18,6 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -42,40 +41,36 @@ public class EmpService {
         Emp emp = empMapper.getByUsername(username);
 
         if (emp == null) {
-            throw new AccountNotExistException(MessageConstant.ACCOUNT_NOT_EXIST);
+            throw new AccountNotExistException(MessageEnum.ACCOUNT_NOT_EXIST);
         }
 
         if (!passwordEncoder.matches(password, emp.getPassword())) {
             log.error("登入密碼錯誤,username: {}",username);
-            throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
+            throw new PasswordErrorException(MessageEnum.PASSWORD_ERROR);
         }
 
-        if (emp.getStatus().equals(StatusConstant.INACTIVE.getValue())) {
+        if (emp.getStatus().equals(StatusEnum.INACTIVE.getValue())) {
             log.error("登入帳號未啟用,username: {}",username);
-            throw new AccountInactiveException(MessageConstant.ACCOUNT_INACTIVE);
+            throw new AccountInactiveException(MessageEnum.ACCOUNT_INACTIVE);
         }
 
         return emp;
 
     }
 
-    public void create(EmpCreateDTO empCreateDTO, Integer currentUserId) {
+    public void create(EmpCreateDTO empCreateDTO) {
         Emp emp = new Emp();
 
         // 將 empDTO 內容 copy 至 emp
         BeanUtils.copyProperties(empCreateDTO, emp);
 
         emp.setPassword(passwordEncoder.encode(emp.getPassword()));
-        emp.setCreateId(currentUserId);
-        emp.setCreateTime(LocalDateTime.now());
-        emp.setUpdateId(currentUserId);
-        emp.setUpdateTime(LocalDateTime.now());
 
         try{
             empMapper.insert(emp);
         } catch (DuplicateKeyException e){
             log.error("建立員工,帳號重複,username: {}",empCreateDTO.getUsername(),e);
-            throw new AlreadyExistsException(MessageConstant.USERNAME_ALREADY_EXIST);
+            throw new AlreadyExistsException(MessageEnum.USERNAME_ALREADY_EXIST);
         }
 
     }
@@ -92,15 +87,13 @@ public class EmpService {
         }
     }
 
-    public void updateStatus(EmpStatusDTO empStatusDTO, Integer id, Integer currentUserId) {
+    public void updateStatus(EmpStatusDTO empStatusDTO, Integer id) {
 
         this.getById(id);
 
         Emp emp = new Emp();
         emp.setId(id);
         emp.setStatus(empStatusDTO.getStatus());
-        emp.setUpdateId(currentUserId);
-        emp.setUpdateTime(LocalDateTime.now());
 
         empMapper.updateById(emp);
     }
@@ -111,21 +104,18 @@ public class EmpService {
 
         if (empVO == null){
             log.error("查無資料,ID: {}", id);
-            throw new AccountNotExistException(MessageConstant.ACCOUNT_NOT_EXIST);
+            throw new AccountNotExistException(MessageEnum.ACCOUNT_NOT_EXIST);
         }else{
             return  empVO;
         }
     }
 
-    public void updateById(EmpEditDTO empEditDTO,Integer currentUserId) {
+    public void updateById(EmpEditDTO empEditDTO) {
 
         this.getById(empEditDTO.getId());
 
         Emp emp = new Emp();
         BeanUtils.copyProperties(empEditDTO, emp);
-        emp.setUpdateId(currentUserId);
-        emp.setUpdateTime(LocalDateTime.now());
-
         empMapper.updateById(emp);
 
     }
@@ -134,9 +124,9 @@ public class EmpService {
     public EmpVO checkActiveEmpById(Integer id){
         EmpVO empVO = this.getById(id);
 
-        if (empVO.equals(StatusConstant.INACTIVE.getValue())) {
+        if (empVO.equals(StatusEnum.INACTIVE.getValue())) {
             log.error("未啟用,ID: {}", id);
-            throw new AccountInactiveException(MessageConstant.ACCOUNT_INACTIVE);
+            throw new AccountInactiveException(MessageEnum.ACCOUNT_INACTIVE);
         }
         return empVO;
     }

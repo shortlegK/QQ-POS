@@ -1,11 +1,11 @@
 package com.qqriceball.common.exception;
 
-import com.qqriceball.constant.MessageConstant;
+import com.qqriceball.enumeration.MessageEnum;
 
 public class PasswordErrorException extends BaseException {
 
-    public PasswordErrorException(MessageConstant messageConstant) {
-        super(messageConstant);
+    public PasswordErrorException(MessageEnum messageEnum) {
+        super(messageEnum);
     }
 
 }

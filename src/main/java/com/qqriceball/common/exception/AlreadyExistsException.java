@@ -1,9 +1,9 @@
 package com.qqriceball.common.exception;
 
-import com.qqriceball.constant.MessageConstant;
+import com.qqriceball.enumeration.MessageEnum;
 
 public class AlreadyExistsException extends BaseException {
-    public AlreadyExistsException(MessageConstant messageConstant) {
-        super(messageConstant);
+    public AlreadyExistsException(MessageEnum messageEnum) {
+        super(messageEnum);
     }
 }

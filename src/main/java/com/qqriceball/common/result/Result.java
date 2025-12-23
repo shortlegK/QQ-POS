@@ -1,6 +1,6 @@
 package com.qqriceball.common.result;
 
-import com.qqriceball.constant.MessageConstant;
+import com.qqriceball.enumeration.MessageEnum;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -14,30 +14,30 @@ public class Result<T> implements Serializable {
 
     public static <T> Result<T> success() {
         Result<T> result = new Result<>();
-        result.code = MessageConstant.SUCCESS.getCode();
-        result.msg = MessageConstant.SUCCESS.getMessage();
+        result.code = MessageEnum.SUCCESS.getCode();
+        result.msg = MessageEnum.SUCCESS.getMessage();
         return result;
     }
 
     public static <T> Result<T> success(T object) {
         Result<T> result = new Result<>();
         result.data = object;
-        result.code = MessageConstant.SUCCESS.getCode();
-        result.msg = MessageConstant.SUCCESS.getMessage();
+        result.code = MessageEnum.SUCCESS.getCode();
+        result.msg = MessageEnum.SUCCESS.getMessage();
         return result;
     }
 
-    public static <T> Result<T> error(MessageConstant messageConstant) {
+    public static <T> Result<T> error(MessageEnum messageEnum) {
         Result<T> result = new Result<>();
-        result.msg = messageConstant.getMessage();
-        result.code = messageConstant.getCode();
+        result.msg = messageEnum.getMessage();
+        result.code = messageEnum.getCode();
         return result;
     }
 
-    public static <T> Result<T> error(MessageConstant messageConstant,String message) {
+    public static <T> Result<T> error(MessageEnum messageEnum, String message) {
         Result<T> result = new Result<>();
         result.msg = message;
-        result.code = messageConstant.getCode();
+        result.code = messageEnum.getCode();
         return result;
     }
 

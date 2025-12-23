@@ -1,7 +1,7 @@
 package com.qqriceball.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.qqriceball.constant.MessageConstant;
+import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.pojo.dto.EmpLoginDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,8 +68,8 @@ public class LoginControllerIntegrationTest {
 
         resultActions
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value(MessageConstant.ACCOUNT_NOT_EXIST.getCode()))
-                .andExpect(jsonPath("$.msg").value(MessageConstant.ACCOUNT_NOT_EXIST.getMessage()))
+                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXIST.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.ACCOUNT_NOT_EXIST.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
@@ -90,8 +90,8 @@ public class LoginControllerIntegrationTest {
 
         resultActions
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value(MessageConstant.PASSWORD_ERROR.getCode()))
-                .andExpect(jsonPath("$.msg").value(MessageConstant.PASSWORD_ERROR.getMessage()))
+                .andExpect(jsonPath("$.code").value(MessageEnum.PASSWORD_ERROR.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.PASSWORD_ERROR.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
@@ -113,8 +113,8 @@ public class LoginControllerIntegrationTest {
 
         resultActions
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code").value(MessageConstant.ACCOUNT_INACTIVE.getCode()))
-                .andExpect(jsonPath("$.msg").value(MessageConstant.ACCOUNT_INACTIVE.getMessage()))
+                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_INACTIVE.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.ACCOUNT_INACTIVE.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 

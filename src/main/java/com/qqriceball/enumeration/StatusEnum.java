@@ -1,16 +1,16 @@
-package com.qqriceball.constant;
+package com.qqriceball.enumeration;
 
 import lombok.Getter;
 
 @Getter
-public enum StatusConstant {
+public enum StatusEnum {
 
     INACTIVE(0),
     ACTIVE(1);
 
     private final int value;
 
-    StatusConstant(int value) {
+    StatusEnum(int value) {
         this.value = value;
     }
 }

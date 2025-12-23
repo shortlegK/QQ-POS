@@ -1,11 +1,11 @@
 package com.qqriceball.common.exception;
 
-import com.qqriceball.constant.MessageConstant;
+import com.qqriceball.enumeration.MessageEnum;
 
 public class AccountNotExistException extends BaseException {
 
-    public AccountNotExistException(MessageConstant messageConstant) {
-        super(messageConstant);
+    public AccountNotExistException(MessageEnum messageEnum) {
+        super(messageEnum);
     }
 
 }

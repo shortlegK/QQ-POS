@@ -7,7 +7,6 @@ import com.qqriceball.pojo.dto.EmpCreateDTO;
 import com.qqriceball.pojo.dto.EmpEditDTO;
 import com.qqriceball.pojo.dto.EmpPageQueryDTO;
 import com.qqriceball.pojo.dto.EmpStatusDTO;
-import com.qqriceball.pojo.entity.Emp;
 import com.qqriceball.pojo.vo.EmpVO;
 import com.qqriceball.server.service.EmpService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,7 +43,7 @@ public class EmpController {
     public Result<Void> createEmp(@AuthenticationPrincipal EmpVO currentEmp,
                             @Valid @RequestBody EmpCreateDTO empCreateDTO){
         log.info("2001 新增員工,操作id:{},新增帳號:{}", currentEmp.getId(), empCreateDTO.getUsername());
-        empService.create(empCreateDTO, currentEmp.getId());
+        empService.create(empCreateDTO);
         return Result.success();
     }
 
@@ -75,7 +74,7 @@ public class EmpController {
                                      @PathVariable Integer id,
                                      @Valid @RequestBody EmpStatusDTO empStatusDTO){
         log.info("2002 啟用/停用員工帳號,操作id:{},參數:{}", currentEmp.getId(), empStatusDTO);
-        empService.updateStatus(empStatusDTO, id, currentEmp.getId());
+        empService.updateStatus(empStatusDTO, id);
         return Result.success();
 
 
@@ -105,7 +104,7 @@ public class EmpController {
     public Result<Void> getById(@AuthenticationPrincipal EmpVO currentEmp,
                                  @Valid @RequestBody EmpEditDTO empEditDTO){
         log.info("2005 修改員工資料,操作id:{},參數:{}", currentEmp.getId(), empEditDTO);
-        empService.updateById(empEditDTO, currentEmp.getId());
+        empService.updateById(empEditDTO);
         return Result.success();
 
     }

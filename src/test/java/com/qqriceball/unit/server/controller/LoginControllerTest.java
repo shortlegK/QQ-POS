@@ -5,8 +5,8 @@ import com.qqriceball.common.exception.AccountInactiveException;
 import com.qqriceball.common.exception.AccountNotExistException;
 import com.qqriceball.common.exception.PasswordErrorException;
 import com.qqriceball.common.properties.JwtProperties;
-import com.qqriceball.constant.MessageConstant;
-import com.qqriceball.constant.StatusConstant;
+import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.pojo.dto.EmpLoginDTO;
 import com.qqriceball.pojo.entity.Emp;
 import com.qqriceball.server.controller.LoginController;
@@ -58,7 +58,7 @@ class LoginControllerTest {
         fakeEmp.setId(1);
         fakeEmp.setUsername("admin");
         fakeEmp.setPassword("Password");
-        fakeEmp.setStatus(StatusConstant.ACTIVE.getValue());
+        fakeEmp.setStatus(StatusEnum.ACTIVE.getValue());
 
         when(empService.login(any(EmpLoginDTO.class))).thenReturn(fakeEmp);
 
@@ -80,7 +80,7 @@ class LoginControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(MessageConstant.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.id").value(1))
                 .andExpect(jsonPath("$.data.username").value("admin"))
                 .andExpect(jsonPath("$.data.token").isNotEmpty());
@@ -95,7 +95,7 @@ class LoginControllerTest {
         empLoginDTO.setPassword("Password");
 
         when(empService.login(argThat(dto -> "NotExist".equals(empLoginDTO.getUsername()))))
-                .thenThrow(new AccountNotExistException(MessageConstant.ACCOUNT_NOT_EXIST));
+                .thenThrow(new AccountNotExistException(MessageEnum.ACCOUNT_NOT_EXIST));
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -106,7 +106,7 @@ class LoginControllerTest {
 
         resultActions
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value(MessageConstant.ACCOUNT_NOT_EXIST.getCode()));
+                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXIST.getCode()));
 
     }
 
@@ -120,7 +120,7 @@ class LoginControllerTest {
 
 
         when(empService.login(argThat(dto -> "wrongUser".equals(empLoginDTO.getUsername()))))
-                .thenThrow(new PasswordErrorException(MessageConstant.PASSWORD_ERROR));
+                .thenThrow(new PasswordErrorException(MessageEnum.PASSWORD_ERROR));
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -131,7 +131,7 @@ class LoginControllerTest {
 
         resultActions
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value(MessageConstant.PASSWORD_ERROR.getCode()));
+                .andExpect(jsonPath("$.code").value(MessageEnum.PASSWORD_ERROR.getCode()));
 
 
     }
@@ -146,7 +146,7 @@ class LoginControllerTest {
 
 
         when(empService.login(argThat(dto -> "inactiveUser".equals(empLoginDTO.getUsername()))))
-                .thenThrow(new AccountInactiveException(MessageConstant.ACCOUNT_INACTIVE));
+                .thenThrow(new AccountInactiveException(MessageEnum.ACCOUNT_INACTIVE));
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -157,7 +157,7 @@ class LoginControllerTest {
 
         resultActions
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code").value(MessageConstant.ACCOUNT_INACTIVE.getCode()));
+                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_INACTIVE.getCode()));
 
 
     }
@@ -173,7 +173,7 @@ class LoginControllerTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(MessageConstant.SUCCESS.getCode()));
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()));
 
     }
 }
