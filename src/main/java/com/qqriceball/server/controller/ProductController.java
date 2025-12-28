@@ -1,7 +1,9 @@
 package com.qqriceball.server.controller;
 
+import com.qqriceball.common.result.PageResult;
 import com.qqriceball.common.result.Result;
 import com.qqriceball.pojo.dto.ProductDTO;
+import com.qqriceball.pojo.dto.ProductPageQueryDTO;
 import com.qqriceball.pojo.vo.EmpVO;
 import com.qqriceball.server.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/product")
@@ -42,5 +46,33 @@ public class ProductController {
         return Result.success();
     }
 
+    @Operation(summary = "3002 菜單品項分頁查詢")
+    @GetMapping("/page")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "查詢成功"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<PageResult> page(@AuthenticationPrincipal EmpVO currentEmp,
+                                   @Valid ProductPageQueryDTO productPageQueryDTO){
+        log.info("3002 菜單品項分頁查詢,操作 id: {},參數:{}",currentEmp.getId(),productPageQueryDTO);
+
+        PageResult pageResult = productService.pageQuery(productPageQueryDTO);
+        return Result.success(pageResult);
+    }
+//
+//    @Operation(summary = "3003 刪除菜單品項")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "菜單品項刪除成功"),
+//            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+//    })
+//    @DeleteMapping()
+//    public Result<String> delete(@AuthenticationPrincipal EmpVO currentEmp,
+//                                 @RequestParam List<Integer> ids){
+//        log.info("3003 刪除菜單品項,操作 id:{},參數:{}",currentEmp.getId(),ids);
+//        productService.deleteBatch(ids);
+//        return Result.success();
+//
+//
+//    }
 
 }

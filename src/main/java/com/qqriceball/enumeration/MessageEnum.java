@@ -28,8 +28,8 @@ public enum MessageEnum {
     ORDER_STATUS_ERROR(3003, "訂單狀態錯誤"),
     ORDER_NOT_FOUND(3004, "訂單不存在"),
     OPTION_NOT_EXISTS(3005, "加料選項 ID 不存在"),
-    PRODUCT_ALEADY_EXIST(3006, "菜單品項名稱已存在");
-
+    PRODUCT_ALEADY_EXIST(3006, "菜單品項名稱已存在"),
+    TYPE_NOT_FOUND(3007,"分類 ID 不存在");
 
     private final int code;
     private final String message;

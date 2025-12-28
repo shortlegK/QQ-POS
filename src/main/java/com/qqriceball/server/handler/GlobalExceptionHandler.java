@@ -52,6 +52,13 @@ public class GlobalExceptionHandler {
         return Result.error(ex.getMessageEnum());
     }
 
+    @ExceptionHandler(TypeNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND) // 回傳 HTTP 404 Not Found
+    public Result<Object> handleOptionNotFound(TypeNotFoundException ex) {
+        log.error("操作異常: {}", ex.getMessageEnum().getMessage());
+        return Result.error(ex.getMessageEnum());
+    }
+
     // request 參數異常處理
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

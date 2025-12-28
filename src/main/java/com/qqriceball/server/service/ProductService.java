@@ -1,11 +1,19 @@
 package com.qqriceball.server.service;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.qqriceball.common.exception.AlreadyExistsException;
+import com.qqriceball.common.exception.BadRequestArgsException;
 import com.qqriceball.common.exception.OptionNotFoundException;
+import com.qqriceball.common.exception.TypeNotFoundException;
+import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.enumeration.ProductTypeEnum;
 import com.qqriceball.pojo.dto.ProductDTO;
+import com.qqriceball.pojo.dto.ProductPageQueryDTO;
 import com.qqriceball.pojo.entity.Product;
 import com.qqriceball.pojo.entity.ProductOptionLink;
+import com.qqriceball.pojo.vo.ProductPageQueryVO;
 import com.qqriceball.server.mapper.ProductMapper;
 import com.qqriceball.server.mapper.ProductOptionLinkMapper;
 import com.qqriceball.server.mapper.ProductOptionMapper;
@@ -51,7 +59,7 @@ public class ProductService {
         Integer productId = product.getId(); // 取得剛才新增的品項 ID
 
         List<ProductOptionLink> productOptionLinks = productDTO.getProductOptionLinks();
-        if(productOptionLinks != null && productOptionLinks.size() > 0) {
+        if(productOptionLinks != null && !productOptionLinks.isEmpty()) {
             productOptionLinks.forEach(link -> {
                 if(productOptionMapper.getById(link.getOptionId()) != null) {
                     link.setProductId(productId);
@@ -62,8 +70,44 @@ public class ProductService {
             });
             productOptionLinkMapper.insertBatch(productOptionLinks);
         }
-
-
     }
 
+    //TODO: 分頁查詢，加料選項關聯查詢
+    public PageResult pageQuery(ProductPageQueryDTO productPageQueryDTO) {
+
+        try(Page<ProductPageQueryVO> pageQuery =
+                    PageHelper.startPage(productPageQueryDTO.getPage(),
+                            productPageQueryDTO.getPageSize())){
+
+            productMapper.pageQuery(productPageQueryDTO);
+
+            Long total = pageQuery.getTotal();
+            List<ProductPageQueryVO> records = pageQuery.getResult();
+
+            records.forEach(record -> {
+                ProductTypeEnum typeEnum = ProductTypeEnum.getByCode(record.getProductType());
+                if(typeEnum == null){
+                    log.error("找不到對應的產品分類,type: {}", record.getProductType());
+                    throw new TypeNotFoundException(MessageEnum.TYPE_NOT_FOUND);
+                }else record.setTypeName(typeEnum.getDesc());
+            });
+
+            return new PageResult(total, productPageQueryDTO.getPage(), productPageQueryDTO.getPageSize(), records);
+
+        }catch (Exception e){
+            log.error("查詢異常：{}",productPageQueryDTO,e);
+            throw new BadRequestArgsException(MessageEnum.BAD_REQUEST);
+        }
+    }
+
+//    @Transactional
+//    public void deleteBatch(List<Integer> ids) {
+//        ids.forEach(id -> {
+//            // 判斷是否啟用中
+//
+//            // 刪除菜單品項
+//
+//            // 刪除加料項目關聯
+//        }
+//    }
 }

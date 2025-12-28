@@ -24,5 +24,5 @@ public class PageResult implements Serializable {
     private Integer pageSize;
 
     @Schema(description = "分頁查詢資料")
-    private List<EmpPageQueryVO> records;
+    private List records;
 }

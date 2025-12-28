@@ -84,6 +84,9 @@ public class EmpService {
             Long total = pageQuery.getTotal();
             List<EmpPageQueryVO> records = pageQuery.getResult();
             return new PageResult(total, empPageQueryDTO.getPage(), empPageQueryDTO.getPageSize(), records);
+        }catch (Exception e) {
+            log.error("查詢異常：{}", empPageQueryDTO, e);
+            throw new BadRequestArgsException(MessageEnum.BAD_REQUEST);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.qqriceball.pojo.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -15,11 +16,13 @@ public class EmpPageQueryDTO implements Serializable {
 
     @Schema(description = "頁碼")
     @NotNull(message = "頁碼為必填")
-    private Integer page;
+    @Min(value = 1, message = "頁碼不得為 0")
+    private Integer page = 1;
 
     @Schema(description = "每頁筆數")
     @NotNull(message = "每頁筆數為必填")
-    private Integer pageSize;
+    @Min(value = 1, message = "筆數不得為 0")
+    private Integer pageSize = 10;
 
 
 }

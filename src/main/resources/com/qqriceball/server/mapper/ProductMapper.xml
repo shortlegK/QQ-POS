@@ -10,4 +10,22 @@
         values (#{title},#{productType}, #{price}, #{status} ,#{createId}, #{createTime}, #{updateId}, #{updateTime})
     </insert>
 
+    <!--分頁查詢-->
+    <select id="pageQuery" resultType="com.qqriceball.pojo.vo.ProductPageQueryVO">
+        select id, title, product_type, price, status
+        from product
+        <where>
+            <if test="title != null and title !=''">
+                title like concat('%',#{title},'%')
+            </if>
+            <if test="productType != null and productType !=''">
+                AND product_type = #{productType}
+            </if>
+            <if test="status != null and status !=''" >
+                AND status = #{status}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
 </mapper>
