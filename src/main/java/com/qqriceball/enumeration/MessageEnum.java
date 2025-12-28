@@ -26,7 +26,9 @@ public enum MessageEnum {
     DISH_ON_SALE(3001, "販賣中的餐點無法刪除"),
     SHOPPING_CART_IS_NULL(3002, "內容為空，無法建立訂單"),
     ORDER_STATUS_ERROR(3003, "訂單狀態錯誤"),
-    ORDER_NOT_FOUND(3004, "訂單不存在");
+    ORDER_NOT_FOUND(3004, "訂單不存在"),
+    OPTION_NOT_EXISTS(3005, "加料選項 ID 不存在"),
+    PRODUCT_ALEADY_EXIST(3006, "菜單品項名稱已存在");
 
 
     private final int code;

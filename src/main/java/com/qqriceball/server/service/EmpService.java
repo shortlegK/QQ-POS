@@ -124,7 +124,7 @@ public class EmpService {
     public EmpVO checkActiveEmpById(Integer id){
         EmpVO empVO = this.getById(id);
 
-        if (empVO.equals(StatusEnum.INACTIVE.getValue())) {
+        if (empVO.getStatus().equals(StatusEnum.INACTIVE.getValue())) {
             log.error("未啟用,ID: {}", id);
             throw new AccountInactiveException(MessageEnum.ACCOUNT_INACTIVE);
         }
