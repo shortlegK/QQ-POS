@@ -16,13 +16,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
 
-    @ExceptionHandler(AccountNotExistException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED) // 回傳 HTTP 401 Unauthorized
-    public Result<Object> handleAccountNotFound(AccountNotExistException ex) {
-        log.error("操作異常: {}", ex.getMessage());
-        return Result.error(ex.getMessageEnum());
-    }
-
     @ExceptionHandler(PasswordErrorException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED) // 回傳 HTTP 401 Unauthorized
     public Result<Object> handlePasswordError(PasswordErrorException ex) {
@@ -56,6 +49,13 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND) // 回傳 HTTP 404 Not Found
     public Result<Object> handleOptionNotFound(TypeNotFoundException ex) {
         log.error("操作異常: {}", ex.getMessageEnum().getMessage());
+        return Result.error(ex.getMessageEnum());
+    }
+
+    @ExceptionHandler(AccountNotExistException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND) // 回傳 HTTP 404 NOT_FOUND
+    public Result<Object> handleAccountNotFound(AccountNotExistException ex) {
+        log.error("操作異常: {}", ex.getMessage());
         return Result.error(ex.getMessageEnum());
     }
 

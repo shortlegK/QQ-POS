@@ -89,7 +89,7 @@ class LoginControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] LoginController.login - 登入失敗，帳號不存在應回傳 401 及指定訊息")
+    @DisplayName("[Unit] LoginController.login - 登入失敗，帳號不存在應回傳 404 及指定訊息")
     void testLoginAccountNotExist() throws Exception {
 
         String username = "NotExist";
@@ -110,7 +110,7 @@ class LoginControllerTest {
         );
 
         resultActions
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXIST.getCode()));
 
     }

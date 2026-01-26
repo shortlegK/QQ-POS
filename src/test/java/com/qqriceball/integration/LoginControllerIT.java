@@ -20,16 +20,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class LoginControllerIntegrationTest {
+public class LoginControllerIT {
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
 
 
     @Test
-    @DisplayName("[Integration] Login - 登入成功，應回傳 200 及 token")
+    @DisplayName("[IT] Login - 登入成功，應回傳 200 及 token")
     void testLoginSuccess() throws Exception {
 
         String username = "tester";
@@ -54,14 +54,12 @@ public class LoginControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("[Integration] Login - 登入帳號不存在，應回傳 401 及指定訊息")
+    @DisplayName("[IT] Login - 登入帳號不存在，應回傳 404 及指定訊息")
     void testLoginAccountNotExist() throws Exception {
 
-        String username = "NoExist";
-        String password = "123456";
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername(username);
-        empLoginDTO.setPassword(password);
+        empLoginDTO.setUsername("NotExist");
+        empLoginDTO.setPassword("123456");
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -71,21 +69,20 @@ public class LoginControllerIntegrationTest {
         );
 
         resultActions
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXIST.getCode()))
                 .andExpect(jsonPath("$.msg").value(MessageEnum.ACCOUNT_NOT_EXIST.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
     @Test
-    @DisplayName("[Integration] Login - 登入密碼錯誤，應回傳 401 及指定訊息")
+    @DisplayName("[IT] Login - 登入密碼錯誤，應回傳 401 及指定訊息")
     void testLoginPasswordError() throws Exception {
 
-        String username = "admin";
-        String password = "wrongPassword";
+
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername(username);
-        empLoginDTO.setPassword(password);
+        empLoginDTO.setUsername("tester");
+        empLoginDTO.setPassword("wrongPassword");
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -103,14 +100,12 @@ public class LoginControllerIntegrationTest {
 
 
     @Test
-    @DisplayName("[Integration] Login - 登入帳號已停用，應回傳 403 及指定訊息")
+    @DisplayName("[IT] Login - 登入帳號已停用，應回傳 403 及指定訊息")
     void testLoginAccountInactive() throws Exception {
 
-        String username = "inactive";
-        String password = "(Qqpos1357";
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername(username);
-        empLoginDTO.setPassword(password);
+        empLoginDTO.setUsername("inactive");
+        empLoginDTO.setPassword("(Qqpos1357");
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -127,7 +122,28 @@ public class LoginControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("[Integration] Logout - 登出成功，應回傳 200")
+    @DisplayName("[IT] Login - 登入未輸入帳號，應回傳 400")
+    void testLoginAccountNull() throws Exception {
+
+        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
+        empLoginDTO.setPassword("(Qqpos1357");
+
+        String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
+        ResultActions resultActions = mockMvc.perform(
+                post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        );
+
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(MessageEnum.BAD_REQUEST.getCode()))
+                .andExpect(jsonPath("$.msg").isNotEmpty());
+    }
+
+
+    @Test
+    @DisplayName("[IT] Logout - 登出成功，應回傳 200")
     void testLogoutSuccess() throws Exception {
 
         ResultActions resultActions = mockMvc.perform(
