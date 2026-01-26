@@ -32,9 +32,11 @@ public class LoginControllerIntegrationTest {
     @DisplayName("[Integration] Login - 登入成功，應回傳 200 及 token")
     void testLoginSuccess() throws Exception {
 
+        String username = "tester";
+        String password = "(Qqpos1357";
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername("admin");
-        empLoginDTO.setPassword("123456");
+        empLoginDTO.setUsername(username);
+        empLoginDTO.setPassword(password);
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -45,9 +47,9 @@ public class LoginControllerIntegrationTest {
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data.id").value(1))
-                .andExpect(jsonPath("$.data.username").value("admin"))
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.id").isNotEmpty())
+                .andExpect(jsonPath("$.data.username").value(username))
                 .andExpect(jsonPath("$.data.token").isNotEmpty());
     }
 
@@ -55,9 +57,11 @@ public class LoginControllerIntegrationTest {
     @DisplayName("[Integration] Login - 登入帳號不存在，應回傳 401 及指定訊息")
     void testLoginAccountNotExist() throws Exception {
 
+        String username = "NoExist";
+        String password = "123456";
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername("NoExist");
-        empLoginDTO.setPassword("123456");
+        empLoginDTO.setUsername(username);
+        empLoginDTO.setPassword(password);
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -77,9 +81,11 @@ public class LoginControllerIntegrationTest {
     @DisplayName("[Integration] Login - 登入密碼錯誤，應回傳 401 及指定訊息")
     void testLoginPasswordError() throws Exception {
 
+        String username = "admin";
+        String password = "wrongPassword";
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername("admin");
-        empLoginDTO.setPassword("123555");
+        empLoginDTO.setUsername(username);
+        empLoginDTO.setPassword(password);
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -100,9 +106,11 @@ public class LoginControllerIntegrationTest {
     @DisplayName("[Integration] Login - 登入帳號已停用，應回傳 403 及指定訊息")
     void testLoginAccountInactive() throws Exception {
 
+        String username = "inactive";
+        String password = "(Qqpos1357";
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername("inactiveUser");
-        empLoginDTO.setPassword("123456");
+        empLoginDTO.setUsername(username);
+        empLoginDTO.setPassword(password);
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(

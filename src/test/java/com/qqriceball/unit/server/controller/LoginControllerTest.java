@@ -43,26 +43,28 @@ class LoginControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private String secretkey = "test-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secret";
-
-
     @Test
-    @DisplayName("[Unit] LoginController - 登入帳號成功應回傳 200 及 token")
+    @DisplayName("[Unit] LoginController.login - 登入帳號成功應回傳 200 及 token")
     void testLoginSuccess() throws Exception {
 
+        String secretKey = "test-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secret";
+
+        String username = "admin";
+        String password = "Password";
+
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername("admin");
-        empLoginDTO.setPassword("Password");
+        empLoginDTO.setUsername(username);
+        empLoginDTO.setPassword(password);
 
         Emp fakeEmp = new Emp();
         fakeEmp.setId(1);
-        fakeEmp.setUsername("admin");
-        fakeEmp.setPassword("Password");
+        fakeEmp.setUsername(username);
+        fakeEmp.setPassword(password);
         fakeEmp.setStatus(StatusEnum.ACTIVE.getValue());
 
         when(empService.login(any(EmpLoginDTO.class))).thenReturn(fakeEmp);
 
-        when(jwtProperties.getSecretKey()).thenReturn(secretkey);
+        when(jwtProperties.getSecretKey()).thenReturn(secretKey);
         when(jwtProperties.getTtlMillis()).thenReturn(3600000L);
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
@@ -81,20 +83,23 @@ class LoginControllerTest {
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
-                .andExpect(jsonPath("$.data.id").value(1))
-                .andExpect(jsonPath("$.data.username").value("admin"))
+                .andExpect(jsonPath("$.data.id").isNotEmpty())
+                .andExpect(jsonPath("$.data.username").value(username))
                 .andExpect(jsonPath("$.data.token").isNotEmpty());
     }
 
     @Test
-    @DisplayName("[Unit] LoginController - 登入失敗，帳號不存在應回傳 401 及指定訊息")
+    @DisplayName("[Unit] LoginController.login - 登入失敗，帳號不存在應回傳 401 及指定訊息")
     void testLoginAccountNotExist() throws Exception {
 
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername("NotExist");
-        empLoginDTO.setPassword("Password");
+        String username = "NotExist";
+        String password = "Password";
 
-        when(empService.login(argThat(dto -> "NotExist".equals(empLoginDTO.getUsername()))))
+        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
+        empLoginDTO.setUsername(username);
+        empLoginDTO.setPassword(password);
+
+        when(empService.login(argThat(dto -> username.equals(dto.getUsername()))))
                 .thenThrow(new AccountNotExistException(MessageEnum.ACCOUNT_NOT_EXIST));
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
@@ -111,15 +116,17 @@ class LoginControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] LoginController - 登入失敗，密碼錯誤應回傳 401 及指定訊息")
+    @DisplayName("[Unit] LoginController.login - 登入失敗，密碼錯誤應回傳 401 及指定訊息")
     void testLoginPasswordError() throws Exception {
 
+        String username = "wrongUser";
+        String password = "wrongPassword";
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername("wrongUser");
-        empLoginDTO.setPassword("wrongPassword");
+        empLoginDTO.setUsername(username);
+        empLoginDTO.setPassword(password);
 
 
-        when(empService.login(argThat(dto -> "wrongUser".equals(empLoginDTO.getUsername()))))
+        when(empService.login(argThat(dto -> username.equals(dto.getUsername()))))
                 .thenThrow(new PasswordErrorException(MessageEnum.PASSWORD_ERROR));
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
@@ -137,15 +144,17 @@ class LoginControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] LoginController - 登入失敗，帳號停用應回傳 403 及指定訊息")
+    @DisplayName("[Unit] LoginController.login - 登入失敗，帳號停用應回傳 403 及指定訊息")
     void testLoginAccountInactive() throws Exception {
 
+        String username = "inactive";
+        String password = "wrongPassword";
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername("inactiveUser");
-        empLoginDTO.setPassword("wrongPassword");
+        empLoginDTO.setUsername(username);
+        empLoginDTO.setPassword(password);
 
 
-        when(empService.login(argThat(dto -> "inactiveUser".equals(empLoginDTO.getUsername()))))
+        when(empService.login(argThat(dto -> username.equals(dto.getUsername()))))
                 .thenThrow(new AccountInactiveException(MessageEnum.ACCOUNT_INACTIVE));
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
@@ -164,7 +173,7 @@ class LoginControllerTest {
 
 
     @Test
-    @DisplayName("[Unit] LoginController - 登出帳號成功應回傳 200")
+    @DisplayName("[Unit] LoginController.logout - 登出帳號成功應回傳 200")
     void logout() throws  Exception {
 
         ResultActions resultActions = mockMvc.perform(
