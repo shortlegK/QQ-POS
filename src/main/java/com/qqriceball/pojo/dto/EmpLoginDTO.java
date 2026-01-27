@@ -13,11 +13,11 @@ import java.io.Serializable;
 public class EmpLoginDTO implements Serializable {
 
     @Schema(description = "帳號")
-    @NotBlank(message = "帳號為必填")
+    @NotBlank(message = "請輸入帳號")
     private String username;
 
     @Schema(description = "密碼")
-    @NotBlank(message = "密碼為必填")
+    @NotBlank(message = "請輸入密碼")
     private String password;
 
 }

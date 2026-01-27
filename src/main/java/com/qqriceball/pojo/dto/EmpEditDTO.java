@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public class EmpEditDTO {
 
     @Schema(description = "員工編號")
-    @NotNull(message = "員工編號為必填")
+    @NotNull(message = "請輸入員工編號")
     private Integer id;
 
     @Schema(description = "姓名")

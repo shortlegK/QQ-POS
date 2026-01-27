@@ -1,0 +1,386 @@
+package com.qqriceball.integration;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
+import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.enumeration.RoleEnum;
+import com.qqriceball.enumeration.StatusEnum;
+import com.qqriceball.integration.testData.SeedUser;
+import com.qqriceball.pojo.dto.EmpCreateDTO;
+import com.qqriceball.pojo.dto.EmpLoginDTO;
+import com.qqriceball.pojo.dto.EmpStatusDTO;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
+@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class EmpControllerIT {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private String tokenManager;
+    private String tokenStaff;
+
+    private static AtomicInteger counter = new AtomicInteger(1);
+
+    @BeforeAll
+    void setUp() throws Exception {
+
+        // 取得 Admin Token
+        EmpLoginDTO managerLoginDTO = getEmpLoginDTO(
+                SeedUser.MANAGER.username(), SeedUser.MANAGER.password());
+
+        String jsonBody = objectMapper.writeValueAsString(managerLoginDTO);
+        MvcResult managerResult = mockMvc.perform(
+                post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        tokenManager = JsonPath.read(managerResult.getResponse().getContentAsString(),"$.data.token");
+
+        // 取得 Staff Token
+        EmpLoginDTO staffLoginDTO = getEmpLoginDTO(
+                SeedUser.STAFF.username(), SeedUser.STAFF.password());
+
+        jsonBody = objectMapper.writeValueAsString(staffLoginDTO);
+        MvcResult staffResult = mockMvc.perform(
+                post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        tokenStaff = JsonPath.read(staffResult.getResponse().getContentAsString(),"$.data.token");
+
+        assertAll(
+                () -> assertFalse(tokenManager.isBlank()),
+                () -> assertFalse(tokenStaff.isBlank())
+        );
+
+    }
+
+    @Test
+    @DisplayName("[IT] Emp - 建立重複帳號，應回傳 409 及指定訊息")
+    void testCreateEmpUsernameDuplicate() throws Exception{
+
+        String username = getUnique("duplicate");
+
+        EmpCreateDTO empCreateDTO = getEmpCreateDTO(username,
+                username, RoleEnum.STAFF.getValue());
+
+        // 建立帳號
+        String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
+        mockMvc.perform(
+                post("/emp")
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody))
+                .andExpect(status().isOk());
+
+        // 再次建立相同帳號，應無法建立
+        mockMvc.perform(
+                post("/emp")
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value(MessageEnum.USERNAME_ALREADY_EXIST.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.USERNAME_ALREADY_EXIST.getMessage()))
+                .andExpect(jsonPath("$.data").isEmpty()
+                );
+
+    }
+
+    @Test
+    @DisplayName("[IT] Emp - 帳號長度不足，應回傳 400")
+    void testCreateEmpUsernameLengthError() throws Exception{
+
+        EmpCreateDTO empCreateDTO = getEmpCreateDTO("u", "testPassword1", RoleEnum.STAFF.getValue());
+
+        String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
+        mockMvc.perform(
+                post("/emp")
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(MessageEnum.BAD_REQUEST.getCode()))
+                .andExpect(jsonPath("$.msg").isNotEmpty());
+
+    }
+
+
+    @Test
+    @DisplayName("[IT] Emp - 建立帳號成功，應回傳 200 且可使用新帳號進行登入")
+    void testCreateEmpUsernameSuccess() throws Exception{
+
+        String username = getUnique("create");
+        EmpCreateDTO empCreateDTO = getEmpCreateDTO(username, username, RoleEnum.MANAGER.getValue());
+
+        String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
+        ResultActions resultActions = mockMvc.perform(
+                post("/emp")
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        );
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.SUCCESS.getMessage()))
+                .andExpect(jsonPath("$.data").isEmpty()
+                );
+
+
+        EmpLoginDTO empLoginDTO = getEmpLoginDTO(empCreateDTO.getUsername(),
+                empCreateDTO.getPassword());
+
+
+        jsonBody = objectMapper.writeValueAsString(empLoginDTO);
+        resultActions = mockMvc.perform(
+                post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        );
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.id").isNotEmpty())
+                .andExpect(jsonPath("$.data.username").value(empLoginDTO.getUsername()))
+                .andExpect(jsonPath("$.data.token").isNotEmpty());
+
+    }
+
+
+    @Test
+    @DisplayName("[IT] Emp - 登入帳號無管理權限，應回傳 403 無法建立帳號 ")
+    void testCreateEmpWithoutAdmin() throws Exception{
+
+        String username = getUnique("create");
+        EmpCreateDTO empCreateDTO = getEmpCreateDTO(username, username, RoleEnum.STAFF.getValue());
+
+        String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
+        mockMvc.perform(
+                post("/emp")
+                        .header("Authorization", "Bearer " + tokenStaff)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        ).andExpect(status().isForbidden());
+
+        EmpLoginDTO empLoginDTO = getEmpLoginDTO(empCreateDTO.getUsername(),
+                empCreateDTO.getPassword());
+
+        jsonBody = objectMapper.writeValueAsString(empLoginDTO);
+        ResultActions resultActions = mockMvc.perform(
+                post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        );
+
+        resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXIST.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.ACCOUNT_NOT_EXIST.getMessage()))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    @DisplayName("[IT] /{id}/status - 員工 id 不存在，變更啟用狀態應回傳 404")
+    void testUpdateStatusAccountNotExist() throws Exception{
+
+        int id = Integer.MAX_VALUE;
+        EmpStatusDTO empStatusDTO = new EmpStatusDTO();
+        empStatusDTO.setStatus(StatusEnum.INACTIVE.getValue());
+
+        String jsonBody = objectMapper.writeValueAsString(empStatusDTO);
+        ResultActions resultActions = mockMvc.perform(
+                patch("/emp/{id}/status",id)
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        );
+
+        resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXIST.getCode()));
+    }
+
+    @Test
+    @DisplayName("[IT] /{id}/status - 登入帳號無管理權限，應回傳 403 且無法變更啟用狀態 ")
+    void testUpdateStatusWithoutAdmin() throws Exception {
+
+        // 查詢執行前的帳號狀態
+        int id = SeedUser.STAFF.id();
+        ResultActions beforeActionResult = mockMvc.perform(
+                get("/emp/{id}", id)
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        MvcResult beforeResult = beforeActionResult
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.status").isNotEmpty())
+                .andReturn();
+
+        String beforeResponseBody = beforeResult.getResponse().getContentAsString();
+        int beforeStatus = JsonPath.read(beforeResponseBody, "$.data.status");
+
+
+        // 嘗試變更啟用狀態為停用
+        EmpStatusDTO empStatusDTO = new EmpStatusDTO();
+        empStatusDTO.setStatus(StatusEnum.INACTIVE.getValue());
+
+        String jsonBody = objectMapper.writeValueAsString(empStatusDTO);
+        mockMvc.perform(
+                patch("/emp/{id}/status",id)
+                        .header("Authorization", "Bearer " + tokenStaff)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        ).andExpect(status().isForbidden());
+
+        // 查詢執行後的帳號狀態，確認與執行前相同
+       mockMvc.perform(
+                get("/emp/{id}", id)
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk())
+               .andExpect(jsonPath("$.data.status").value(beforeStatus));
+
+    }
+
+
+    @Test
+    @DisplayName("[IT] /{id}/status - 變更啟用狀態成功，應回傳 200 且變更指定狀態 ")
+    void testUpdateStatusSuccess() throws Exception {
+
+        // 建立測試帳號,取得 id
+
+        String statusName = getUnique("status");
+        EmpCreateDTO empCreateDTO = getEmpCreateDTO(statusName, statusName, RoleEnum.STAFF.getValue());
+
+        String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
+        mockMvc.perform(
+                post("/emp")
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody))
+                .andExpect(status().isOk());
+
+        EmpLoginDTO empLoginDTO = getEmpLoginDTO(empCreateDTO.getUsername(),
+                empCreateDTO.getPassword());
+
+        jsonBody = objectMapper.writeValueAsString(empLoginDTO);
+        MvcResult result = mockMvc.perform(
+                        post("/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.username").value(empCreateDTO.getUsername()))
+                .andExpect(jsonPath("$.data.name").value(empCreateDTO.getName())).andReturn();
+
+        int id = JsonPath.read(result.getResponse().getContentAsString(), "$.data.id");
+        String tokenTestUser = JsonPath.read(result.getResponse().getContentAsString(),"$.data.token");
+
+        // 變更狀態為停用
+        EmpStatusDTO empStatusDTO = new EmpStatusDTO();
+        empStatusDTO.setStatus(StatusEnum.INACTIVE.getValue());
+
+        String inactiveJsonBody = objectMapper.writeValueAsString(empStatusDTO);
+        mockMvc.perform(
+                patch("/emp/{id}/status",id)
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(inactiveJsonBody)
+        ).andExpect(status().isOk());
+
+        // 查詢執行後的帳號狀態為停用
+        mockMvc.perform(
+                get("/emp/{id}", id)
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.status").value(empStatusDTO.getStatus()));
+
+        // 確認已停用帳號 token 無法使用
+
+        mockMvc.perform(
+                        get("/emp/{id}", id)
+                                .header("Authorization", "Bearer " + tokenTestUser)
+                                .contentType(MediaType.APPLICATION_JSON)
+                ).andExpect(status().isForbidden());
+
+
+        // 變更狀態為啟用
+        empStatusDTO.setStatus(StatusEnum.ACTIVE.getValue());
+
+        String activeJsonBody = objectMapper.writeValueAsString(empStatusDTO);
+        mockMvc.perform(
+                patch("/emp/{id}/status",id)
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(activeJsonBody)
+        ).andExpect(status().isOk());
+
+        // 查詢執行後的帳號狀態為停用
+        mockMvc.perform(
+                        get("/emp/{id}", id)
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.status").value(empStatusDTO.getStatus()));
+
+
+    }
+
+    private static EmpCreateDTO getEmpCreateDTO(String username, String password, int role) {
+        EmpCreateDTO empCreateDTO = new EmpCreateDTO();
+        empCreateDTO.setUsername(username);
+        empCreateDTO.setPassword(password);
+        empCreateDTO.setName(username);
+        empCreateDTO.setRole(role);
+        empCreateDTO.setEntryDate(LocalDate.now());
+
+        return empCreateDTO;
+    }
+
+
+    private static EmpLoginDTO getEmpLoginDTO(String username, String password) {
+        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
+        empLoginDTO.setUsername(username);
+        empLoginDTO.setPassword(password);
+
+        return empLoginDTO;
+    }
+
+    private String getUnique(String prefix) {
+        return prefix + counter.getAndIncrement();
+    }
+}
+
+

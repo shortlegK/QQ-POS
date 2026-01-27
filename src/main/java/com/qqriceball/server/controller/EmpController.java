@@ -73,7 +73,7 @@ public class EmpController {
     public Result<Void> updateStatus(@AuthenticationPrincipal EmpVO currentEmp,
                                      @PathVariable Integer id,
                                      @Valid @RequestBody EmpStatusDTO empStatusDTO){
-        log.info("2002 啟用/停用員工帳號,操作id:{},參數:{}", currentEmp.getId(), empStatusDTO);
+        log.info("2003 啟用/停用員工帳號,操作id:{},參數:{}", currentEmp.getId(), empStatusDTO);
         empService.updateStatus(empStatusDTO, id);
         return Result.success();
 
@@ -101,7 +101,7 @@ public class EmpController {
             @ApiResponse(responseCode = "200", description = "執行成功"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
-    public Result<Void> getById(@AuthenticationPrincipal EmpVO currentEmp,
+    public Result<Void> updateById(@AuthenticationPrincipal EmpVO currentEmp,
                                  @Valid @RequestBody EmpEditDTO empEditDTO){
         log.info("2005 修改員工資料,操作id:{},參數:{}", currentEmp.getId(), empEditDTO);
         empService.updateById(empEditDTO);

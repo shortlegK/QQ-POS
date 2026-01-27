@@ -15,12 +15,12 @@ public class EmpPageQueryDTO implements Serializable {
     private String name;
 
     @Schema(description = "頁碼")
-    @NotNull(message = "頁碼為必填")
+    @NotNull(message = "請輸入頁碼")
     @Min(value = 1, message = "頁碼不得為 0")
     private Integer page = 1;
 
     @Schema(description = "每頁筆數")
-    @NotNull(message = "每頁筆數為必填")
+    @NotNull(message = "請輸入每頁筆數")
     @Min(value = 1, message = "筆數不得為 0")
     private Integer pageSize = 10;
 
