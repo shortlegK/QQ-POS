@@ -1,12 +1,12 @@
 # 開發環境設定
 logging:
   file:
-    # 開發時的日誌檔名
+    # 開發日誌檔名
     name: logs/qq-pos-dev.log
   level:
-    # 開發時，我們希望看到更詳細的日誌，方便除錯
+    # 紀錄更詳細的日誌
     root: info
-    com.qqriceball.server.mapper: debug
+    com.qqriceball.mapper: debug
 
 qq-pos:
   jwt:

@@ -18,4 +18,4 @@ logging:
     name: logs/qq-pos-test.log
   level:
     root: info
-    com.qqriceball.server.mapper: debug
+    com.qqriceball.mapper: debug

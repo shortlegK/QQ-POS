@@ -3,7 +3,7 @@ package com.qqriceball.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.integration.testData.SeedUser;
-import com.qqriceball.pojo.dto.EmpLoginDTO;
+import com.qqriceball.model.dto.EmpLoginDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

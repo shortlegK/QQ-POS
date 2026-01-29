@@ -1,6 +1,5 @@
 package com.qqriceball.common.result;
 
-import com.qqriceball.pojo.vo.EmpPageQueryVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
