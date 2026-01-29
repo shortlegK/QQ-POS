@@ -2,6 +2,7 @@ package com.qqriceball.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.integration.testData.SeedUser;
 import com.qqriceball.pojo.dto.EmpLoginDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,11 +33,8 @@ public class LoginControllerIT {
     @DisplayName("[IT] Login - 登入成功，應回傳 200 及 token")
     void testLoginSuccess() throws Exception {
 
-        String username = "tester";
-        String password = "(Qqpos1357";
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername(username);
-        empLoginDTO.setPassword(password);
+        EmpLoginDTO empLoginDTO = getEmpLoginDTO(
+                SeedUser.TESTER.username(), SeedUser.TESTER.password());
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -49,7 +47,7 @@ public class LoginControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.id").isNotEmpty())
-                .andExpect(jsonPath("$.data.username").value(username))
+                .andExpect(jsonPath("$.data.username").value(SeedUser.TESTER.username()))
                 .andExpect(jsonPath("$.data.token").isNotEmpty());
     }
 
@@ -57,9 +55,8 @@ public class LoginControllerIT {
     @DisplayName("[IT] Login - 登入帳號不存在，應回傳 404 及指定訊息")
     void testLoginAccountNotExist() throws Exception {
 
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername("NotExist");
-        empLoginDTO.setPassword("123456");
+        EmpLoginDTO empLoginDTO = getEmpLoginDTO("notExist",
+                "userPassword");
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -80,9 +77,7 @@ public class LoginControllerIT {
     void testLoginPasswordError() throws Exception {
 
 
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername("tester");
-        empLoginDTO.setPassword("wrongPassword");
+        EmpLoginDTO empLoginDTO = getEmpLoginDTO(SeedUser.MANAGER.username(), "wrongPassword");
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -103,9 +98,8 @@ public class LoginControllerIT {
     @DisplayName("[IT] Login - 登入帳號已停用，應回傳 403 及指定訊息")
     void testLoginAccountInactive() throws Exception {
 
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername("inactive");
-        empLoginDTO.setPassword("(Qqpos1357");
+        EmpLoginDTO empLoginDTO = getEmpLoginDTO(
+                SeedUser.INACTIVE.username(), SeedUser.INACTIVE.password());
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -126,7 +120,7 @@ public class LoginControllerIT {
     void testLoginAccountNull() throws Exception {
 
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setPassword("(Qqpos1357");
+        empLoginDTO.setPassword("password");
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -151,5 +145,14 @@ public class LoginControllerIT {
 
         resultActions.andExpect(status().isOk());
 
+    }
+
+
+    private static EmpLoginDTO getEmpLoginDTO(String username, String password) {
+        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
+        empLoginDTO.setUsername(username);
+        empLoginDTO.setPassword(password);
+
+        return empLoginDTO;
     }
 }

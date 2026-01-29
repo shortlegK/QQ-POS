@@ -49,12 +49,10 @@ class LoginControllerTest {
 
         String secretKey = "test-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secret";
 
-        String username = "admin";
+        String username = "manager";
         String password = "Password";
 
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername(username);
-        empLoginDTO.setPassword(password);
+        EmpLoginDTO empLoginDTO = getEmpLoginDTO(username, password);
 
         Emp fakeEmp = new Emp();
         fakeEmp.setId(1);
@@ -77,7 +75,7 @@ class LoginControllerTest {
         resultActions.andExpect(status().isOk());
 
         verify(empService).login(argThat(dto ->
-                "admin".equals(dto.getUsername())
+                username.equals(dto.getUsername())
         ));
 
         resultActions
@@ -95,9 +93,7 @@ class LoginControllerTest {
         String username = "NotExist";
         String password = "Password";
 
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername(username);
-        empLoginDTO.setPassword(password);
+        EmpLoginDTO empLoginDTO = getEmpLoginDTO(username, password);
 
         when(empService.login(argThat(dto -> username.equals(dto.getUsername()))))
                 .thenThrow(new AccountNotExistException(MessageEnum.ACCOUNT_NOT_EXIST));
@@ -121,9 +117,7 @@ class LoginControllerTest {
 
         String username = "wrongUser";
         String password = "wrongPassword";
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername(username);
-        empLoginDTO.setPassword(password);
+        EmpLoginDTO empLoginDTO = getEmpLoginDTO(username, password);
 
 
         when(empService.login(argThat(dto -> username.equals(dto.getUsername()))))
@@ -149,9 +143,7 @@ class LoginControllerTest {
 
         String username = "inactive";
         String password = "wrongPassword";
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername(username);
-        empLoginDTO.setPassword(password);
+        EmpLoginDTO empLoginDTO = getEmpLoginDTO(username, password);
 
 
         when(empService.login(argThat(dto -> username.equals(dto.getUsername()))))
@@ -185,4 +177,14 @@ class LoginControllerTest {
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()));
 
     }
+
+
+    private static EmpLoginDTO getEmpLoginDTO(String username, String password) {
+        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
+        empLoginDTO.setUsername(username);
+        empLoginDTO.setPassword(password);
+
+        return empLoginDTO;
+    }
+
 }
