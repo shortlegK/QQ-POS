@@ -7,46 +7,49 @@
 ## 目錄
 
 - [1. 專案簡介](#1-專案簡介)
-- [2. 專案狀態與進度](#2-專案狀態與進度)
+- [2. 系統角色與權限設計](#2-系統角色與權限設計)
 - [3. 架構概覽](#3-架構概覽)
-- [4. 已完成功能](#4-已完成功能)
+- [4. 已實作功能](#4-已實作功能)
 - [5. 測試策略](#5-測試策略)
-- [6. 技術棧與環境](#6-技術棧與環境)
-- [7. 如何快速開始](#7-如何快速開始)
+- [6. 如何快速開始](#6-如何快速開始)
+- [7. 技術棧與環境](#7-技術棧與環境)
 - [8. 專案結構](#8-專案結構)
 - [9. Roadmap](#9-roadmap)
 
 ## 1. 專案簡介
 
-QQ-POS 是一個以「飯糰點餐流程」為題材的後端實作專案。
+QQ-POS 是一個以飯糰店日常營運流程為情境的後端 POS 系統，透過 API 方式支援櫃檯點餐與後台管理操作。
 
-透過「訂單狀態流轉、權限區分與 API 驗證」等實務場景，
-聚焦後端系統在實際開發中，經常因時程壓力或角色分工而被弱化的三個問題，
-並透過自動化測試的角度，驗證這些設計是否能被穩定地落實於系統行為中：
+本系統以實際營運流程為核心，系統模組規劃如下：
+
+- 身分驗證模組  
+  提供登入、登出與 JWT 驗證機制，作為所有操作的存取基礎。
+- 員工管理模組  
+  管理員工帳號、角色與啟用狀態，並限制不同角色可操作的功能範圍。
+- 菜單管理模組  
+  維護菜單分類、飯糰品項、加料選項與商品上下架狀態。
+- 訂單管理模組  
+  模擬實際點餐流程，建立訂單、調整訂單狀態。
+- 營收統計模組  
+  彙整每日與指定區間的營收資料。
+
+在功能設計上，本專案聚焦於以下三個面向，並透過測試驗證其是否能被穩定地落實於系統行為中：
 
 - 系統狀態是否能被一致地限制與保護
 - 錯誤情境是否具備清楚且可預期的回應行為
-- 核心行為是否能被測試覆蓋，以降低後續修改造成的風險
+- 核心業務邏輯是否能被測試覆蓋，以降低後續修改造成的風險
 
 這些問題在功能開發初期不一定顯眼，但隨著系統規模擴大，往往會成為後續維護與除錯成本的主要來源。
 這不只是為了程式能正確運作，也希望在系統持續演進時，既有行為能被穩定地保護。
 
----
-## 2. 專案狀態與進度
+## 2. 系統角色與權限設計
 
-本專案以後端 API 為核心，未包含實際前端畫面。
-所有功能皆透過 API 與測試驗證系統行為，作為設計與品質檢視的依據。
+本系統區分為兩種使用角色，用以模擬實際營運中管理端與櫃檯操作端的權責差異。
 
-目前區分兩種使用角色：
 - **manager**：可操作系統管理與維護相關功能（如員工管理、菜單管理），並可使用完整營運流程功能。
 - **staff**：僅能使用與實際營運流程相關的功能（如登入與訂單操作），不具備任何系統設定或管理相關權限。
 
-此權限區分用以驗證系統在不同角色下，是否能正確限制操作行為。
-
-**目前進度：**
-- 類型：Side Project
-- 階段：開發中
-- 已完成登入與員工管理等核心模組，並同步撰寫對應測試，作為後續功能擴充的基礎
+此角色區分同時也是測試設計的重要依據，用以驗證不同角色在相同 API 下，是否能被正確限制其操作行為，且不產生未預期的副作用。
 
 ---
 
@@ -61,11 +64,9 @@ QQ-POS 是一個以「飯糰點餐流程」為題材的後端實作專案。
 - **Exception Handler**：統一錯誤處理與回應格式
 - **Test**：透過單元測試與整合測試驗證核心行為
 
-核心流程以登入驗證與員工狀態變更為主要驗證場景。
-
 ---
 
-## 4. 已完成功能
+## 4. 已實作功能
 
 ### 身分驗證（Login / Logout）
 - 實作登入與登出流程
@@ -88,9 +89,11 @@ QQ-POS 是一個以「飯糰點餐流程」為題材的後端實作專案。
 
 ## 5. 測試策略
 
-為確保核心功能在不同情境下皆能維持一致行為，
-本專案針對關鍵流程撰寫單元測試與整合測試，
-以驗證權限、狀態與錯誤回應是否符合預期。
+本專案的測試設計以實際營運中風險較高的核心流程為主要驗證對象，
+例如登入驗證與員工狀態變更等關鍵操作。
+
+透過單元測試與整合測試，驗證不同角色在各種操作情境下，
+其權限限制、狀態變更與錯誤回應是否符合預期。
 
 測試內容包含：
 - 未授權操作是否被正確阻擋，且不產生副作用
@@ -110,7 +113,65 @@ QQ-POS 是一個以「飯糰點餐流程」為題材的後端實作專案。
 
 ---
 
-## 6. 技術棧與環境
+## 6. 如何快速開始
+
+### 6.1 環境需求
+- Java 17
+- Spring Boot 3.x
+- MySQL 8+
+
+### 6.2 資料庫準備
+
+本專案使用 MySQL 作為資料庫，請先建立資料庫並匯入資料表結構。
+
+#### 6.2.1 建立資料庫（範例：`qq_pos_dev`）
+```bash
+mysql -u <user> -p -e "CREATE DATABASE IF NOT EXISTS qq_pos_dev DEFAULT CHARACTER SET utf8mb4;"
+```
+#### 6.2.2 匯入資料表結構
+```bash
+mysql -u <user> -p qq_pos_dev < ./db/qqPosDB.sql
+```
+#### 6.2.3 匯入初始資料
+```bash
+mysql -u <user> -p qq_pos_dev < ./db/seedUserTest.sql
+```
+匯入初始資料後，系統會建立測試用帳號，供本機開發與 API 驗證使用。
+
+預設測試帳號：
+- manager：`managerrole` / `(Qqpos1357`
+- staff：`staffrole` / `(Qqpos1357`
+
+
+#### 6.2.4 測試環境（範例：`qq_pos_test`）
+```bash
+mysql -u <user> -p -e "CREATE DATABASE IF NOT EXISTS qq_pos_test DEFAULT CHARACTER SET utf8mb4;"
+mysql -u <user> -p qq_pos_test < ./db/qqPosDB.sql
+mysql -u <user> -p qq_pos_test < ./db/seedUserTest.sql
+```
+
+#### 6.2.5 設定環境變數（.env）
+
+```bash
+cp .env.example .env
+```
+將 `.env.example` 複製為 `.env`，並依本機環境修改資料庫帳號密碼與 JWT key。
+
+### 6.3 啟動專案
+
+- 啟動方式：
+```bash
+./gradlew bootRun
+```
+- API 驗證：透過 API 呼叫進行功能驗證
+- API 文件說明：啟動後請至 http://localhost:8080/swagger-ui/index.html 查看
+- 測試執行：
+  ```bash
+  ./gradlew test
+  ```
+---
+
+## 7. 技術棧與環境
 
 - **語言 / 框架**：Java 17、Spring Boot 3.x
 - **資料庫 / 持久層**：MySQL、MyBatis（PageHelper 分頁）
@@ -118,62 +179,6 @@ QQ-POS 是一個以「飯糰點餐流程」為題材的後端實作專案。
 - **測試**：JUnit 5、Mockito、Spring Security Test
 - **文件 / 工具**：Gradle、SpringDoc（OpenAPI 3 / Swagger UI）
 
----
-
-## 7. 如何快速開始
-
-### 7.1 環境需求
-- Java 17
-- Spring Boot 3.x
-- MySQL 8+
-
-### 7.2 資料庫準備
-
-本專案使用 MySQL 作為資料庫，請先建立資料庫並匯入資料表結構。
-
-#### 7.2.1 建立資料庫（範例：`qq_pos_dev`）
-```bash
-mysql -u <user> -p -e "CREATE DATABASE IF NOT EXISTS qq_pos_dev DEFAULT CHARACTER SET utf8mb4;"
-```
-#### 7.2.2 匯入資料表結構
-```bash
-mysql -u <user> -p qq_pos_dev < ./db/qqPosDB.sql
-```
-#### 7.2.3 匯入初始資料
-```bash
-mysql -u <user> -p qq_pos_dev < ./db/seedUserTest.sql
-```
-匯入 `db/seedUserTest.sql` 後，系統會建立預設帳號/密碼供本機測試與開發驗證使用：
-  - manager：`managerrole` / `(Qqpos1357`
-- staff：`staffrole` / `(Qqpos1357`
-> 此組帳密僅用於本機測試與示範；實際部署請自行更換。
-
-#### 7.2.4 測試環境（範例：`qq_pos_test`）
-```bash
-mysql -u <user> -p -e "CREATE DATABASE IF NOT EXISTS qq_pos_test DEFAULT CHARACTER SET utf8mb4;"
-mysql -u <user> -p qq_pos_test < ./db/qqPosDB.sql
-mysql -u <user> -p qq_pos_test < ./db/seedUserTest.sql
-```
-
-#### 7.2.5 設定環境變數（.env）
-
-```bash
-cp .env.example .env
-```
-將 `.env.example` 複製為 `.env`，並依本機環境修改資料庫帳號密碼與 JWT key。
-
-### 7.3 啟動專案
-
-- 啟動方式：
-```bash
-./gradlew bootRun
-```
-- API 驗證：透過 API 呼叫進行功能驗證
-- API 文件說明：啟動後請訪問 http://localhost:8080/swagger-ui/index.html
-- 測試執行：
-  ```bash
-  ./gradlew test
-  ```
 ---
 
 ## 8. 專案結構
