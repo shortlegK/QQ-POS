@@ -65,6 +65,7 @@ public class EmpService {
         BeanUtils.copyProperties(empCreateDTO, emp);
 
         emp.setPassword(passwordEncoder.encode(emp.getPassword()));
+        emp.setStatus(StatusEnum.ACTIVE.getValue());
 
         try{
             empMapper.insert(emp);

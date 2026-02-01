@@ -1,8 +1,6 @@
 spring:
   application:
     name: QQ-POS
-  profiles:
-    active: dev
 
   # DB Connect
   datasource:
@@ -12,7 +10,6 @@ qq-pos:
   jwt:
     ttl-millis: 7200000
     token-name: Authorization
-
 
 mybatis:
   configuration:
