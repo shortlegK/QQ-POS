@@ -2,7 +2,7 @@ package com.qqriceball.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qqriceball.enumeration.MessageEnum;
-import com.qqriceball.integration.testData.SeedUser;
+import com.qqriceball.integration.testData.SeedUserData;
 import com.qqriceball.model.dto.EmpLoginDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,7 +34,7 @@ public class LoginControllerIT {
     void testLoginSuccess() throws Exception {
 
         EmpLoginDTO empLoginDTO = getEmpLoginDTO(
-                SeedUser.TESTER.username(), SeedUser.TESTER.password());
+                SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -47,7 +47,7 @@ public class LoginControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.id").isNotEmpty())
-                .andExpect(jsonPath("$.data.username").value(SeedUser.TESTER.username()))
+                .andExpect(jsonPath("$.data.username").value(SeedUserData.TESTER.username()))
                 .andExpect(jsonPath("$.data.token").isNotEmpty());
     }
 
@@ -77,7 +77,7 @@ public class LoginControllerIT {
     void testLoginPasswordError() throws Exception {
 
 
-        EmpLoginDTO empLoginDTO = getEmpLoginDTO(SeedUser.MANAGER.username(), "wrongPassword");
+        EmpLoginDTO empLoginDTO = getEmpLoginDTO(SeedUserData.MANAGER.username(), "wrongPassword");
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -99,7 +99,7 @@ public class LoginControllerIT {
     void testLoginAccountInactive() throws Exception {
 
         EmpLoginDTO empLoginDTO = getEmpLoginDTO(
-                SeedUser.INACTIVE.username(), SeedUser.INACTIVE.password());
+                SeedUserData.INACTIVE.username(), SeedUserData.INACTIVE.password());
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(

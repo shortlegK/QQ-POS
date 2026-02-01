@@ -5,7 +5,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.enumeration.StatusEnum;
-import com.qqriceball.integration.testData.SeedUser;
+import com.qqriceball.integration.testData.SeedUserData;
 import com.qqriceball.model.dto.EmpCreateDTO;
 import com.qqriceball.model.dto.EmpLoginDTO;
 import com.qqriceball.model.dto.EmpStatusDTO;
@@ -51,7 +51,7 @@ public class EmpControllerIT {
 
         // 取得 Admin Token
         EmpLoginDTO managerLoginDTO = getEmpLoginDTO(
-                SeedUser.MANAGER.username(), SeedUser.MANAGER.password());
+                SeedUserData.MANAGER.username(), SeedUserData.MANAGER.password());
 
         String jsonBody = objectMapper.writeValueAsString(managerLoginDTO);
         MvcResult managerResult = mockMvc.perform(
@@ -65,7 +65,7 @@ public class EmpControllerIT {
 
         // 取得 Staff Token
         EmpLoginDTO staffLoginDTO = getEmpLoginDTO(
-                SeedUser.STAFF.username(), SeedUser.STAFF.password());
+                SeedUserData.STAFF.username(), SeedUserData.STAFF.password());
 
         jsonBody = objectMapper.writeValueAsString(staffLoginDTO);
         MvcResult staffResult = mockMvc.perform(
@@ -237,7 +237,7 @@ public class EmpControllerIT {
     void testUpdateStatusWithoutAdmin() throws Exception {
 
         // 查詢執行前的帳號狀態
-        int id = SeedUser.STAFF.id();
+        int id = SeedUserData.STAFF.id();
         ResultActions beforeActionResult = mockMvc.perform(
                 get("/emp/{id}", id)
                         .header("Authorization", "Bearer " + tokenManager)

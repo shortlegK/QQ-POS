@@ -1,6 +1,6 @@
 package com.qqriceball.integration.testData;
 
-public class SeedUser {
+public class SeedUserData {
 
     public static final TestAccount MANAGER =
             new TestAccount("managerrole","(Qqpos1357",1);
