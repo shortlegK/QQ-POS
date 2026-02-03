@@ -37,23 +37,26 @@ public class DevDemoSeeder implements ApplicationRunner {
 
     private void seed(String username, String rawPassword, int role) {
         String encoded = passwordEncoder.encode(rawPassword);
-
         Emp existing = empMapper.getByUsername(username);
+
         if (existing == null) {
-            Emp emp = new Emp();
-            emp.setUsername(username);
-            emp.setPassword(encoded);
-            emp.setName(username);
-            emp.setRole(role); // 依你欄位調整
-            emp.setStatus(StatusEnum.ACTIVE.getValue());
-            emp.setEntryDate(LocalDate.now());
-            emp.setCreateId(1);
-            emp.setCreateTime(LocalDateTime.now());
-            emp.setUpdateId(1);
-            emp.setUpdateTime(LocalDateTime.now());
-            empMapper.insert(emp);
+            existing.setUsername(username);
+            existing.setPassword(encoded);
+            existing.setName(username);
+            existing.setRole(role);
+            existing.setStatus(StatusEnum.ACTIVE.getValue());
+            existing.setEntryDate(LocalDate.now());
+            existing.setCreateId(1);
+            existing.setCreateTime(LocalDateTime.now());
+            existing.setUpdateId(1);
+            existing.setUpdateTime(LocalDateTime.now());
+
+            empMapper.insert(existing);
         } else {
             existing.setPassword(encoded);
+            existing.setRole(role);
+            existing.setStatus(StatusEnum.ACTIVE.getValue());
+
             empMapper.updateById(existing);
         }
     }
