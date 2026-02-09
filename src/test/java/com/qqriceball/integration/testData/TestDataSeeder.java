@@ -48,18 +48,19 @@ public class TestDataSeeder implements ApplicationRunner {
         String encoded = passwordEncoder.encode(rawPassword);
 
         if (existing == null) {
-            existing.setUsername(username);
-            existing.setPassword(encoded);
-            existing.setName(username);
-            existing.setRole(role);
-            existing.setStatus(status);
-            existing.setEntryDate(LocalDate.now());
-            existing.setCreateId(1);
-            existing.setCreateTime(LocalDateTime.now());
-            existing.setUpdateId(1);
-            existing.setUpdateTime(LocalDateTime.now());
+            Emp emp = new Emp();
+            emp.setUsername(username);
+            emp.setPassword(encoded);
+            emp.setName(username);
+            emp.setRole(role);
+            emp.setStatus(status);
+            emp.setEntryDate(LocalDate.now());
+            emp.setCreateId(1);
+            emp.setCreateTime(LocalDateTime.now());
+            emp.setUpdateId(1);
+            emp.setUpdateTime(LocalDateTime.now());
 
-            empMapper.insert(existing);
+            empMapper.insert(emp);
         } else {
             existing.setPassword(encoded);
             existing.setRole(role);
