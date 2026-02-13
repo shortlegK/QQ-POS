@@ -92,7 +92,7 @@ create table if not exists product_option
 )
     comment '額外選項表';
 
-create table if not exists product_option_link
+create table if not exists product_type_allowed_option_type
 (
     product_id int unsigned not null comment '產品 id',
     option_id  int unsigned not null comment '額外選項 id ',

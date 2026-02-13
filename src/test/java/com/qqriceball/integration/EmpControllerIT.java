@@ -91,7 +91,7 @@ public class EmpControllerIT {
         String username = getUnique("duplicate");
 
         EmpCreateDTO empCreateDTO = getEmpCreateDTO(username,
-                username, RoleEnum.STAFF.getValue());
+                username, RoleEnum.STAFF.getCode());
 
         // 建立帳號
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
@@ -120,7 +120,7 @@ public class EmpControllerIT {
     @DisplayName("[IT] Emp - 帳號長度不足，應回傳 400")
     void testCreateEmpUsernameLengthError() throws Exception{
 
-        EmpCreateDTO empCreateDTO = getEmpCreateDTO("u", "testPassword1", RoleEnum.STAFF.getValue());
+        EmpCreateDTO empCreateDTO = getEmpCreateDTO("u", "testPassword1", RoleEnum.STAFF.getCode());
 
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
         mockMvc.perform(
@@ -140,7 +140,7 @@ public class EmpControllerIT {
     void testCreateEmpUsernameSuccess() throws Exception{
 
         String username = getUnique("create");
-        EmpCreateDTO empCreateDTO = getEmpCreateDTO(username, username, RoleEnum.MANAGER.getValue());
+        EmpCreateDTO empCreateDTO = getEmpCreateDTO(username, username, RoleEnum.MANAGER.getCode());
 
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -184,7 +184,7 @@ public class EmpControllerIT {
     void testCreateEmpWithoutAdmin() throws Exception{
 
         String username = getUnique("create");
-        EmpCreateDTO empCreateDTO = getEmpCreateDTO(username, username, RoleEnum.STAFF.getValue());
+        EmpCreateDTO empCreateDTO = getEmpCreateDTO(username, username, RoleEnum.STAFF.getCode());
 
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
         mockMvc.perform(
@@ -217,7 +217,7 @@ public class EmpControllerIT {
 
         int id = Integer.MAX_VALUE;
         EmpStatusDTO empStatusDTO = new EmpStatusDTO();
-        empStatusDTO.setStatus(StatusEnum.INACTIVE.getValue());
+        empStatusDTO.setStatus(StatusEnum.INACTIVE.getCode());
 
         String jsonBody = objectMapper.writeValueAsString(empStatusDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -254,7 +254,7 @@ public class EmpControllerIT {
 
         // 嘗試變更啟用狀態為停用
         EmpStatusDTO empStatusDTO = new EmpStatusDTO();
-        empStatusDTO.setStatus(StatusEnum.INACTIVE.getValue());
+        empStatusDTO.setStatus(StatusEnum.INACTIVE.getCode());
 
         String jsonBody = objectMapper.writeValueAsString(empStatusDTO);
         mockMvc.perform(
@@ -282,7 +282,7 @@ public class EmpControllerIT {
         // 建立測試帳號,取得 id
 
         String statusName = getUnique("status");
-        EmpCreateDTO empCreateDTO = getEmpCreateDTO(statusName, statusName, RoleEnum.STAFF.getValue());
+        EmpCreateDTO empCreateDTO = getEmpCreateDTO(statusName, statusName, RoleEnum.STAFF.getCode());
 
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
         mockMvc.perform(
@@ -309,7 +309,7 @@ public class EmpControllerIT {
 
         // 變更狀態為停用
         EmpStatusDTO empStatusDTO = new EmpStatusDTO();
-        empStatusDTO.setStatus(StatusEnum.INACTIVE.getValue());
+        empStatusDTO.setStatus(StatusEnum.INACTIVE.getCode());
 
         String inactiveJsonBody = objectMapper.writeValueAsString(empStatusDTO);
         mockMvc.perform(
@@ -337,7 +337,7 @@ public class EmpControllerIT {
 
 
         // 變更狀態為啟用
-        empStatusDTO.setStatus(StatusEnum.ACTIVE.getValue());
+        empStatusDTO.setStatus(StatusEnum.ACTIVE.getCode());
 
         String activeJsonBody = objectMapper.writeValueAsString(empStatusDTO);
         mockMvc.perform(

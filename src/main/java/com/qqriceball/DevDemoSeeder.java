@@ -31,8 +31,8 @@ public class DevDemoSeeder implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        seed("demomanager", "Qq!pos3426", RoleEnum.MANAGER.getValue());
-        seed("demostaff", "Qq!pos3426", RoleEnum.STAFF.getValue());
+        seed("demomanager", "Qq!pos3426", RoleEnum.MANAGER.getCode());
+        seed("demostaff", "Qq!pos3426", RoleEnum.STAFF.getCode());
     }
 
     private void seed(String username, String rawPassword, int role) {
@@ -45,7 +45,7 @@ public class DevDemoSeeder implements ApplicationRunner {
             emp.setPassword(encoded);
             emp.setName(username);
             emp.setRole(role);
-            emp.setStatus(StatusEnum.ACTIVE.getValue());
+            emp.setStatus(StatusEnum.ACTIVE.getCode());
             emp.setEntryDate(LocalDate.now());
             emp.setCreateId(1);
             emp.setCreateTime(LocalDateTime.now());
@@ -56,7 +56,7 @@ public class DevDemoSeeder implements ApplicationRunner {
         } else {
             existing.setPassword(encoded);
             existing.setRole(role);
-            existing.setStatus(StatusEnum.ACTIVE.getValue());
+            existing.setStatus(StatusEnum.ACTIVE.getCode());
 
             empMapper.updateById(existing);
         }

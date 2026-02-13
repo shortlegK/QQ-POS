@@ -67,7 +67,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             EmpVO empVO = empService.checkActiveEmpById(empId);
 
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            if (Objects.equals(empVO.getRole(), RoleEnum.MANAGER.getValue())) {
+            if (Objects.equals(empVO.getRole(), RoleEnum.MANAGER.getCode())) {
                 authorities.add(new SimpleGrantedAuthority(RoleEnum.MANAGER.getRoleName()));
             } else {
                 authorities.add(new SimpleGrantedAuthority(RoleEnum.STAFF.getRoleName()));

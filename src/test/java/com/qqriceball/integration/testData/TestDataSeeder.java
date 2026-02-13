@@ -30,16 +30,16 @@ public class TestDataSeeder implements ApplicationRunner {
     @Transactional
     public void run(ApplicationArguments args) {
         createUser(SeedUserData.MANAGER.username(),SeedUserData.MANAGER.password(),
-                RoleEnum.MANAGER.getValue(), StatusEnum.ACTIVE.getValue());
+                RoleEnum.MANAGER.getCode(), StatusEnum.ACTIVE.getCode());
 
         createUser(SeedUserData.STAFF.username(),SeedUserData.STAFF.password(),
-                RoleEnum.STAFF.getValue(), StatusEnum.ACTIVE.getValue());
+                RoleEnum.STAFF.getCode(), StatusEnum.ACTIVE.getCode());
 
         createUser(SeedUserData.INACTIVE.username(),SeedUserData.INACTIVE.password(),
-                RoleEnum.STAFF.getValue(), StatusEnum.INACTIVE.getValue());
+                RoleEnum.STAFF.getCode(), StatusEnum.INACTIVE.getCode());
 
         createUser(SeedUserData.TESTER.username(), SeedUserData.TESTER.password(),
-                RoleEnum.STAFF.getValue(), StatusEnum.ACTIVE.getValue());
+                RoleEnum.STAFF.getCode(), StatusEnum.ACTIVE.getCode());
     }
 
     private void createUser(String username, String rawPassword, int role, int status) {

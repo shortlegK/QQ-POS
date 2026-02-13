@@ -8,11 +8,11 @@ public enum RoleEnum {
     MANAGER(0, "ROLE_MANAGER"),
     STAFF(1, "ROLE_STAFF");
 
-    private final int value;
+    private final int code;
     private final String roleName;
 
-    RoleEnum(int value, String roleName) {
-        this.value = value;
+    RoleEnum(int code, String roleName) {
+        this.code = code;
         this.roleName = roleName;
     }
 }

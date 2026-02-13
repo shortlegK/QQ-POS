@@ -10,9 +10,9 @@ public enum AutoFillEnum {
     SET_UPDATE_ID("setUpdateId"),
     SET_UPDATE_TIME("setUpdateTime");
 
-    private final String value;
+    private final String message;
 
-    AutoFillEnum(String value) {
-        this.value = value;
+    AutoFillEnum(String message) {
+        this.message = message;
     }
 }

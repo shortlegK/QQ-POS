@@ -58,7 +58,7 @@ class LoginControllerTest {
         fakeEmp.setId(1);
         fakeEmp.setUsername(username);
         fakeEmp.setPassword(password);
-        fakeEmp.setStatus(StatusEnum.ACTIVE.getValue());
+        fakeEmp.setStatus(StatusEnum.ACTIVE.getCode());
 
         when(empService.login(any(EmpLoginDTO.class))).thenReturn(fakeEmp);
 

@@ -105,7 +105,7 @@ class EmpServiceTest {
         Emp fakeEmp = new Emp();
         fakeEmp.setUsername(username);
         fakeEmp.setPassword(rawPassword);
-        fakeEmp.setStatus(StatusEnum.INACTIVE.getValue());
+        fakeEmp.setStatus(StatusEnum.INACTIVE.getCode());
 
         when(empMapper.getByUsername(username)).thenReturn(fakeEmp);
         when(passwordEncoder.matches(rawPassword, fakeEmp.getPassword())).thenReturn(true);
@@ -133,7 +133,7 @@ class EmpServiceTest {
         Emp fakeEmp = new Emp();
         fakeEmp.setUsername(username);
         fakeEmp.setPassword(rawPassword);
-        fakeEmp.setStatus(StatusEnum.ACTIVE.getValue());
+        fakeEmp.setStatus(StatusEnum.ACTIVE.getCode());
 
         when(empMapper.getByUsername(username)).thenReturn(fakeEmp);
         when(passwordEncoder.matches(rawPassword, fakeEmp.getPassword())).thenReturn(true);
@@ -142,7 +142,7 @@ class EmpServiceTest {
 
         assertAll(
                 () -> assertEquals(empLoginDTO.getUsername(), result.getUsername()),
-                () -> assertEquals(StatusEnum.ACTIVE.getValue(), result.getStatus())
+                () -> assertEquals(StatusEnum.ACTIVE.getCode(), result.getStatus())
         );
 
         verify(empMapper).getByUsername(empLoginDTO.getUsername());
@@ -237,7 +237,7 @@ class EmpServiceTest {
     void testUpdateStatusSetInactive(StatusEnum statusEnum){
 
         EmpStatusDTO empStatusDTO = new EmpStatusDTO();
-        empStatusDTO.setStatus(statusEnum.getValue());
+        empStatusDTO.setStatus(statusEnum.getCode());
         Integer id = 1;
 
         EmpVO empVO = new EmpVO();
@@ -252,10 +252,29 @@ class EmpServiceTest {
         Emp capturedEmp = empArgumentCaptor.getValue();
         assertAll(
                 () -> assertEquals(id,capturedEmp.getId(),"id 應與傳入參數相同"),
-                () -> assertEquals(statusEnum.getValue(),capturedEmp.getStatus(),"status 應與傳入參數相同")
+                () -> assertEquals(statusEnum.getCode(),capturedEmp.getStatus(),"status 應與傳入參數相同")
         );
 
     }
+
+
+
+    @Test
+    @DisplayName("[Unit] EmpService.getById - 員工 id 不存在，應拋出 AccountNotExistException")
+    void testGetByIdAccountNotExist(){
+
+        Integer id = Integer.MAX_VALUE;
+
+        when(empMapper.getById(id)).thenReturn(null);
+
+        AccountNotExistException ex = assertThrows(AccountNotExistException.class,
+                () -> empService.getById(id));
+        assertEquals(MessageEnum.ACCOUNT_NOT_EXIST.getMessage(), ex.getMessage());
+
+        verify(empMapper).getById(id);
+
+    }
+
 
 
 

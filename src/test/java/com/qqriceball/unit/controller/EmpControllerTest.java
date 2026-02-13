@@ -169,7 +169,7 @@ public class EmpControllerTest {
         empCreateDTO.setUsername("tester");
         empCreateDTO.setPassword("Password");
         empCreateDTO.setName("tester");
-        empCreateDTO.setRole(RoleEnum.STAFF.getValue());
+        empCreateDTO.setRole(RoleEnum.STAFF.getCode());
         empCreateDTO.setEntryDate(LocalDate.of(2026, 1, 1));
 
         return empCreateDTO;
@@ -177,7 +177,7 @@ public class EmpControllerTest {
 
     private static EmpStatusDTO getEmpStatusDTO(StatusEnum status) {
         EmpStatusDTO empStatusDTO = new EmpStatusDTO();
-        empStatusDTO.setStatus(status.getValue());
+        empStatusDTO.setStatus(status.getCode());
         return empStatusDTO;
     }
 

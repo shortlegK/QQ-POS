@@ -49,7 +49,7 @@ public class EmpService {
             throw new PasswordErrorException(MessageEnum.PASSWORD_ERROR);
         }
 
-        if (emp.getStatus().equals(StatusEnum.INACTIVE.getValue())) {
+        if (emp.getStatus().equals(StatusEnum.INACTIVE.getCode())) {
             log.error("登入帳號未啟用,username: {}",username);
             throw new AccountInactiveException(MessageEnum.ACCOUNT_INACTIVE);
         }
@@ -65,7 +65,7 @@ public class EmpService {
         BeanUtils.copyProperties(empCreateDTO, emp);
 
         emp.setPassword(passwordEncoder.encode(emp.getPassword()));
-        emp.setStatus(StatusEnum.ACTIVE.getValue());
+        emp.setStatus(StatusEnum.ACTIVE.getCode());
 
         try{
             empMapper.insert(emp);
@@ -128,7 +128,7 @@ public class EmpService {
     public EmpVO checkActiveEmpById(Integer id){
         EmpVO empVO = this.getById(id);
 
-        if (empVO.getStatus().equals(StatusEnum.INACTIVE.getValue())) {
+        if (empVO.getStatus().equals(StatusEnum.INACTIVE.getCode())) {
             log.error("未啟用,ID: {}", id);
             throw new AccountInactiveException(MessageEnum.ACCOUNT_INACTIVE);
         }

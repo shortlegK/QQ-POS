@@ -71,10 +71,10 @@ public class AutoFillAspect {
         BeanWrapperImpl wrapper = new BeanWrapperImpl(entity);
         if(operationType == OperationType.INSERT){
             try {
-                Method setCreateId = entity.getClass().getDeclaredMethod(AutoFillEnum.SET_CREATE_ID.getValue(), Integer.class);
-                Method setCreateTime = entity.getClass().getDeclaredMethod(AutoFillEnum.SET_CREATE_TIME.getValue(), LocalDateTime.class);
-                Method setUpdateId = entity.getClass().getDeclaredMethod(AutoFillEnum.SET_UPDATE_ID.getValue(), Integer.class);
-                Method setUpdateTime = entity.getClass().getDeclaredMethod(AutoFillEnum.SET_UPDATE_TIME.getValue(), LocalDateTime.class);
+                Method setCreateId = entity.getClass().getDeclaredMethod(AutoFillEnum.SET_CREATE_ID.getMessage(), Integer.class);
+                Method setCreateTime = entity.getClass().getDeclaredMethod(AutoFillEnum.SET_CREATE_TIME.getMessage(), LocalDateTime.class);
+                Method setUpdateId = entity.getClass().getDeclaredMethod(AutoFillEnum.SET_UPDATE_ID.getMessage(), Integer.class);
+                Method setUpdateTime = entity.getClass().getDeclaredMethod(AutoFillEnum.SET_UPDATE_TIME.getMessage(), LocalDateTime.class);
 
                 setCreateId.invoke(entity, operatorId);
                 setCreateTime.invoke(entity, now);
@@ -87,8 +87,8 @@ public class AutoFillAspect {
 
         }else if(operationType == OperationType.UPDATE){
             try {
-                Method setUpdateId = entity.getClass().getDeclaredMethod(AutoFillEnum.SET_UPDATE_ID.getValue(), Integer.class);
-                Method setUpdateTime = entity.getClass().getDeclaredMethod(AutoFillEnum.SET_UPDATE_TIME.getValue(), LocalDateTime.class);
+                Method setUpdateId = entity.getClass().getDeclaredMethod(AutoFillEnum.SET_UPDATE_ID.getMessage(), Integer.class);
+                Method setUpdateTime = entity.getClass().getDeclaredMethod(AutoFillEnum.SET_UPDATE_TIME.getMessage(), LocalDateTime.class);
 
                 setUpdateId.invoke(entity, operatorId);
                 setUpdateTime.invoke(entity, now);
