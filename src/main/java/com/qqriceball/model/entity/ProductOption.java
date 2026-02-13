@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "加料選項資料")
+@Schema(description = "產品細節選項資料")
 
 public class ProductOption {
 
@@ -20,7 +20,7 @@ public class ProductOption {
     @Schema(description = "名稱")
     private String title;
 
-    @Schema(description = "類型")
+    @Schema(description = "選項類型")
     private Integer optionType;
 
     @Schema(description = "售價")

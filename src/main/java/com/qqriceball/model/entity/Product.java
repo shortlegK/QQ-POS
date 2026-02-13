@@ -21,7 +21,7 @@ public class Product {
     @Schema(description = "名稱")
     private String title;
 
-    @Schema(description = "類型")
+    @Schema(description = "產品類型")
     private Integer productType;
 
     @Schema(description = "售價")

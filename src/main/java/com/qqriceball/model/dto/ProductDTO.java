@@ -21,10 +21,10 @@ public class ProductDTO {
     @NotBlank(message = "名稱為必填")
     private String title;
 
-    @Schema(description = "類型 (0: 葷食, 1: 素食, 2: 飲料)")
-    @NotNull(message = "類型為必填")
-    @Min(value = 0, message = "類型設定錯誤")
-    @Max(value = 2, message = "類型設定錯誤")
+    @Schema(description = "產品類型 (0: 葷食, 1: 素食, 2: 飲料)")
+    @NotNull(message = "產品類型為必填")
+    @Min(value = 0, message = "產品類型設定錯誤")
+    @Max(value = 2, message = "產品類型設定錯誤")
     private Integer productType;
 
     @Schema(description = "售價")
@@ -32,14 +32,10 @@ public class ProductDTO {
     @Min(value = 1, message = "售價不得小於 1")
     private Integer price;
 
-    @Schema(description = "狀態(0:停用 / 1:啟用)")
-    @NotNull(message = "狀態為必填")
-    @Min(value = 0, message = "狀態設定錯誤")
-    @Max(value = 1, message = "狀態設定錯誤")
+    @Schema(description = "啟用狀態(0:停用 / 1:啟用)")
+    @NotNull(message = "啟用狀態為必填")
+    @Min(value = 0, message = "啟用狀態設定錯誤")
+    @Max(value = 1, message = "啟用狀態設定錯誤")
     private Integer status;
-
-    @Schema(description = "加料選項")
-    private List<ProductOptionLink> productOptionLinks = new ArrayList<>();
-
 
 }
