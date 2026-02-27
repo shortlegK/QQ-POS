@@ -1,5 +1,7 @@
 package com.qqriceball.integration.testData;
 
-public record TestAccount (String username, String password, Integer id) {
+import java.time.LocalDate;
+
+public record TestAccount (Integer id, String username, String password,String name, Integer role, Integer status, LocalDate entryDate) {
 
 }
