@@ -30,7 +30,7 @@ public class LoginControllerIT {
 
 
     @Test
-    @DisplayName("[IT] Login - 登入成功，應回傳 200 及 token")
+    @DisplayName("[IT] 1001 login - 登入成功，應回傳 200 及 token")
     void testLoginSuccess() throws Exception {
 
         EmpLoginDTO empLoginDTO = getEmpLoginDTO(
@@ -52,7 +52,7 @@ public class LoginControllerIT {
     }
 
     @Test
-    @DisplayName("[IT] Login - 登入帳號不存在，應回傳 404 及指定訊息")
+    @DisplayName("[IT] 1001 login - 登入帳號不存在，應回傳 404 及指定訊息")
     void testLoginAccountNotExist() throws Exception {
 
         EmpLoginDTO empLoginDTO = getEmpLoginDTO("notExist",
@@ -73,7 +73,7 @@ public class LoginControllerIT {
     }
 
     @Test
-    @DisplayName("[IT] Login - 登入密碼錯誤，應回傳 401 及指定訊息")
+    @DisplayName("[IT] 1001 login - 登入密碼錯誤，應回傳 401 及指定訊息")
     void testLoginPasswordError() throws Exception {
 
 
@@ -95,7 +95,7 @@ public class LoginControllerIT {
 
 
     @Test
-    @DisplayName("[IT] Login - 登入帳號已停用，應回傳 403 及指定訊息")
+    @DisplayName("[IT] 1001 login - 登入帳號已停用，應回傳 403 及指定訊息")
     void testLoginAccountInactive() throws Exception {
 
         EmpLoginDTO empLoginDTO = getEmpLoginDTO(
@@ -116,7 +116,7 @@ public class LoginControllerIT {
     }
 
     @Test
-    @DisplayName("[IT] Login - 登入未輸入帳號，應回傳 400")
+    @DisplayName("[IT] 1001 login - 登入未輸入帳號，應回傳 400")
     void testLoginAccountNull() throws Exception {
 
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
@@ -137,7 +137,7 @@ public class LoginControllerIT {
 
 
     @Test
-    @DisplayName("[IT] Logout - 登出成功，應回傳 200")
+    @DisplayName("[IT] 1002 logout - 登出成功，應回傳 200")
     void testLogoutSuccess() throws Exception {
 
         ResultActions resultActions = mockMvc.perform(

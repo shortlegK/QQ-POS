@@ -7,6 +7,7 @@ import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.integration.testData.SeedUserData;
 import com.qqriceball.model.dto.EmpCreateDTO;
+import com.qqriceball.model.dto.EmpEditDTO;
 import com.qqriceball.model.dto.EmpLoginDTO;
 import com.qqriceball.model.dto.EmpStatusDTO;
 import org.junit.jupiter.api.*;
@@ -85,7 +86,7 @@ public class EmpControllerIT {
     }
 
     @Test
-    @DisplayName("[IT] Emp - 建立重複帳號，應回傳 409 及指定訊息")
+    @DisplayName("[IT] 2001 createEmp - 建立重複帳號，應回傳 409 及指定訊息")
     void testCreateEmpUsernameDuplicate() throws Exception{
 
         String username = getUnique("duplicate");
@@ -117,7 +118,7 @@ public class EmpControllerIT {
     }
 
     @Test
-    @DisplayName("[IT] Emp - 帳號長度不足，應回傳 400")
+    @DisplayName("[IT] Emp 2001 - 帳號長度不足，應回傳 400")
     void testCreateEmpUsernameLengthError() throws Exception{
 
         EmpCreateDTO empCreateDTO = getEmpCreateDTO("u", "testPassword1", RoleEnum.STAFF.getCode());
@@ -136,7 +137,7 @@ public class EmpControllerIT {
 
 
     @Test
-    @DisplayName("[IT] Emp - 建立帳號成功，應回傳 200 且可使用新帳號進行登入")
+    @DisplayName("[IT] 2001 createEmp - 建立帳號成功，應回傳 200 且可使用新帳號進行登入")
     void testCreateEmpUsernameSuccess() throws Exception{
 
         String username = getUnique("create");
@@ -180,7 +181,7 @@ public class EmpControllerIT {
 
 
     @Test
-    @DisplayName("[IT] Emp - 登入帳號無管理權限，應回傳 403 無法建立帳號 ")
+    @DisplayName("[IT] 2001 createEmp - 登入帳號無管理權限，應回傳 403 無法建立帳號 ")
     void testCreateEmpWithoutAdmin() throws Exception{
 
         String username = getUnique("create");
@@ -212,7 +213,7 @@ public class EmpControllerIT {
     }
 
     @Test
-    @DisplayName("[IT] /{id}/status - 員工 id 不存在，變更啟用狀態應回傳 404")
+    @DisplayName("[IT] 2003 updateStatus - 員工 id 不存在，變更啟用狀態應回傳 404")
     void testUpdateStatusAccountNotExist() throws Exception{
 
         int id = Integer.MAX_VALUE;
@@ -233,7 +234,7 @@ public class EmpControllerIT {
     }
 
     @Test
-    @DisplayName("[IT] /{id}/status - 登入帳號無管理權限，應回傳 403 且無法變更啟用狀態 ")
+    @DisplayName("[IT] 2003 updateStatus - 登入帳號無管理權限，應回傳 403 且無法變更啟用狀態 ")
     void testUpdateStatusWithoutAdmin() throws Exception {
 
         // 查詢執行前的帳號狀態
@@ -276,7 +277,7 @@ public class EmpControllerIT {
 
 
     @Test
-    @DisplayName("[IT] /{id}/status - 變更啟用狀態成功，應回傳 200 且變更指定狀態 ")
+    @DisplayName("[IT] 2003 updateStatus - 變更啟用狀態成功，應回傳 200 且變更指定狀態 ")
     void testUpdateStatusSuccess() throws Exception {
 
         // 建立測試帳號,取得 id
@@ -355,7 +356,73 @@ public class EmpControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.status").value(empStatusDTO.getStatus()));
 
+    }
 
+    @Test
+    @DisplayName("[IT] 2004 getById - 查詢 id 不存在，應回傳 404")
+    void testGetByIdNoExist() throws Exception {
+
+        mockMvc.perform(
+                        get("/emp/{id}", Integer.MAX_VALUE)
+                                .header("Authorization", "Bearer " + tokenManager)
+                ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    @DisplayName("[IT] 2004 getById - 查詢成功，應回傳 200 及查詢結果")
+    void testGetByIdSuccess() throws Exception {
+
+        mockMvc.perform(
+                        get("/emp/{id}", SeedUserData.TESTER.id())
+                        .header("Authorization", "Bearer " + tokenManager)
+        ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(SeedUserData.TESTER.id()))
+                .andExpect(jsonPath("$.data.username").value(SeedUserData.TESTER.username()));
+
+    }
+
+    @Test
+    @DisplayName("[IT] 2005 updateById - 修改 id 不存在，應回傳 404")
+    void testUpdateByIdNoExist() throws Exception {
+
+        EmpEditDTO empEditDTO = new EmpEditDTO();
+        empEditDTO.setId(Integer.MAX_VALUE);
+        empEditDTO.setEntryDate(LocalDate.now());
+
+        String jsonBody = objectMapper.writeValueAsString(empEditDTO);
+        mockMvc.perform(
+                        put("/emp")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    @DisplayName("[IT] 2005 updateById - 修改成功，應回傳 200")
+    void testUpdateByIdSuccess() throws Exception {
+
+        EmpEditDTO empEditDTO = new EmpEditDTO();
+        empEditDTO.setId(SeedUserData.TESTER.id());
+        empEditDTO.setEntryDate(LocalDate.now());
+
+        String jsonBody = objectMapper.writeValueAsString(empEditDTO);
+        mockMvc.perform(
+                        put("/emp")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isOk());
+
+        // 確認資料是否正確修改
+        mockMvc.perform(
+                        get("/emp/{id}", empEditDTO.getId())
+                                .header("Authorization", "Bearer " + tokenManager)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(empEditDTO.getId()))
+                .andExpect(jsonPath("$.data.entryDate").value(empEditDTO.getEntryDate().toString()));
     }
 
     private static EmpCreateDTO getEmpCreateDTO(String username, String password, int role) {
@@ -368,7 +435,6 @@ public class EmpControllerIT {
 
         return empCreateDTO;
     }
-
 
     private static EmpLoginDTO getEmpLoginDTO(String username, String password) {
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();

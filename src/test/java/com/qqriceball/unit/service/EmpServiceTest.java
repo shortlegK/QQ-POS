@@ -6,10 +6,9 @@ import com.qqriceball.common.exception.AccountNotExistException;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.exception.PasswordErrorException;
 import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.enumeration.StatusEnum;
-import com.qqriceball.model.dto.EmpCreateDTO;
-import com.qqriceball.model.dto.EmpLoginDTO;
-import com.qqriceball.model.dto.EmpStatusDTO;
+import com.qqriceball.model.dto.*;
 import com.qqriceball.model.entity.Emp;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.mapper.EmpMapper;
@@ -258,7 +257,6 @@ class EmpServiceTest {
     }
 
 
-
     @Test
     @DisplayName("[Unit] EmpService.getById - 員工 id 不存在，應拋出 AccountNotExistException")
     void testGetByIdAccountNotExist(){
@@ -275,6 +273,79 @@ class EmpServiceTest {
 
     }
 
+    @Test
+    @DisplayName("[Unit] EmpService.getById - 員工 id 存在，應呼叫 empMapper.getById 回傳 EmpVO 資料")
+    void testGetByIdAccountExist(){
+
+        Integer id = 1;
+
+        EmpVO empVO = new EmpVO();
+        empVO.setId(id);
+        empVO.setUsername("getById");
+        empVO.setName("getById");
+        empVO.setRole(RoleEnum.STAFF.getCode());
+        empVO.setStatus(StatusEnum.ACTIVE.getCode());
+
+        when(empMapper.getById(id)).thenReturn(empVO);
+
+        EmpVO result = empService.getById(id);
+
+        assertAll(
+                () -> assertEquals(id,result.getId(),"id 應與傳入參數相同"),
+                () -> assertEquals("getById",result.getUsername(),"username 應與傳入參數相同"),
+                () -> assertEquals("getById",result.getName(),"name 應與傳入參數相同")
+        );
+
+        verify(empMapper).getById(id);
+
+    }
+
+
+    @Test
+    @DisplayName("[Unit] EmpService.updateById - 員工 id 不存在，應拋出 AccountNotExistException")
+    void testUpdateByIdAccountNotExist(){
+
+        EmpEditDTO empEditDTO = new EmpEditDTO();
+        empEditDTO.setId(Integer.MAX_VALUE);
+
+        when(empMapper.getById(Integer.MAX_VALUE)).thenReturn(null);
+
+        AccountNotExistException ex = assertThrows(AccountNotExistException.class,
+                () -> empService.updateById(empEditDTO));
+        assertEquals(MessageEnum.ACCOUNT_NOT_EXIST.getMessage(), ex.getMessage());
+
+        verify(empMapper).getById(Integer.MAX_VALUE);
+        verify(empMapper, never()).updateById(any(Emp.class));
+
+    }
+
+    @Test
+    @DisplayName("[Unit] EmpService.updateById - 變更員工資料，應呼叫 empMapper.updateById")
+    void testUpdateByIdSuccess(){
+
+        Integer id = 1;
+
+        EmpEditDTO empEditDTO = new EmpEditDTO();
+        empEditDTO.setId(id);
+        empEditDTO.setName("updateById");
+        empEditDTO.setRole(RoleEnum.STAFF.getCode());
+        empEditDTO.setEntryDate(LocalDate.of(2026, 1, 1));
+
+        EmpVO empVO = new EmpVO();
+        when(empMapper.getById(id)).thenReturn(empVO);
+
+        empService.updateById(empEditDTO);
+
+        ArgumentCaptor<Emp> empArgumentCaptor = ArgumentCaptor.forClass(Emp.class);
+        verify(empMapper).updateById(empArgumentCaptor.capture());
+        verify(empMapper).getById(id);
+
+        Emp capturedEmp = empArgumentCaptor.getValue();
+        assertAll(
+                () -> assertEquals(id,capturedEmp.getId(),"id 應與傳入參數相同"),
+                () -> assertEquals(empEditDTO.getName(),capturedEmp.getName(),"name 應與傳入參數相同")
+        );
+    }
 
 
 

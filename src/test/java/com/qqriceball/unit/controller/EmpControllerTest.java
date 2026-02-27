@@ -6,9 +6,10 @@ import com.qqriceball.common.exception.AccountNotExistException;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.enumeration.MessageEnum;
-import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.enumeration.StatusEnum;
+import com.qqriceball.integration.testData.SeedUserData;
 import com.qqriceball.model.dto.EmpCreateDTO;
+import com.qqriceball.model.dto.EmpEditDTO;
 import com.qqriceball.model.dto.EmpStatusDTO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.controller.EmpController;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -31,13 +33,9 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.security.core.Authentication;
 
 
-import java.time.LocalDate;
-
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -70,7 +68,6 @@ public class EmpControllerTest {
     @AfterEach
     void cleanAuth(){
         SecurityContextHolder.clearContext();
-
     }
 
     @Test
@@ -114,7 +111,6 @@ public class EmpControllerTest {
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()));
     }
 
-
     @Test
     @DisplayName("[Unit] EmpController.updateStatus - 變更員工啟用狀態，帳號不存在應回傳 401 及指定訊息")
     void testUpdateStatusAccountNotExist() throws Exception {
@@ -136,18 +132,14 @@ public class EmpControllerTest {
         resultActions
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXIST.getCode()));
-
-
     }
-
-
 
     @Test
     @DisplayName("[Unit] EmpController.updateStatus - 變更員工啟用狀態成功，應回傳 200")
     void testUpdateStatusSuccess() throws Exception {
 
         Integer id = 666;
-        EmpStatusDTO empStatusDTO = getEmpStatusDTO(StatusEnum.ACTIVE);
+        EmpStatusDTO empStatusDTO = getEmpStatusDTO(StatusEnum.INACTIVE);
 
         String jsonBody = objectMapper.writeValueAsString(empStatusDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -163,15 +155,99 @@ public class EmpControllerTest {
 
     }
 
+    @Test
+    @DisplayName("[Unit] EmpController.getById - 員工 id 不存在，應回傳 404")
+    void testGetByIdNoExist() throws Exception {
+        Integer id = 666;
+
+        doThrow(new AccountNotExistException(MessageEnum.ACCOUNT_NOT_EXIST))
+                .when(empService)
+                .getById(anyInt());
+
+        ResultActions resultActions = mockMvc.perform(
+                get("/emp/{id}", id)
+        );
+
+        resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXIST.getCode()));
+
+        verify(empService).getById(anyInt());
+    }
+
+    @Test
+    @DisplayName("[Unit] EmpController.getById - 查詢成功應回傳 200 及員工資料")
+    void testGetByIdSuccess() throws Exception {
+        Integer id = 666;
+
+        EmpVO empVO = new EmpVO();
+        BeanUtils.copyProperties(SeedUserData.MANAGER,empVO);
+        when(empService.getById(anyInt())).thenReturn(empVO);
+
+        ResultActions resultActions = mockMvc.perform(
+                get("/emp/{id}", id)
+        );
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data").exists());
+
+        verify(empService).getById(anyInt());
+    }
+
+    @Test
+    @DisplayName("[Unit] EmpController.updateById - 員工 id 不存在，應回傳 404")
+    void testUpdateByIdNoExist() throws Exception {
+
+        EmpEditDTO empEditDTO = getEmpEditDTO();
+
+        doThrow(new AccountNotExistException(MessageEnum.ACCOUNT_NOT_EXIST))
+                .when(empService)
+                .updateById(any(EmpEditDTO.class)
+                );
+
+        String jsonBody = objectMapper.writeValueAsString(empEditDTO);
+        ResultActions resultActions = mockMvc.perform(
+                put("/emp")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        );
+
+        resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXIST.getCode()));
+
+        verify(empService).updateById(any(EmpEditDTO.class));
+    }
+
+
+
+    @Test
+    @DisplayName("[Unit] EmpController.updateById - 修改成功應回傳 200 及員工資料")
+    void testUpdateByIdSuccess() throws Exception {
+
+        EmpEditDTO empEditDTO = getEmpEditDTO();
+
+        String jsonBody = objectMapper.writeValueAsString(empEditDTO);
+        ResultActions resultActions = mockMvc.perform(
+                put("/emp")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        );
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()));
+
+        verify(empService).updateById(any(EmpEditDTO.class));
+    }
+
+
     private EmpCreateDTO getEmpCreateDTO() {
 
         EmpCreateDTO empCreateDTO = new EmpCreateDTO();
-        empCreateDTO.setUsername("tester");
-        empCreateDTO.setPassword("Password");
-        empCreateDTO.setName("tester");
-        empCreateDTO.setRole(RoleEnum.STAFF.getCode());
-        empCreateDTO.setEntryDate(LocalDate.of(2026, 1, 1));
-
+        BeanUtils.copyProperties(SeedUserData.TESTER, empCreateDTO);
         return empCreateDTO;
     }
 
@@ -179,6 +255,12 @@ public class EmpControllerTest {
         EmpStatusDTO empStatusDTO = new EmpStatusDTO();
         empStatusDTO.setStatus(status.getCode());
         return empStatusDTO;
+    }
+
+    private static EmpEditDTO getEmpEditDTO() {
+        EmpEditDTO empEditDTO = new EmpEditDTO();
+        BeanUtils.copyProperties(SeedUserData.TESTER, empEditDTO);
+        return empEditDTO;
     }
 
 }
