@@ -5,12 +5,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qqriceball.common.exception.AccountNotExistException;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.properties.JwtProperties;
+import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.integration.testData.SeedUserData;
+import com.qqriceball.integration.testData.TestAccount;
 import com.qqriceball.model.dto.EmpCreateDTO;
 import com.qqriceball.model.dto.EmpEditDTO;
+import com.qqriceball.model.dto.EmpPageQueryDTO;
 import com.qqriceball.model.dto.EmpStatusDTO;
+import com.qqriceball.model.vo.EmpPageQueryVO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.controller.EmpController;
 import com.qqriceball.handler.GlobalExceptionHandler;
@@ -32,6 +36,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.security.core.Authentication;
 
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -224,7 +231,7 @@ public class EmpControllerTest {
 
 
     @Test
-    @DisplayName("[Unit] EmpController.updateById - 修改成功應回傳 200 及員工資料")
+    @DisplayName("[Unit] EmpController.updateById - 修改成功應回傳 200")
     void testUpdateByIdSuccess() throws Exception {
 
         EmpEditDTO empEditDTO = getEmpEditDTO();
@@ -241,6 +248,40 @@ public class EmpControllerTest {
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()));
 
         verify(empService).updateById(any(EmpEditDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] EmpController.pageQuery - 分頁查詢成功，應回傳 200 及資料")
+    void testPageQuerySuccess() throws Exception {
+
+        EmpPageQueryDTO queryDTO = new EmpPageQueryDTO();
+        queryDTO.setPage(1);
+        queryDTO.setPageSize(5);
+
+        List<EmpPageQueryVO> mockData = new ArrayList<EmpPageQueryVO>();
+        mockData.add(getEmpPageQueryDTO(SeedUserData.MANAGER));
+        mockData.add(getEmpPageQueryDTO(SeedUserData.STAFF));
+
+        Long total = (long) mockData.size();
+        PageResult mockResult = new PageResult(total, queryDTO.getPage(),
+                queryDTO.getPageSize(), mockData);
+
+        when(empService.pageQuery(any(EmpPageQueryDTO.class))).thenReturn(mockResult);
+
+        ResultActions resultActions = mockMvc.perform(
+                get("/emp/page")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("page", queryDTO.getPage().toString())
+                        .param("pageSize", queryDTO.getPageSize().toString())
+                        .param("name", SeedUserData.MANAGER.name())
+        );
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data").exists());
+
+        verify(empService).pageQuery(any(EmpPageQueryDTO.class));
     }
 
 
@@ -261,6 +302,12 @@ public class EmpControllerTest {
         EmpEditDTO empEditDTO = new EmpEditDTO();
         BeanUtils.copyProperties(SeedUserData.TESTER, empEditDTO);
         return empEditDTO;
+    }
+
+    private  static EmpPageQueryVO getEmpPageQueryDTO(TestAccount account) {
+        EmpPageQueryVO empPageQueryVO = new EmpPageQueryVO();
+        BeanUtils.copyProperties(account, empPageQueryVO);
+        return empPageQueryVO;
     }
 
 }

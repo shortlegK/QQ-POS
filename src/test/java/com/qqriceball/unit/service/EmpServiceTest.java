@@ -1,15 +1,19 @@
 package com.qqriceball.unit.service;
 
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.qqriceball.common.exception.AccountInactiveException;
 import com.qqriceball.common.exception.AccountNotExistException;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.exception.PasswordErrorException;
+import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.model.dto.*;
 import com.qqriceball.model.entity.Emp;
+import com.qqriceball.model.vo.EmpPageQueryVO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.mapper.EmpMapper;
 import com.qqriceball.service.EmpService;
@@ -26,6 +30,8 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -52,7 +58,7 @@ class EmpServiceTest {
         EmpLoginDTO empLoginDTO = new EmpLoginDTO();
         empLoginDTO.setUsername(username);
 
-       lenient().when(empMapper.getByUsername(empLoginDTO.getUsername())).thenReturn(null);
+        lenient().when(empMapper.getByUsername(empLoginDTO.getUsername())).thenReturn(null);
 
         AccountNotExistException ex = assertThrows(AccountNotExistException.class,
                 () -> empService.login(empLoginDTO));
@@ -150,7 +156,7 @@ class EmpServiceTest {
 
     @Test
     @DisplayName("[Unit] EmpService.create - 建立重複帳號，應拋出 AlreadyExistsException")
-    void testCreateEmpUsernameDuplicate(){
+    void testCreateEmpUsernameDuplicate() {
 
         String username = "admin";
         String rawPassword = "Password";
@@ -176,7 +182,7 @@ class EmpServiceTest {
 
     @Test
     @DisplayName("[Unit] EmpService.create - 建立員工，應加密密碼並呼叫 insert 帶入 Emp 資料")
-    void testCreateEmpSuccess(){
+    void testCreateEmpSuccess() {
 
         String username = "testSuccess";
         String rawPassword = "Password";
@@ -203,18 +209,18 @@ class EmpServiceTest {
         Emp capturedEmp = empArgumentCaptor.getValue();
 
         assertAll(
-                () -> assertEquals(username,capturedEmp.getUsername(),"username 應與傳入參數相同"),
-                () -> assertEquals(encodedPassword,capturedEmp.getPassword(),"password 應為加密後的密碼"),
-                () -> assertEquals(name,capturedEmp.getName(),"name 應與傳入參數相同"),
-                () -> assertEquals(role,capturedEmp.getRole(),"role 應與傳入參數相同"),
-                () -> assertEquals(entryDate,capturedEmp.getEntryDate(),"entryDate 應與傳入參數相同")
+                () -> assertEquals(username, capturedEmp.getUsername(), "username 應與傳入參數相同"),
+                () -> assertEquals(encodedPassword, capturedEmp.getPassword(), "password 應為加密後的密碼"),
+                () -> assertEquals(name, capturedEmp.getName(), "name 應與傳入參數相同"),
+                () -> assertEquals(role, capturedEmp.getRole(), "role 應與傳入參數相同"),
+                () -> assertEquals(entryDate, capturedEmp.getEntryDate(), "entryDate 應與傳入參數相同")
         );
 
     }
 
     @Test
     @DisplayName("[Unit] EmpService.updateStatus - 員工 id 不存在，應拋出 AccountNotExistException")
-    void testUpdateStatusAccountNotExist(){
+    void testUpdateStatusAccountNotExist() {
 
         EmpStatusDTO empStatusDTO = new EmpStatusDTO();
         Integer id = 1;
@@ -222,7 +228,7 @@ class EmpServiceTest {
         when(empMapper.getById(id)).thenReturn(null);
 
         AccountNotExistException ex = assertThrows(AccountNotExistException.class,
-                () -> empService.updateStatus(empStatusDTO,id));
+                () -> empService.updateStatus(empStatusDTO, id));
         assertEquals(MessageEnum.ACCOUNT_NOT_EXIST.getMessage(), ex.getMessage());
 
 
@@ -233,7 +239,7 @@ class EmpServiceTest {
 
     @ParameterizedTest(name = "[Unit] EmpService.updateStatus - 變更員工啟用狀態，應呼叫 empMapper.updateById")
     @EnumSource(value = StatusEnum.class, names = {"ACTIVE", "INACTIVE"})
-    void testUpdateStatusSetInactive(StatusEnum statusEnum){
+    void testUpdateStatusSetInactive(StatusEnum statusEnum) {
 
         EmpStatusDTO empStatusDTO = new EmpStatusDTO();
         empStatusDTO.setStatus(statusEnum.getCode());
@@ -242,7 +248,7 @@ class EmpServiceTest {
         EmpVO empVO = new EmpVO();
         when(empMapper.getById(id)).thenReturn(empVO);
 
-        empService.updateStatus(empStatusDTO,id);
+        empService.updateStatus(empStatusDTO, id);
 
         ArgumentCaptor<Emp> empArgumentCaptor = ArgumentCaptor.forClass(Emp.class);
         verify(empMapper).updateById(empArgumentCaptor.capture());
@@ -250,8 +256,8 @@ class EmpServiceTest {
 
         Emp capturedEmp = empArgumentCaptor.getValue();
         assertAll(
-                () -> assertEquals(id,capturedEmp.getId(),"id 應與傳入參數相同"),
-                () -> assertEquals(statusEnum.getCode(),capturedEmp.getStatus(),"status 應與傳入參數相同")
+                () -> assertEquals(id, capturedEmp.getId(), "id 應與傳入參數相同"),
+                () -> assertEquals(statusEnum.getCode(), capturedEmp.getStatus(), "status 應與傳入參數相同")
         );
 
     }
@@ -259,7 +265,7 @@ class EmpServiceTest {
 
     @Test
     @DisplayName("[Unit] EmpService.getById - 員工 id 不存在，應拋出 AccountNotExistException")
-    void testGetByIdAccountNotExist(){
+    void testGetByIdAccountNotExist() {
 
         Integer id = Integer.MAX_VALUE;
 
@@ -275,7 +281,7 @@ class EmpServiceTest {
 
     @Test
     @DisplayName("[Unit] EmpService.getById - 員工 id 存在，應呼叫 empMapper.getById 回傳 EmpVO 資料")
-    void testGetByIdAccountExist(){
+    void testGetByIdAccountExist() {
 
         Integer id = 1;
 
@@ -291,9 +297,9 @@ class EmpServiceTest {
         EmpVO result = empService.getById(id);
 
         assertAll(
-                () -> assertEquals(id,result.getId(),"id 應與傳入參數相同"),
-                () -> assertEquals("getById",result.getUsername(),"username 應與傳入參數相同"),
-                () -> assertEquals("getById",result.getName(),"name 應與傳入參數相同")
+                () -> assertEquals(id, result.getId(), "id 應與傳入參數相同"),
+                () -> assertEquals("getById", result.getUsername(), "username 應與傳入參數相同"),
+                () -> assertEquals("getById", result.getName(), "name 應與傳入參數相同")
         );
 
         verify(empMapper).getById(id);
@@ -303,7 +309,7 @@ class EmpServiceTest {
 
     @Test
     @DisplayName("[Unit] EmpService.updateById - 員工 id 不存在，應拋出 AccountNotExistException")
-    void testUpdateByIdAccountNotExist(){
+    void testUpdateByIdAccountNotExist() {
 
         EmpEditDTO empEditDTO = new EmpEditDTO();
         empEditDTO.setId(Integer.MAX_VALUE);
@@ -321,7 +327,7 @@ class EmpServiceTest {
 
     @Test
     @DisplayName("[Unit] EmpService.updateById - 變更員工資料，應呼叫 empMapper.updateById")
-    void testUpdateByIdSuccess(){
+    void testUpdateByIdSuccess() {
 
         Integer id = 1;
 
@@ -342,11 +348,48 @@ class EmpServiceTest {
 
         Emp capturedEmp = empArgumentCaptor.getValue();
         assertAll(
-                () -> assertEquals(id,capturedEmp.getId(),"id 應與傳入參數相同"),
-                () -> assertEquals(empEditDTO.getName(),capturedEmp.getName(),"name 應與傳入參數相同")
+                () -> assertEquals(id, capturedEmp.getId(), "id 應與傳入參數相同"),
+                () -> assertEquals(empEditDTO.getName(), capturedEmp.getName(), "name 應與傳入參數相同")
         );
     }
 
+    @Test
+    @DisplayName("[Unit] EmpService.pageQuery - 分頁查詢成功，應回傳 PageResult 資料")
+    void testPageQuerySuccess() {
+        Integer page = 1;
+        Integer pageSize = 5;
+        String name = "emp";
 
+        EmpPageQueryDTO empPageQueryDTO = new EmpPageQueryDTO();
+        empPageQueryDTO.setPage(page);
+        empPageQueryDTO.setPageSize(pageSize);
+        empPageQueryDTO.setName(name);
+
+        EmpPageQueryVO data1 = new EmpPageQueryVO();
+        data1.setId(1);
+        data1.setUsername("user1");
+
+        EmpPageQueryVO data2 = new EmpPageQueryVO();
+        data2.setId(2);
+        data2.setUsername("user2");
+
+        Page<EmpPageQueryVO> mockPage = new Page<>(page, pageSize);
+        mockPage.setTotal(2L);
+        mockPage.add(data1);
+        mockPage.add(data2);
+
+        when(empMapper.pageQuery(any(EmpPageQueryDTO.class))).thenReturn(mockPage);
+
+        PageResult result = empService.pageQuery(empPageQueryDTO);
+
+        assertAll(
+                () -> assertEquals(page, result.getPage()),
+                () -> assertEquals(pageSize, result.getPageSize()),
+                () -> assertEquals(2L, result.getTotal()),
+                () -> assertEquals(mockPage.getResult(), result.getRecords())
+        );
+
+        verify(empMapper).pageQuery(any(EmpPageQueryDTO.class));
+    }
 
 }

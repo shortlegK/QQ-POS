@@ -6,10 +6,7 @@ import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.integration.testData.SeedUserData;
-import com.qqriceball.model.dto.EmpCreateDTO;
-import com.qqriceball.model.dto.EmpEditDTO;
-import com.qqriceball.model.dto.EmpLoginDTO;
-import com.qqriceball.model.dto.EmpStatusDTO;
+import com.qqriceball.model.dto.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -25,6 +22,8 @@ import java.time.LocalDate;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -334,7 +333,8 @@ public class EmpControllerIT {
                         get("/emp/{id}", id)
                                 .header("Authorization", "Bearer " + tokenTestUser)
                                 .contentType(MediaType.APPLICATION_JSON)
-                ).andExpect(status().isForbidden());
+                ).andExpect(status().isForbidden()
+        );
 
 
         // 變更狀態為啟用
@@ -354,7 +354,8 @@ public class EmpControllerIT {
                                 .header("Authorization", "Bearer " + tokenManager)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.status").value(empStatusDTO.getStatus()));
+                .andExpect(jsonPath("$.data.status").value(empStatusDTO.getStatus())
+                );
 
     }
 
@@ -378,7 +379,8 @@ public class EmpControllerIT {
                         .header("Authorization", "Bearer " + tokenManager)
         ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(SeedUserData.TESTER.id()))
-                .andExpect(jsonPath("$.data.username").value(SeedUserData.TESTER.username()));
+                .andExpect(jsonPath("$.data.username").value(SeedUserData.TESTER.username())
+                );
 
     }
 
@@ -397,7 +399,8 @@ public class EmpControllerIT {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.data").isEmpty());
+                .andExpect(jsonPath("$.data").isEmpty()
+                );
     }
 
     @Test
@@ -424,6 +427,36 @@ public class EmpControllerIT {
                 .andExpect(jsonPath("$.data.id").value(empEditDTO.getId()))
                 .andExpect(jsonPath("$.data.entryDate").value(empEditDTO.getEntryDate().toString()));
     }
+
+    @Test
+    @DisplayName("[IT] 2002 pageQuery - 分頁查詢成功，應回傳 200 及資料")
+    void testPageQuerySuccess() throws Exception {
+
+        EmpPageQueryDTO queryDTO = new EmpPageQueryDTO();
+        queryDTO.setPage(1);
+        queryDTO.setPageSize(5);
+        queryDTO.setName(SeedUserData.TESTER.name());
+
+        ResultActions resultActions = mockMvc.perform(
+                get("/emp/page")
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .param("page", queryDTO.getPage().toString())
+                        .param("pageSize", queryDTO.getPageSize().toString())
+                        .param("name", queryDTO.getName())
+        );
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.total").isNumber())
+                .andExpect(jsonPath("$.data.page").value(queryDTO.getPage()))
+                .andExpect(jsonPath("$.data.pageSize").value(queryDTO.getPageSize()))
+                .andExpect(jsonPath("$.data.records").isArray())
+                .andExpect(jsonPath("$.data.records").isNotEmpty())
+                .andExpect(jsonPath("$.data.records[0].id").value(SeedUserData.TESTER.id()))
+                .andExpect(jsonPath("$.data.records[0].username").value(SeedUserData.TESTER.username()));
+    }
+
 
     private static EmpCreateDTO getEmpCreateDTO(String username, String password, int role) {
         EmpCreateDTO empCreateDTO = new EmpCreateDTO();

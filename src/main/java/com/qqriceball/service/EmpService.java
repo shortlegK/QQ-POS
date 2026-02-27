@@ -77,14 +77,16 @@ public class EmpService {
     }
 
     public PageResult pageQuery(EmpPageQueryDTO empPageQueryDTO) {
-        try(Page<EmpPageQueryVO> pageQuery =
-                    PageHelper.startPage(empPageQueryDTO.getPage(), empPageQueryDTO.getPageSize())){
+        try{
+            PageHelper.startPage(empPageQueryDTO.getPage(), empPageQueryDTO.getPageSize());
 
-            empMapper.pageQuery(empPageQueryDTO);
+            List<EmpPageQueryVO> list = empMapper.pageQuery(empPageQueryDTO);
 
-            Long total = pageQuery.getTotal();
-            List<EmpPageQueryVO> records = pageQuery.getResult();
-            return new PageResult(total, empPageQueryDTO.getPage(), empPageQueryDTO.getPageSize(), records);
+            Page<EmpPageQueryVO> page = (Page<EmpPageQueryVO>) list;
+
+            return new PageResult(page.getTotal(), empPageQueryDTO.getPage(),
+                    empPageQueryDTO.getPageSize(), page.getResult());
+
         }catch (Exception e) {
             log.error("查詢異常：{}", empPageQueryDTO, e);
             throw new BadRequestArgsException(MessageEnum.BAD_REQUEST);
