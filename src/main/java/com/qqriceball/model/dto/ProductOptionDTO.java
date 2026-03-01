@@ -1,6 +1,5 @@
 package com.qqriceball.model.dto;
 
-import com.qqriceball.model.entity.ProductOptionLink;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -8,11 +7,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
-@Schema(description = "細節選項建立/編輯資料")
+@Schema(description = "產品選項建立/編輯資料")
 public class ProductOptionDTO {
 
     private Integer id;
@@ -21,8 +18,8 @@ public class ProductOptionDTO {
     @NotBlank(message = "名稱為必填")
     private String title;
 
-    @Schema(description = "細節選項類型 (0: 米飯種類, 1: 飯量, 2: 辣度, 3: 加料種類)")
-    @NotNull(message = "細節選項類型為必填")
+    @Schema(description = "產品選項類型 (0: 米飯種類, 1: 飯量, 2: 辣度, 3: 加料種類)")
+    @NotNull(message = "產品選項類型為必填")
     @Min(value = 0, message = "細節選項類型設定錯誤")
     @Max(value = 3, message = "細節選項類型設定錯誤")
     private Integer optionType;

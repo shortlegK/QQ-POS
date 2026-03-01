@@ -39,7 +39,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**"
                         ).permitAll()
-                        .requestMatchers("/emp/**").hasAuthority(RoleEnum.MANAGER.getRoleName())
+                        .requestMatchers("/emps/**").hasAuthority(RoleEnum.MANAGER.getRoleName())
+                        .requestMatchers("/products/**").hasAuthority(RoleEnum.MANAGER.getRoleName())
                         .anyRequest().authenticated()
                 )
 

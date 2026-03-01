@@ -1,7 +1,13 @@
 package com.qqriceball.integration.testData;
 
+import com.qqriceball.integration.testData.emp.SeedUserData;
+import com.qqriceball.integration.testData.emp.TestAccount;
+import com.qqriceball.integration.testData.product.SeedProductData;
+import com.qqriceball.integration.testData.product.TestProduct;
 import com.qqriceball.mapper.EmpMapper;
+import com.qqriceball.mapper.ProductMapper;
 import com.qqriceball.model.entity.Emp;
+import com.qqriceball.model.entity.Product;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
@@ -16,10 +22,12 @@ public class TestDataSeeder implements ApplicationRunner {
 
     private final PasswordEncoder passwordEncoder;
     private final EmpMapper empMapper;
+    private final ProductMapper productMapper;
 
-    public TestDataSeeder(PasswordEncoder passwordEncoder, EmpMapper empMapper) {
+    public TestDataSeeder(PasswordEncoder passwordEncoder, EmpMapper empMapper , ProductMapper productMapper) {
         this.passwordEncoder = passwordEncoder;
         this.empMapper = empMapper;
+        this.productMapper = productMapper;
     }
 
     @Override
@@ -29,6 +37,10 @@ public class TestDataSeeder implements ApplicationRunner {
         createUser(SeedUserData.STAFF);
         createUser(SeedUserData.INACTIVE);
         createUser(SeedUserData.TESTER);
+
+        createProduct(SeedProductData.MEAT_PRODUCT);
+        createProduct(SeedProductData.VEG_PRODUCT);
+        createProduct(SeedProductData.DRINK_PRODUCT);
     }
 
     private void createUser(TestAccount testAccount) {
@@ -56,5 +68,32 @@ public class TestDataSeeder implements ApplicationRunner {
             existing.setStatus(testAccount.status());
             empMapper.updateById(existing);
         }
+    }
+
+    private void createProduct(TestProduct testProduct){
+
+        Product existing = productMapper.getByTitle(testProduct.title());
+
+        if(existing == null){
+            Product product = new Product();
+            product.setTitle(testProduct.title());
+            product.setProductType(testProduct.productType());
+            product.setPrice(testProduct.price());
+            product.setStatus(testProduct.status());
+            product.setCreateId(1);
+            product.setCreateTime(LocalDateTime.now());
+            product.setUpdateId(1);
+            product.setUpdateTime(LocalDateTime.now());
+
+            productMapper.insert(product);
+        }else{
+            existing.setProductType(testProduct.productType());
+            existing.setPrice(testProduct.price());
+            existing.setStatus(testProduct.status());
+            productMapper.updateById(existing);
+
+        }
+
+
     }
 }

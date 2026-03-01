@@ -1,4 +1,4 @@
-package com.qqriceball.integration.testData;
+package com.qqriceball.integration.testData.emp;
 
 import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.enumeration.StatusEnum;

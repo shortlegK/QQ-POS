@@ -5,13 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "菜單品項分頁查詢結果資料")
-public class ProductPageQueryVO {
+@AllArgsConstructor
+@Schema(description = "產品資料")
+public class ProductVO {
 
     @Schema(description = "編號")
     private Integer id;
@@ -19,11 +19,8 @@ public class ProductPageQueryVO {
     @Schema(description = "名稱")
     private String title;
 
-    @Schema(description = "類型")
+    @Schema(description = "產品類型")
     private Integer productType;
-
-    @Schema(description = "類型名稱")
-    private String typeName;
 
     @Schema(description = "售價")
     private Integer price;

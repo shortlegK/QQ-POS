@@ -20,6 +20,9 @@
             <if test="name != null and name !=''">
                 name like concat('%',#{name},'%')
             </if>
+            <if test="status != null and status !=''">
+                status = #{status}
+            </if>
         </where>
         order by create_time desc
     </select>

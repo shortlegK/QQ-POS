@@ -20,7 +20,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@RequestMapping("/emp")
+@RequestMapping("/emps")
 @RestController
 @Tag(name = "員工管理")
 public class EmpController {
