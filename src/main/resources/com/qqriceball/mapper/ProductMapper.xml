@@ -28,4 +28,19 @@
         order by create_time desc
     </select>
 
+    <!--更新品項資料-->
+    <update id="updateById" parameterType="com.qqriceball.model.entity.Product">
+        update product
+        <set>
+            <if test = "title != null"> title = #{title}, </if>
+            <if test = "productType != null"> product_type = #{productType} ,</if>
+            <if test = "price != null"> price = #{price}, </if>
+            <if test = "status != null"> status = #{status},</if>
+            <if test = "updateId != null">update_id = #{updateId},</if>
+            <if test = "updateTime != null">update_time = #{updateTime} </if>
+        </set>
+        where id = #{id}
+    </update>
+
+
 </mapper>

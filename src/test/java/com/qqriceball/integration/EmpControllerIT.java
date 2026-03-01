@@ -5,7 +5,8 @@ import com.jayway.jsonpath.JsonPath;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.enumeration.StatusEnum;
-import com.qqriceball.integration.testData.SeedUserData;
+import com.qqriceball.integration.testData.emp.SeedUserData;
+import com.qqriceball.integration.utils.Utils;
 import com.qqriceball.model.dto.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +44,6 @@ public class EmpControllerIT {
 
     private String tokenManager;
     private String tokenStaff;
-
-    private static AtomicInteger counter = new AtomicInteger(1);
 
     @BeforeAll
     void setUp() throws Exception {
@@ -88,7 +87,7 @@ public class EmpControllerIT {
     @DisplayName("[IT] 2001 createEmp - 建立重複帳號，應回傳 409 及指定訊息")
     void testCreateEmpUsernameDuplicate() throws Exception{
 
-        String username = getUnique("duplicate");
+        String username = Utils.getUnique("duplicate");
 
         EmpCreateDTO empCreateDTO = getEmpCreateDTO(username,
                 username, RoleEnum.STAFF.getCode());
@@ -139,7 +138,7 @@ public class EmpControllerIT {
     @DisplayName("[IT] 2001 createEmp - 建立帳號成功，應回傳 200 且可使用新帳號進行登入")
     void testCreateEmpUsernameSuccess() throws Exception{
 
-        String username = getUnique("create");
+        String username = Utils.getUnique("create");
         EmpCreateDTO empCreateDTO = getEmpCreateDTO(username, username, RoleEnum.MANAGER.getCode());
 
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
@@ -181,7 +180,7 @@ public class EmpControllerIT {
     @DisplayName("[IT] 2001 createEmp - 登入帳號無管理權限，應回傳 403 無法建立帳號 ")
     void testCreateEmpWithoutAdmin() throws Exception{
 
-        String username = getUnique("create");
+        String username = Utils.getUnique("create");
         EmpCreateDTO empCreateDTO = getEmpCreateDTO(username, username, RoleEnum.STAFF.getCode());
 
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
@@ -279,7 +278,7 @@ public class EmpControllerIT {
 
         // 建立測試帳號,取得 id
 
-        String statusName = getUnique("status");
+        String statusName = Utils.getUnique("status");
         EmpCreateDTO empCreateDTO = getEmpCreateDTO(statusName, statusName, RoleEnum.MANAGER.getCode());
 
         String createJsonBody = objectMapper.writeValueAsString(empCreateDTO);
@@ -419,8 +418,8 @@ public class EmpControllerIT {
     }
 
     @Test
-    @DisplayName("[IT] 2002 pageQuery - 分頁查詢成功，應回傳 200 及資料")
-    void testPageQuerySuccess() throws Exception {
+    @DisplayName("[IT] 2002 pageQueryEmp - 分頁查詢成功，應回傳 200 及資料")
+    void testPageQueryEmpSuccess() throws Exception {
 
         EmpPageQueryDTO queryDTO = new EmpPageQueryDTO();
         queryDTO.setPage(1);
@@ -465,10 +464,6 @@ public class EmpControllerIT {
         empLoginDTO.setPassword(password);
 
         return empLoginDTO;
-    }
-
-    private String getUnique(String prefix) {
-        return prefix + counter.getAndIncrement();
     }
 }
 

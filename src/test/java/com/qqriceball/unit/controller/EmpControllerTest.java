@@ -8,8 +8,8 @@ import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.StatusEnum;
-import com.qqriceball.integration.testData.SeedUserData;
-import com.qqriceball.integration.testData.TestAccount;
+import com.qqriceball.integration.testData.emp.SeedUserData;
+import com.qqriceball.integration.testData.emp.TestAccount;
 import com.qqriceball.model.dto.EmpCreateDTO;
 import com.qqriceball.model.dto.EmpEditDTO;
 import com.qqriceball.model.dto.EmpPageQueryDTO;
@@ -258,8 +258,8 @@ public class EmpControllerTest {
         queryDTO.setPageSize(5);
 
         List<EmpPageQueryVO> mockData = new ArrayList<>();
-        mockData.add(getEmpPageQueryDTO(SeedUserData.MANAGER));
-        mockData.add(getEmpPageQueryDTO(SeedUserData.STAFF));
+        mockData.add(getEmpPageQueryVO(SeedUserData.MANAGER));
+        mockData.add(getEmpPageQueryVO(SeedUserData.STAFF));
 
         Long total = (long) mockData.size();
         PageResult mockResult = new PageResult(total, queryDTO.getPage(),
@@ -303,7 +303,7 @@ public class EmpControllerTest {
         return empEditDTO;
     }
 
-    private  static EmpPageQueryVO getEmpPageQueryDTO(TestAccount account) {
+    private  static EmpPageQueryVO getEmpPageQueryVO(TestAccount account) {
         EmpPageQueryVO empPageQueryVO = new EmpPageQueryVO();
         BeanUtils.copyProperties(account, empPageQueryVO);
         return empPageQueryVO;

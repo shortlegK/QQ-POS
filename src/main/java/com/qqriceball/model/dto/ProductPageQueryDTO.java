@@ -15,9 +15,9 @@ public class ProductPageQueryDTO implements Serializable {
     @Schema(description = "名稱")
     private String title;
 
-    @Schema(description = "類型")
-    @Min(value = 0, message = "類型設定錯誤")
-    @Max(value = 2, message = "類型設定錯誤")
+    @Schema(description = "產品類型")
+    @Min(value = 0, message = "產品類型設定錯誤")
+    @Max(value = 2, message = "產品類型設定錯誤")
     private Integer productType;
 
     @Schema(description = "狀態")

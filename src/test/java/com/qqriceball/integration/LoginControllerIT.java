@@ -2,7 +2,7 @@ package com.qqriceball.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qqriceball.enumeration.MessageEnum;
-import com.qqriceball.integration.testData.SeedUserData;
+import com.qqriceball.integration.testData.emp.SeedUserData;
 import com.qqriceball.model.dto.EmpLoginDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
