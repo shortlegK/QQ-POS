@@ -6,7 +6,7 @@
 
 
     <!--新增員工資料-->
-    <insert id="insert" parameterType="com.qqriceball.model.entity.Emp">
+    <insert id="insert" parameterType="com.qqriceball.model.entity.Emp" useGeneratedKeys="true" keyProperty="id">
         insert into emp(username, password, name, role,status , entry_date, create_id, create_time, update_id, update_time)
         values (#{username},#{password}, #{name}, #{role}, #{status}, #{entryDate} ,#{createId}, #{createTime}, #{updateId}, #{updateTime})
     </insert>

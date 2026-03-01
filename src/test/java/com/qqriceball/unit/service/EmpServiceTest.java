@@ -2,7 +2,6 @@ package com.qqriceball.unit.service;
 
 
 import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import com.qqriceball.common.exception.AccountInactiveException;
 import com.qqriceball.common.exception.AccountNotExistException;
 import com.qqriceball.common.exception.AlreadyExistsException;
@@ -30,8 +29,6 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -344,7 +341,7 @@ class EmpServiceTest {
 
         ArgumentCaptor<Emp> empArgumentCaptor = ArgumentCaptor.forClass(Emp.class);
         verify(empMapper).updateById(empArgumentCaptor.capture());
-        verify(empMapper).getById(id);
+        verify(empMapper, times(2)).getById(id);
 
         Emp capturedEmp = empArgumentCaptor.getValue();
         assertAll(

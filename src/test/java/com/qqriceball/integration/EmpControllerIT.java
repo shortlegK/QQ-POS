@@ -154,9 +154,7 @@ public class EmpControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.msg").value(MessageEnum.SUCCESS.getMessage()))
-                .andExpect(jsonPath("$.data").isEmpty()
-                );
-
+                .andExpect(jsonPath("$.data.name").value(username));
 
         EmpLoginDTO empLoginDTO = getEmpLoginDTO(empCreateDTO.getUsername(),
                 empCreateDTO.getPassword());
@@ -282,24 +280,24 @@ public class EmpControllerIT {
         // 建立測試帳號,取得 id
 
         String statusName = getUnique("status");
-        EmpCreateDTO empCreateDTO = getEmpCreateDTO(statusName, statusName, RoleEnum.STAFF.getCode());
+        EmpCreateDTO empCreateDTO = getEmpCreateDTO(statusName, statusName, RoleEnum.MANAGER.getCode());
 
-        String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
+        String createJsonBody = objectMapper.writeValueAsString(empCreateDTO);
         mockMvc.perform(
                 post("/emp")
                         .header("Authorization", "Bearer " + tokenManager)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonBody))
+                        .content(createJsonBody))
                 .andExpect(status().isOk());
 
         EmpLoginDTO empLoginDTO = getEmpLoginDTO(empCreateDTO.getUsername(),
                 empCreateDTO.getPassword());
 
-        jsonBody = objectMapper.writeValueAsString(empLoginDTO);
+        String loginJsonBody = objectMapper.writeValueAsString(empLoginDTO);
         MvcResult result = mockMvc.perform(
                         post("/login")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(jsonBody))
+                                .content(loginJsonBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.username").value(empCreateDTO.getUsername()))
                 .andExpect(jsonPath("$.data.name").value(empCreateDTO.getName())).andReturn();
@@ -328,14 +326,12 @@ public class EmpControllerIT {
                 .andExpect(jsonPath("$.data.status").value(empStatusDTO.getStatus()));
 
         // 確認已停用帳號 token 無法使用
-
         mockMvc.perform(
                         get("/emp/{id}", id)
                                 .header("Authorization", "Bearer " + tokenTestUser)
                                 .contentType(MediaType.APPLICATION_JSON)
                 ).andExpect(status().isForbidden()
         );
-
 
         // 變更狀態為啟用
         empStatusDTO.setStatus(StatusEnum.ACTIVE.getCode());
@@ -348,7 +344,7 @@ public class EmpControllerIT {
                         .content(activeJsonBody)
         ).andExpect(status().isOk());
 
-        // 查詢執行後的帳號狀態為停用
+        // 查詢執行後的帳號狀態為啟用
         mockMvc.perform(
                         get("/emp/{id}", id)
                                 .header("Authorization", "Bearer " + tokenManager)
@@ -417,12 +413,6 @@ public class EmpControllerIT {
                                 .header("Authorization", "Bearer " + tokenManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
-                ).andExpect(status().isOk());
-
-        // 確認資料是否正確修改
-        mockMvc.perform(
-                        get("/emp/{id}", empEditDTO.getId())
-                                .header("Authorization", "Bearer " + tokenManager)
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(empEditDTO.getId()))
                 .andExpect(jsonPath("$.data.entryDate").value(empEditDTO.getEntryDate().toString()));

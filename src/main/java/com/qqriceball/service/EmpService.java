@@ -58,7 +58,7 @@ public class EmpService {
 
     }
 
-    public void create(EmpCreateDTO empCreateDTO) {
+    public EmpVO create(EmpCreateDTO empCreateDTO) {
         Emp emp = new Emp();
 
         // 將 empDTO 內容 copy 至 emp
@@ -69,6 +69,9 @@ public class EmpService {
 
         try{
             empMapper.insert(emp);
+            Integer newId = emp.getId();
+            return empMapper.getById(newId);
+
         } catch (DuplicateKeyException e){
             log.error("建立員工,帳號重複,username: {}",empCreateDTO.getUsername(),e);
             throw new AlreadyExistsException(MessageEnum.USERNAME_ALREADY_EXIST);
@@ -116,14 +119,14 @@ public class EmpService {
         }
     }
 
-    public void updateById(EmpEditDTO empEditDTO) {
-
+    public EmpVO updateById(EmpEditDTO empEditDTO) {
         this.getById(empEditDTO.getId());
 
         Emp emp = new Emp();
         BeanUtils.copyProperties(empEditDTO, emp);
         empMapper.updateById(emp);
 
+        return this.getById(emp.getId());
     }
 
     // 確認 Emp 啟用狀態

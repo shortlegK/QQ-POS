@@ -40,11 +40,11 @@ public class EmpController {
             @ApiResponse(responseCode = "409", description = "帳號已存在"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
-    public Result<Void> createEmp(@AuthenticationPrincipal EmpVO currentEmp,
+    public Result<EmpVO> createEmp(@AuthenticationPrincipal EmpVO currentEmp,
                             @Valid @RequestBody EmpCreateDTO empCreateDTO){
         log.info("2001 新增員工,操作id:{},新增帳號:{}", currentEmp.getId(), empCreateDTO.getUsername());
-        empService.create(empCreateDTO);
-        return Result.success();
+        EmpVO empVO = empService.create(empCreateDTO);
+        return Result.success(empVO);
     }
 
 
@@ -54,7 +54,7 @@ public class EmpController {
             @ApiResponse(responseCode = "200", description = "查詢成功"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
-    public Result<PageResult> page(@AuthenticationPrincipal EmpVO currentEmp,
+    public Result<PageResult> pageQueryEmp(@AuthenticationPrincipal EmpVO currentEmp,
                                    @Valid EmpPageQueryDTO empPageQueryDTO){
         log.info("2002 員工分頁查詢,操作id:{},參數:{}", currentEmp.getId(),empPageQueryDTO);
 
@@ -70,7 +70,7 @@ public class EmpController {
             @ApiResponse(responseCode = "200", description = "執行成功"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
-    public Result<Void> updateStatus(@AuthenticationPrincipal EmpVO currentEmp,
+    public Result<Void> updateEmpStatus(@AuthenticationPrincipal EmpVO currentEmp,
                                      @PathVariable Integer id,
                                      @Valid @RequestBody EmpStatusDTO empStatusDTO){
         log.info("2003 啟用/停用員工帳號,操作id:{},參數:{}", currentEmp.getId(), empStatusDTO);
@@ -86,7 +86,7 @@ public class EmpController {
             @ApiResponse(responseCode = "200", description = "執行成功"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
-    public Result<EmpVO> getById(@AuthenticationPrincipal EmpVO currentEmp,
+    public Result<EmpVO> getEmpById(@AuthenticationPrincipal EmpVO currentEmp,
                                       @PathVariable Integer id){
         log.info("2004 查詢員工資料,操作id:{},id:{}", currentEmp.getId(), id);
         EmpVO empVO = empService.getById(id);
@@ -101,12 +101,11 @@ public class EmpController {
             @ApiResponse(responseCode = "200", description = "執行成功"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
-    public Result<Void> updateById(@AuthenticationPrincipal EmpVO currentEmp,
+    public Result<EmpVO> updateEmpById(@AuthenticationPrincipal EmpVO currentEmp,
                                  @Valid @RequestBody EmpEditDTO empEditDTO){
         log.info("2005 修改員工資料,操作id:{},參數:{}", currentEmp.getId(), empEditDTO);
-        empService.updateById(empEditDTO);
-        return Result.success();
-
+        EmpVO empVO = empService.updateById(empEditDTO);
+        return Result.success(empVO);
     }
 
 

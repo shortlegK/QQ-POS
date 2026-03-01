@@ -85,8 +85,7 @@ public class EmpControllerTest {
 
         doThrow(new AlreadyExistsException(MessageEnum.USERNAME_ALREADY_EXIST))
                 .when(empService)
-                .create(any(EmpCreateDTO.class)
-                );
+                .create(any(EmpCreateDTO.class));
 
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -102,7 +101,7 @@ public class EmpControllerTest {
 
     @Test
     @DisplayName("[Unit] EmpController.createEmp - 建立員工成功，應回傳 200")
-    void testCreateEmpUsernameSuccess() throws Exception {
+    void testCreateEmpSuccess() throws Exception {
 
         EmpCreateDTO empCreateDTO = getEmpCreateDTO();
 
@@ -120,7 +119,7 @@ public class EmpControllerTest {
 
     @Test
     @DisplayName("[Unit] EmpController.updateStatus - 變更員工啟用狀態，帳號不存在應回傳 401 及指定訊息")
-    void testUpdateStatusAccountNotExist() throws Exception {
+    void testUpdateEmpStatusAccountNotExist() throws Exception {
 
         Integer id = 666;
         EmpStatusDTO empStatusDTO = getEmpStatusDTO(StatusEnum.ACTIVE);
@@ -143,7 +142,7 @@ public class EmpControllerTest {
 
     @Test
     @DisplayName("[Unit] EmpController.updateStatus - 變更員工啟用狀態成功，應回傳 200")
-    void testUpdateStatusSuccess() throws Exception {
+    void testUpdateEmpStatusSuccess() throws Exception {
 
         Integer id = 666;
         EmpStatusDTO empStatusDTO = getEmpStatusDTO(StatusEnum.INACTIVE);
@@ -164,7 +163,7 @@ public class EmpControllerTest {
 
     @Test
     @DisplayName("[Unit] EmpController.getById - 員工 id 不存在，應回傳 404")
-    void testGetByIdNoExist() throws Exception {
+    void testGetEmpByIdNoExist() throws Exception {
         Integer id = 666;
 
         doThrow(new AccountNotExistException(MessageEnum.ACCOUNT_NOT_EXIST))
@@ -184,7 +183,7 @@ public class EmpControllerTest {
 
     @Test
     @DisplayName("[Unit] EmpController.getById - 查詢成功應回傳 200 及員工資料")
-    void testGetByIdSuccess() throws Exception {
+    void testGetEmpByIdSuccess() throws Exception {
         Integer id = 666;
 
         EmpVO empVO = new EmpVO();
@@ -205,7 +204,7 @@ public class EmpControllerTest {
 
     @Test
     @DisplayName("[Unit] EmpController.updateById - 員工 id 不存在，應回傳 404")
-    void testUpdateByIdNoExist() throws Exception {
+    void testUpdateEmpByIdNoExist() throws Exception {
 
         EmpEditDTO empEditDTO = getEmpEditDTO();
 
@@ -232,7 +231,7 @@ public class EmpControllerTest {
 
     @Test
     @DisplayName("[Unit] EmpController.updateById - 修改成功應回傳 200")
-    void testUpdateByIdSuccess() throws Exception {
+    void testUpdateEmpByIdSuccess() throws Exception {
 
         EmpEditDTO empEditDTO = getEmpEditDTO();
 
@@ -252,13 +251,13 @@ public class EmpControllerTest {
 
     @Test
     @DisplayName("[Unit] EmpController.pageQuery - 分頁查詢成功，應回傳 200 及資料")
-    void testPageQuerySuccess() throws Exception {
+    void testPageQueryEmpSuccess() throws Exception {
 
         EmpPageQueryDTO queryDTO = new EmpPageQueryDTO();
         queryDTO.setPage(1);
         queryDTO.setPageSize(5);
 
-        List<EmpPageQueryVO> mockData = new ArrayList<EmpPageQueryVO>();
+        List<EmpPageQueryVO> mockData = new ArrayList<>();
         mockData.add(getEmpPageQueryDTO(SeedUserData.MANAGER));
         mockData.add(getEmpPageQueryDTO(SeedUserData.STAFF));
 
