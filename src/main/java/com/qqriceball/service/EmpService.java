@@ -41,7 +41,7 @@ public class EmpService {
         Emp emp = empMapper.getByUsername(username);
 
         if (emp == null) {
-            throw new AccountNotExistException(MessageEnum.ACCOUNT_NOT_EXIST);
+            throw new NotExistException(MessageEnum.ACCOUNT_NOT_EXISTS);
         }
 
         if (!passwordEncoder.matches(password, emp.getPassword())) {
@@ -74,7 +74,7 @@ public class EmpService {
 
         } catch (DuplicateKeyException e){
             log.error("建立員工,帳號重複,username: {}",empCreateDTO.getUsername(),e);
-            throw new AlreadyExistsException(MessageEnum.USERNAME_ALREADY_EXIST);
+            throw new AlreadyExistsException(MessageEnum.USERNAME_ALREADY_EXISTS);
         }
 
     }
@@ -113,7 +113,7 @@ public class EmpService {
 
         if (empVO == null){
             log.error("查無資料,ID: {}", id);
-            throw new AccountNotExistException(MessageEnum.ACCOUNT_NOT_EXIST);
+            throw new NotExistException(MessageEnum.ACCOUNT_NOT_EXISTS);
         }else{
             return  empVO;
         }

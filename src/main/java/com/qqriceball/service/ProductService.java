@@ -2,13 +2,14 @@ package com.qqriceball.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.qqriceball.common.exception.AccountNotExistException;
+import com.qqriceball.common.exception.NotExistException;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.exception.BadRequestArgsException;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.mapper.EmpMapper;
-import com.qqriceball.model.dto.ProductDTO;
+import com.qqriceball.model.dto.ProductCreateDTO;
+import com.qqriceball.model.dto.ProductEditDTO;
 import com.qqriceball.model.dto.ProductPageQueryDTO;
 import com.qqriceball.model.entity.Product;
 import com.qqriceball.model.vo.ProductPageQueryVO;
@@ -20,7 +21,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -39,11 +39,10 @@ public class ProductService {
         this.empMapper = empMapper;
     }
 
-    @Transactional
-    public ProductVO create(ProductDTO productDTO) {
+    public ProductVO create(ProductCreateDTO productCreateDTO) {
 
         Product product = new Product();
-        BeanUtils.copyProperties(productDTO, product);
+        BeanUtils.copyProperties(productCreateDTO, product);
 
         try {
             //新增菜單品項
@@ -56,8 +55,8 @@ public class ProductService {
 
         } catch (
                 DuplicateKeyException e) {
-            log.error("新增菜單名稱已存在,title: {}", product.getTitle(), e);
-            throw new AlreadyExistsException(MessageEnum.PRODUCT_ALREADY_EXIST);
+            log.error("新增菜單品項名稱已存在,title: {}", product.getTitle(), e);
+            throw new AlreadyExistsException(MessageEnum.PRODUCT_ALREADY_EXISTS);
         }
 
     }
@@ -81,6 +80,24 @@ public class ProductService {
             throw new BadRequestArgsException(MessageEnum.BAD_REQUEST);
         }
     }
+//
+//    public ProductVO updateById(ProductEditDTO productEditDTO) {
+//
+//        this.getById(productEditDTO.getId());
+//
+//        Product product = new Product();
+//        BeanUtils.copyProperties(productEditDTO, product);
+//        try {
+//            productMapper.updateById(product);
+//
+//            return this.getById(product.getId());
+//        } catch (
+//                DuplicateKeyException e) {
+//            log.error("編輯菜單品項名稱已存在,title: {}", product.getTitle(), e);
+//            throw new AlreadyExistsException(MessageEnum.PRODUCT_ALREADY_EXISTS);
+//        }
+//
+//    }
 
     public ProductVO getById(Integer id) {
 
@@ -88,7 +105,7 @@ public class ProductService {
 
         if (productVO == null) {
             log.error("查無資料,ID: {}", id);
-            throw new AccountNotExistException(MessageEnum.PRODUCT_NOT_EXIST);
+            throw new NotExistException(MessageEnum.PRODUCT_NOT_EXIST);
         }else {
             return productVO;
         }

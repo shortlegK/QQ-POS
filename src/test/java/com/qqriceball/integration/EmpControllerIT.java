@@ -20,7 +20,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -108,8 +107,8 @@ public class EmpControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
                 ).andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value(MessageEnum.USERNAME_ALREADY_EXIST.getCode()))
-                .andExpect(jsonPath("$.msg").value(MessageEnum.USERNAME_ALREADY_EXIST.getMessage()))
+                .andExpect(jsonPath("$.code").value(MessageEnum.USERNAME_ALREADY_EXISTS.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.USERNAME_ALREADY_EXISTS.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty()
                 );
 
@@ -203,8 +202,8 @@ public class EmpControllerIT {
 
         resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXIST.getCode()))
-                .andExpect(jsonPath("$.msg").value(MessageEnum.ACCOUNT_NOT_EXIST.getMessage()))
+                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXISTS.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.ACCOUNT_NOT_EXISTS.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
@@ -226,7 +225,7 @@ public class EmpControllerIT {
 
         resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXIST.getCode()));
+                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXISTS.getCode()));
     }
 
     @Test

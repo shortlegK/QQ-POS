@@ -88,11 +88,11 @@ public class ProductControllerIT {
     @DisplayName("[IT] 3001 createProduct - 建立品項成功，應回傳 200 及資料")
     void testCreateProductSuccess() throws Exception {
 
-        ProductDTO productDTO = getProductDTO(SeedProductData.DRINK_PRODUCT);
+        ProductCreateDTO productCreateDTO = getProductDTO(SeedProductData.DRINK_PRODUCT);
         String productTile = Utils.getUnique("create");
-        productDTO.setTitle(productTile);
+        productCreateDTO.setTitle(productTile);
 
-        String jsonBody = objectMapper.writeValueAsString(productDTO);
+        String jsonBody = objectMapper.writeValueAsString(productCreateDTO);
         mockMvc.perform(
                 post("/products")
                         .header("Authorization", "Bearer " + tokenManager)
@@ -102,19 +102,19 @@ public class ProductControllerIT {
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.title").value(productTile))
                 .andExpect(jsonPath("$.data.productType").value(ProductTypeEnum.DRINKS.getCode()))
-                .andExpect(jsonPath("$.data.price").value(productDTO.getPrice()))
-                .andExpect(jsonPath("$.data.status").value(productDTO.getStatus()));
+                .andExpect(jsonPath("$.data.price").value(productCreateDTO.getPrice()))
+                .andExpect(jsonPath("$.data.status").value(productCreateDTO.getStatus()));
     }
 
     @Test
     @DisplayName("[IT] 3001 createProduct - 建立重複品項，應回傳 409 及指定訊息")
     void testCreateProductTitleDuplicate() throws Exception {
 
-        ProductDTO productDTO = getProductDTO(SeedProductData.DRINK_PRODUCT);
-        productDTO.setTitle(Utils.getUnique("duplicate"));
+        ProductCreateDTO productCreateDTO = getProductDTO(SeedProductData.DRINK_PRODUCT);
+        productCreateDTO.setTitle(Utils.getUnique("duplicate"));
 
 
-        String jsonBody = objectMapper.writeValueAsString(productDTO);
+        String jsonBody = objectMapper.writeValueAsString(productCreateDTO);
 
         mockMvc.perform(
                 post("/products")
@@ -129,8 +129,8 @@ public class ProductControllerIT {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value(MessageEnum.PRODUCT_ALREADY_EXIST.getCode()))
-                .andExpect(jsonPath("$.msg").value(MessageEnum.PRODUCT_ALREADY_EXIST.getMessage()))
+                .andExpect(jsonPath("$.code").value(MessageEnum.PRODUCT_ALREADY_EXISTS.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.PRODUCT_ALREADY_EXISTS.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
@@ -164,10 +164,10 @@ public class ProductControllerIT {
                 .andExpect(jsonPath("$.data.records[0].title").value(SeedProductData.MEAT_PRODUCT.title()));
     }
 
-    private static ProductDTO getProductDTO(TestProduct product){
-        ProductDTO productDTO = new ProductDTO();
-        BeanUtils.copyProperties(product,productDTO);
-        return productDTO;
+    private static ProductCreateDTO getProductDTO(TestProduct product){
+        ProductCreateDTO productCreateDTO = new ProductCreateDTO();
+        BeanUtils.copyProperties(product, productCreateDTO);
+        return productCreateDTO;
     }
 
     private static EmpLoginDTO getEmpLoginDTO(String username, String password) {

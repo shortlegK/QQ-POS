@@ -52,9 +52,9 @@ public class GlobalExceptionHandler {
         return Result.error(ex.getMessageEnum());
     }
 
-    @ExceptionHandler(AccountNotExistException.class)
+    @ExceptionHandler(NotExistException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND) // 回傳 HTTP 404 NOT_FOUND
-    public Result<Object> handleAccountNotFound(AccountNotExistException ex) {
+    public Result<Object> handleAccountNotFound(NotExistException ex) {
         log.error("操作異常: {}", ex.getMessage());
         return Result.error(ex.getMessageEnum());
     }

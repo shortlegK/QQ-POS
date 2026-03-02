@@ -67,8 +67,8 @@ public class LoginControllerIT {
 
         resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXIST.getCode()))
-                .andExpect(jsonPath("$.msg").value(MessageEnum.ACCOUNT_NOT_EXIST.getMessage()))
+                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXISTS.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.ACCOUNT_NOT_EXISTS.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 

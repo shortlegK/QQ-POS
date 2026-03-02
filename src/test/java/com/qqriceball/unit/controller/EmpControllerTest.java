@@ -2,7 +2,7 @@ package com.qqriceball.unit.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.qqriceball.common.exception.AccountNotExistException;
+import com.qqriceball.common.exception.NotExistException;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.PageResult;
@@ -83,7 +83,7 @@ public class EmpControllerTest {
 
         EmpCreateDTO empCreateDTO = getEmpCreateDTO();
 
-        doThrow(new AlreadyExistsException(MessageEnum.USERNAME_ALREADY_EXIST))
+        doThrow(new AlreadyExistsException(MessageEnum.USERNAME_ALREADY_EXISTS))
                 .when(empService)
                 .create(any(EmpCreateDTO.class));
 
@@ -96,7 +96,7 @@ public class EmpControllerTest {
 
         resultActions
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value(MessageEnum.USERNAME_ALREADY_EXIST.getCode()));
+                .andExpect(jsonPath("$.code").value(MessageEnum.USERNAME_ALREADY_EXISTS.getCode()));
     }
 
     @Test
@@ -124,7 +124,7 @@ public class EmpControllerTest {
         Integer id = 666;
         EmpStatusDTO empStatusDTO = getEmpStatusDTO(StatusEnum.ACTIVE);
 
-        doThrow(new AccountNotExistException(MessageEnum.ACCOUNT_NOT_EXIST))
+        doThrow(new NotExistException(MessageEnum.ACCOUNT_NOT_EXISTS))
                 .when(empService)
                 .updateStatus(any(EmpStatusDTO.class), anyInt()
                 );
@@ -137,7 +137,7 @@ public class EmpControllerTest {
                     );
         resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXIST.getCode()));
+                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXISTS.getCode()));
     }
 
     @Test
@@ -166,7 +166,7 @@ public class EmpControllerTest {
     void testGetEmpByIdNoExist() throws Exception {
         Integer id = 666;
 
-        doThrow(new AccountNotExistException(MessageEnum.ACCOUNT_NOT_EXIST))
+        doThrow(new NotExistException(MessageEnum.ACCOUNT_NOT_EXISTS))
                 .when(empService)
                 .getById(anyInt());
 
@@ -176,7 +176,7 @@ public class EmpControllerTest {
 
         resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXIST.getCode()));
+                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXISTS.getCode()));
 
         verify(empService).getById(anyInt());
     }
@@ -208,7 +208,7 @@ public class EmpControllerTest {
 
         EmpEditDTO empEditDTO = getEmpEditDTO();
 
-        doThrow(new AccountNotExistException(MessageEnum.ACCOUNT_NOT_EXIST))
+        doThrow(new NotExistException(MessageEnum.ACCOUNT_NOT_EXISTS))
                 .when(empService)
                 .updateById(any(EmpEditDTO.class)
                 );
@@ -222,7 +222,7 @@ public class EmpControllerTest {
 
         resultActions
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXIST.getCode()));
+                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXISTS.getCode()));
 
         verify(empService).updateById(any(EmpEditDTO.class));
     }
@@ -250,7 +250,7 @@ public class EmpControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpController.pageQuery - 分頁查詢成功，應回傳 200 及資料")
+    @DisplayName("[Unit] EmpController.page - 分頁查詢成功，應回傳 200 及資料")
     void testPageQueryEmpSuccess() throws Exception {
 
         EmpPageQueryDTO queryDTO = new EmpPageQueryDTO();

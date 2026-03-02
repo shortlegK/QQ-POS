@@ -8,10 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-@Schema(description = "產品建立/編輯資料")
-public class ProductDTO {
-
-    private Integer id;
+@Schema(description = "產品建立資料")
+public class ProductCreateDTO {
 
     @Schema(description = "名稱")
     @NotBlank(message = "名稱為必填")

@@ -7,7 +7,7 @@ import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.ProductTypeEnum;
 import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.mapper.ProductMapper;
-import com.qqriceball.model.dto.ProductDTO;
+import com.qqriceball.model.dto.ProductCreateDTO;
 import com.qqriceball.model.dto.ProductPageQueryDTO;
 import com.qqriceball.model.entity.Product;
 import com.qqriceball.model.vo.ProductPageQueryVO;
@@ -38,13 +38,13 @@ public class ProductServiceTest {
     @DisplayName("[Unit] ProductService.create - 建立菜單品項，應呼叫 productMapper.insert 傳入參數")
     void testCreateSuccess() {
 
-        ProductDTO productDTO = new ProductDTO();
-        productDTO.setTitle("測試品項");
-        productDTO.setProductType(ProductTypeEnum.MEAT.getCode());
-        productDTO.setPrice(100);
-        productDTO.setStatus(StatusEnum.ACTIVE.getCode());
+        ProductCreateDTO productCreateDTO = new ProductCreateDTO();
+        productCreateDTO.setTitle("測試品項");
+        productCreateDTO.setProductType(ProductTypeEnum.MEAT.getCode());
+        productCreateDTO.setPrice(100);
+        productCreateDTO.setStatus(StatusEnum.ACTIVE.getCode());
 
-        productService.create(productDTO);
+        productService.create(productCreateDTO);
 
         ArgumentCaptor<Product> productArgumentCaptor = ArgumentCaptor.forClass(Product.class);
         verify(productMapper).insert(productArgumentCaptor.capture());
@@ -52,10 +52,10 @@ public class ProductServiceTest {
         Product captoredProduct = productArgumentCaptor.getValue();
 
         assertAll(
-                () -> assertEquals(productDTO.getTitle(), captoredProduct.getTitle(), "title 應與傳入參數相同"),
-                () -> assertEquals(productDTO.getProductType(), captoredProduct.getProductType(), "productType 應為加密後的密碼"),
-                () -> assertEquals(productDTO.getStatus(), captoredProduct.getStatus(), "status 應與傳入參數相同"),
-                () -> assertEquals(productDTO.getPrice(), captoredProduct.getPrice(), "price 應與傳入參數相同")
+                () -> assertEquals(productCreateDTO.getTitle(), captoredProduct.getTitle(), "title 應與傳入參數相同"),
+                () -> assertEquals(productCreateDTO.getProductType(), captoredProduct.getProductType(), "productType 應為加密後的密碼"),
+                () -> assertEquals(productCreateDTO.getStatus(), captoredProduct.getStatus(), "status 應與傳入參數相同"),
+                () -> assertEquals(productCreateDTO.getPrice(), captoredProduct.getPrice(), "price 應與傳入參數相同")
         );
     }
 
@@ -63,19 +63,19 @@ public class ProductServiceTest {
     @DisplayName("[Unit] ProductService.create - 建立重複菜單品項，應拋出 AlreadyExistsException")
     void testCreateProductTitleDuplicate() {
 
-        ProductDTO productDTO = new ProductDTO();
-        productDTO.setTitle("測試品項");
-        productDTO.setProductType(ProductTypeEnum.MEAT.getCode());
-        productDTO.setPrice(100);
-        productDTO.setStatus(StatusEnum.ACTIVE.getCode());
+        ProductCreateDTO productCreateDTO = new ProductCreateDTO();
+        productCreateDTO.setTitle("測試品項");
+        productCreateDTO.setProductType(ProductTypeEnum.MEAT.getCode());
+        productCreateDTO.setPrice(100);
+        productCreateDTO.setStatus(StatusEnum.ACTIVE.getCode());
 
         doThrow(new DuplicateKeyException("duplicate"))
                 .when(productMapper)
                 .insert(any(Product.class));
 
         AlreadyExistsException ex = assertThrows(AlreadyExistsException.class,
-                () -> productService.create(productDTO));
-        assertEquals(MessageEnum.PRODUCT_ALREADY_EXIST.getMessage(), ex.getMessage());
+                () -> productService.create(productCreateDTO));
+        assertEquals(MessageEnum.PRODUCT_ALREADY_EXISTS.getMessage(), ex.getMessage());
 
         verify(productMapper).insert(any(Product.class));
     }

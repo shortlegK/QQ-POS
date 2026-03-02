@@ -9,7 +9,7 @@ import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
 import com.qqriceball.integration.testData.product.SeedProductData;
 import com.qqriceball.integration.testData.product.TestProduct;
-import com.qqriceball.model.dto.ProductDTO;
+import com.qqriceball.model.dto.ProductCreateDTO;
 import com.qqriceball.model.dto.ProductPageQueryDTO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.ProductPageQueryVO;
@@ -79,32 +79,32 @@ public class ProductControllerTest {
     @DisplayName("[Unit] ProductController.createProduct - 建立重複品項，應回傳 409 及指定訊息")
     void testCreateProductTitleDuplicate() throws Exception {
 
-        ProductDTO productDTO = getProductDTO(SeedProductData.MEAT_PRODUCT);
+        ProductCreateDTO productCreateDTO = getProductDTO(SeedProductData.MEAT_PRODUCT);
 
-        doThrow(new AlreadyExistsException(MessageEnum.PRODUCT_ALREADY_EXIST))
+        doThrow(new AlreadyExistsException(MessageEnum.PRODUCT_ALREADY_EXISTS))
                 .when(productService)
-                .create(any(ProductDTO.class));
+                .create(any(ProductCreateDTO.class));
 
-        String jsonBody = objectMapper.writeValueAsString(productDTO);
+        String jsonBody = objectMapper.writeValueAsString(productCreateDTO);
         mockMvc.perform(
                 post("/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
                 ).andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value(MessageEnum.PRODUCT_ALREADY_EXIST.getCode()));
+                .andExpect(jsonPath("$.code").value(MessageEnum.PRODUCT_ALREADY_EXISTS.getCode()));
     }
 
     @Test
     @DisplayName("[Unit] ProductController.createProduct - 建立品項成功，應回傳 200")
     void testCreateProductSuccess() throws Exception {
 
-        ProductDTO productDTO = getProductDTO(SeedProductData.MEAT_PRODUCT);
+        ProductCreateDTO productCreateDTO = getProductDTO(SeedProductData.MEAT_PRODUCT);
 
         ProductVO productVO = new ProductVO();
-        BeanUtils.copyProperties(productDTO, productVO);
-        when(productService.create(any(ProductDTO.class))).thenReturn(productVO);
+        BeanUtils.copyProperties(productCreateDTO, productVO);
+        when(productService.create(any(ProductCreateDTO.class))).thenReturn(productVO);
 
-        String jsonBody = objectMapper.writeValueAsString(productDTO);
+        String jsonBody = objectMapper.writeValueAsString(productCreateDTO);
         mockMvc.perform(
                 post("/products")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -149,10 +149,10 @@ public class ProductControllerTest {
         verify(productService).pageQuery(any(ProductPageQueryDTO.class));
     }
 
-    private static ProductDTO getProductDTO(TestProduct product){
-        ProductDTO productDTO = new ProductDTO();
-        BeanUtils.copyProperties(product, productDTO);
-        return productDTO;
+    private static ProductCreateDTO getProductDTO(TestProduct product){
+        ProductCreateDTO productCreateDTO = new ProductCreateDTO();
+        BeanUtils.copyProperties(product, productCreateDTO);
+        return productCreateDTO;
     }
 
     private static  ProductPageQueryVO getProductPageQueryVO(TestProduct product){

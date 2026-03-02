@@ -3,7 +3,7 @@ package com.qqriceball.unit.service;
 
 import com.github.pagehelper.Page;
 import com.qqriceball.common.exception.AccountInactiveException;
-import com.qqriceball.common.exception.AccountNotExistException;
+import com.qqriceball.common.exception.NotExistException;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.exception.PasswordErrorException;
 import com.qqriceball.common.result.PageResult;
@@ -47,7 +47,7 @@ class EmpServiceTest {
 
 
     @Test
-    @DisplayName("[Unit] EmpService.login - 登入帳號不存在，應拋出 AccountNotExistException")
+    @DisplayName("[Unit] EmpService.login - 登入帳號不存在，應拋出 NotExistException")
     void testLoginAccountNotExist() {
 
         String username = "NotExist";
@@ -57,9 +57,9 @@ class EmpServiceTest {
 
         lenient().when(empMapper.getByUsername(empLoginDTO.getUsername())).thenReturn(null);
 
-        AccountNotExistException ex = assertThrows(AccountNotExistException.class,
+        NotExistException ex = assertThrows(NotExistException.class,
                 () -> empService.login(empLoginDTO));
-        assertEquals(MessageEnum.ACCOUNT_NOT_EXIST.getMessage(), ex.getMessage());
+        assertEquals(MessageEnum.ACCOUNT_NOT_EXISTS.getMessage(), ex.getMessage());
 
         verify(empMapper).getByUsername(username);
 
@@ -170,7 +170,7 @@ class EmpServiceTest {
 
         AlreadyExistsException ex = assertThrows(AlreadyExistsException.class,
                 () -> empService.create(empCreateDTO));
-        assertEquals(MessageEnum.USERNAME_ALREADY_EXIST.getMessage(), ex.getMessage());
+        assertEquals(MessageEnum.USERNAME_ALREADY_EXISTS.getMessage(), ex.getMessage());
 
         verify(empMapper).insert(any(Emp.class));
 
@@ -216,7 +216,7 @@ class EmpServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpService.updateStatus - 員工 id 不存在，應拋出 AccountNotExistException")
+    @DisplayName("[Unit] EmpService.updateStatus - 員工 id 不存在，應拋出 NotExistException")
     void testUpdateStatusAccountNotExist() {
 
         EmpStatusDTO empStatusDTO = new EmpStatusDTO();
@@ -224,9 +224,9 @@ class EmpServiceTest {
 
         when(empMapper.getById(id)).thenReturn(null);
 
-        AccountNotExistException ex = assertThrows(AccountNotExistException.class,
+        NotExistException ex = assertThrows(NotExistException.class,
                 () -> empService.updateStatus(empStatusDTO, id));
-        assertEquals(MessageEnum.ACCOUNT_NOT_EXIST.getMessage(), ex.getMessage());
+        assertEquals(MessageEnum.ACCOUNT_NOT_EXISTS.getMessage(), ex.getMessage());
 
 
         verify(empMapper).getById(id);
@@ -261,16 +261,16 @@ class EmpServiceTest {
 
 
     @Test
-    @DisplayName("[Unit] EmpService.getById - 員工 id 不存在，應拋出 AccountNotExistException")
+    @DisplayName("[Unit] EmpService.getById - 員工 id 不存在，應拋出 NotExistException")
     void testGetByIdAccountNotExist() {
 
         Integer id = Integer.MAX_VALUE;
 
         when(empMapper.getById(id)).thenReturn(null);
 
-        AccountNotExistException ex = assertThrows(AccountNotExistException.class,
+        NotExistException ex = assertThrows(NotExistException.class,
                 () -> empService.getById(id));
-        assertEquals(MessageEnum.ACCOUNT_NOT_EXIST.getMessage(), ex.getMessage());
+        assertEquals(MessageEnum.ACCOUNT_NOT_EXISTS.getMessage(), ex.getMessage());
 
         verify(empMapper).getById(id);
 
@@ -305,7 +305,7 @@ class EmpServiceTest {
 
 
     @Test
-    @DisplayName("[Unit] EmpService.updateById - 員工 id 不存在，應拋出 AccountNotExistException")
+    @DisplayName("[Unit] EmpService.updateById - 員工 id 不存在，應拋出 NotExistException")
     void testUpdateByIdAccountNotExist() {
 
         EmpEditDTO empEditDTO = new EmpEditDTO();
@@ -313,9 +313,9 @@ class EmpServiceTest {
 
         when(empMapper.getById(Integer.MAX_VALUE)).thenReturn(null);
 
-        AccountNotExistException ex = assertThrows(AccountNotExistException.class,
+        NotExistException ex = assertThrows(NotExistException.class,
                 () -> empService.updateById(empEditDTO));
-        assertEquals(MessageEnum.ACCOUNT_NOT_EXIST.getMessage(), ex.getMessage());
+        assertEquals(MessageEnum.ACCOUNT_NOT_EXISTS.getMessage(), ex.getMessage());
 
         verify(empMapper).getById(Integer.MAX_VALUE);
         verify(empMapper, never()).updateById(any(Emp.class));
