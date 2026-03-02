@@ -6,14 +6,14 @@
 
     <!--新增菜單品項-->
     <insert id="insert" parameterType="com.qqriceball.model.entity.Product" useGeneratedKeys="true" keyProperty="id">
-        insert into product(title, product_type, price, status, create_id, create_time, update_id, update_time)
+        insert into products(title, product_type, price, status, create_id, create_time, update_id, update_time)
         values (#{title},#{productType}, #{price}, #{status} ,#{createId}, #{createTime}, #{updateId}, #{updateTime})
     </insert>
 
     <!--分頁查詢-->
     <select id="pageQuery" resultType="com.qqriceball.model.vo.ProductPageQueryVO">
         select id, title, product_type, price, status
-        from product
+        from products
         <where>
             <if test="title != null and title !=''">
                 title like concat('%',#{title},'%')
@@ -30,7 +30,7 @@
 
     <!--更新品項資料-->
     <update id="updateById" parameterType="com.qqriceball.model.entity.Product">
-        update product
+        update products
         <set>
             <if test = "title != null"> title = #{title}, </if>
             <if test = "productType != null"> product_type = #{productType} ,</if>

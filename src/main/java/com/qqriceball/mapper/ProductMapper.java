@@ -21,11 +21,8 @@ public interface ProductMapper {
 
     List<ProductPageQueryVO> pageQuery(ProductPageQueryDTO productPageQueryDTO);
 
-    @Select("select id, title, product_type, price, status from product where id = #{id}")
+    @Select("select id, title, product_type, price, status from products where id = #{id}")
     ProductVO getById(Integer id);
-
-    @Select("select * from product where title = #{title}")
-    Product getByTitle(String title);
 
     @AutoFill(value = OperationType.UPDATE)
     void updateById(Product product);

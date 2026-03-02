@@ -15,10 +15,10 @@ import java.util.List;
 @Mapper
 public interface EmpMapper {
 
-    @Select("select * from emp where username = #{username}")
+    @Select("select * from emps where username = #{username}")
     Emp getByUsername(String username);
 
-    @Select("select id, username, name, role, status, entry_date from emp where id = #{id}")
+    @Select("select id, username, name, role, status, entry_date from emps where id = #{id}")
     EmpVO getById(Integer id);
 
     @AutoFill(value = OperationType.INSERT)

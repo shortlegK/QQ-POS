@@ -11,6 +11,7 @@ import com.qqriceball.model.entity.Product;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +21,13 @@ import java.time.LocalDateTime;
 @Component
 public class TestDataSeeder implements ApplicationRunner {
 
+    private final JdbcTemplate jdbcTemplate;
     private final PasswordEncoder passwordEncoder;
     private final EmpMapper empMapper;
     private final ProductMapper productMapper;
 
-    public TestDataSeeder(PasswordEncoder passwordEncoder, EmpMapper empMapper , ProductMapper productMapper) {
+    public TestDataSeeder(JdbcTemplate jdbcTemplate,PasswordEncoder passwordEncoder, EmpMapper empMapper , ProductMapper productMapper) {
+        this.jdbcTemplate = jdbcTemplate;
         this.passwordEncoder = passwordEncoder;
         this.empMapper = empMapper;
         this.productMapper = productMapper;
@@ -33,6 +36,11 @@ public class TestDataSeeder implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
+
+        // 清空測試資料
+        jdbcTemplate.execute("TRUNCATE TABLE products");
+        jdbcTemplate.execute("TRUNCATE TABLE emps");
+
         createUser(SeedUserData.MANAGER);
         createUser(SeedUserData.STAFF);
         createUser(SeedUserData.INACTIVE);
@@ -45,55 +53,32 @@ public class TestDataSeeder implements ApplicationRunner {
 
     private void createUser(TestAccount testAccount) {
 
-        Emp existing = empMapper.getByUsername(testAccount.username());
-        String encoded = passwordEncoder.encode(testAccount.password());
+        Emp emp = new Emp();
+        emp.setUsername(testAccount.username());
+        emp.setPassword(passwordEncoder.encode(testAccount.password()));
+        emp.setName(testAccount.name());
+        emp.setRole(testAccount.role());
+        emp.setEntryDate(testAccount.entryDate());
+        emp.setStatus(testAccount.status());
+        emp.setCreateId(1);
+        emp.setCreateTime(LocalDateTime.now());
+        emp.setUpdateId(1);
+        emp.setUpdateTime(LocalDateTime.now());
 
-        if (existing == null) {
-            Emp emp = new Emp();
-            emp.setUsername(testAccount.username());
-            emp.setPassword(encoded);
-            emp.setName(testAccount.username());
-            emp.setRole(testAccount.role());
-            emp.setStatus(testAccount.status());
-            emp.setEntryDate(testAccount.entryDate());
-            emp.setCreateId(1);
-            emp.setCreateTime(LocalDateTime.now());
-            emp.setUpdateId(1);
-            emp.setUpdateTime(LocalDateTime.now());
-
-            empMapper.insert(emp);
-        } else {
-            existing.setPassword(encoded);
-            existing.setRole(testAccount.role());
-            existing.setStatus(testAccount.status());
-            empMapper.updateById(existing);
-        }
+        empMapper.insert(emp);
     }
 
     private void createProduct(TestProduct testProduct){
+        Product product = new Product();
+        product.setTitle(testProduct.title());
+        product.setProductType(testProduct.productType());
+        product.setPrice(testProduct.price());
+        product.setStatus(testProduct.status());
+        product.setCreateId(1);
+        product.setCreateTime(LocalDateTime.now());
+        product.setUpdateId(1);
+        product.setUpdateTime(LocalDateTime.now());
 
-        Product existing = productMapper.getByTitle(testProduct.title());
-
-        if(existing == null){
-            Product product = new Product();
-            product.setTitle(testProduct.title());
-            product.setProductType(testProduct.productType());
-            product.setPrice(testProduct.price());
-            product.setStatus(testProduct.status());
-            product.setCreateId(1);
-            product.setCreateTime(LocalDateTime.now());
-            product.setUpdateId(1);
-            product.setUpdateTime(LocalDateTime.now());
-
-            productMapper.insert(product);
-        }else{
-            existing.setProductType(testProduct.productType());
-            existing.setPrice(testProduct.price());
-            existing.setStatus(testProduct.status());
-            productMapper.updateById(existing);
-
-        }
-
-
+        productMapper.insert(product);
     }
 }
