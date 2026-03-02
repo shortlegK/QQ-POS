@@ -3,6 +3,7 @@ package com.qqriceball.controller;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.common.result.Result;
 import com.qqriceball.model.dto.ProductCreateDTO;
+import com.qqriceball.model.dto.ProductEditDTO;
 import com.qqriceball.model.dto.ProductPageQueryDTO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.ProductVO;
@@ -59,27 +60,31 @@ public class ProductController {
         return Result.success(pageResult);
     }
 
-//    @Operation(summary = "3003 修改菜單品項")
-//    @PutMapping
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "執行成功"),
-//            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
-//    })
-//    public Result<ProductVO> updateProductById(@AuthenticationPrincipal EmpVO currentEmp,
-//                                               @Valid @RequestBody ProductCreateDTO productCreateDTO)
-//
-//
-//    @Operation(summary = "3004 根據 ID 查詢菜單品項")
-//    @GetMapping("/{id}")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "執行成功"),
-//            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
-//    })
-//    public Result<ProductVO> getProductById(@AuthenticationPrincipal EmpVO currentEmp,
-//                                     @PathVariable Integer id){
-//        log.info("3004 查詢菜單品項,操作 id:{},id:{}",currentEmp.getId(),id);
-//        ProductVO productVO = productService.getById(id);
-//        return Result.success(productVO);
-//    }
+    @Operation(summary = "3003 修改菜單品項")
+    @PutMapping
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "執行成功"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<ProductVO> updateProductById(@AuthenticationPrincipal EmpVO currentEmp,
+                                               @Valid @RequestBody ProductEditDTO productEditDTO){
+        log.info("3003 修改菜單品項,操作 id: {},參數:{}",currentEmp.getId(),productEditDTO);
+        ProductVO productVO = productService.updateById(productEditDTO);
+        return Result.success(productVO);
+    }
+
+
+    @Operation(summary = "3004 根據 ID 查詢菜單品項")
+    @GetMapping("/{id}")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "執行成功"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<ProductVO> getProductById(@AuthenticationPrincipal EmpVO currentEmp,
+                                     @PathVariable Integer id){
+        log.info("3004 查詢菜單品項,操作 id:{},id:{}",currentEmp.getId(),id);
+        ProductVO productVO = productService.getById(id);
+        return Result.success(productVO);
+    }
 
 }

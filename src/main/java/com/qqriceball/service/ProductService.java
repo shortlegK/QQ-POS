@@ -80,24 +80,24 @@ public class ProductService {
             throw new BadRequestArgsException(MessageEnum.BAD_REQUEST);
         }
     }
-//
-//    public ProductVO updateById(ProductEditDTO productEditDTO) {
-//
-//        this.getById(productEditDTO.getId());
-//
-//        Product product = new Product();
-//        BeanUtils.copyProperties(productEditDTO, product);
-//        try {
-//            productMapper.updateById(product);
-//
-//            return this.getById(product.getId());
-//        } catch (
-//                DuplicateKeyException e) {
-//            log.error("編輯菜單品項名稱已存在,title: {}", product.getTitle(), e);
-//            throw new AlreadyExistsException(MessageEnum.PRODUCT_ALREADY_EXISTS);
-//        }
-//
-//    }
+
+    public ProductVO updateById(ProductEditDTO productEditDTO) {
+
+        this.getById(productEditDTO.getId());
+
+        Product product = new Product();
+        BeanUtils.copyProperties(productEditDTO, product);
+        try {
+            productMapper.updateById(product);
+
+            return this.getById(product.getId());
+        } catch (
+                DuplicateKeyException e) {
+            log.error("編輯菜單品項名稱已存在,title: {}", product.getTitle(), e);
+            throw new AlreadyExistsException(MessageEnum.PRODUCT_ALREADY_EXISTS);
+        }
+
+    }
 
     public ProductVO getById(Integer id) {
 

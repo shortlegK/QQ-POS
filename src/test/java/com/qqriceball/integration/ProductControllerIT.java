@@ -26,8 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -164,6 +163,63 @@ public class ProductControllerIT {
                 .andExpect(jsonPath("$.data.records[0].title").value(SeedProductData.MEAT_PRODUCT.title()));
     }
 
+    @Test
+    @DisplayName("[IT] 3003 updateProductById - 修改成功應回傳 200 及資料")
+    void testUpdateProductByIdSuccess() throws Exception {
+
+        ProductEditDTO productEditDTO = getProductEditDTO(SeedProductData.MEAT_PRODUCT);
+        productEditDTO.setTitle(Utils.getUnique("update"));
+
+        String jsonBody = objectMapper.writeValueAsString(productEditDTO);
+        mockMvc.perform(
+                put("/products")
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.id").value(productEditDTO.getId()))
+                .andExpect(jsonPath("$.data.title").value(productEditDTO.getTitle()));
+    }
+
+    @Test
+    @DisplayName("[IT] 3003 updateProductById - 修改品項 id 不存在，應回傳 404")
+    void testUpdateProductByIdNoExist() throws Exception{
+
+        ProductEditDTO productEditDTO = getProductEditDTO(SeedProductData.MEAT_PRODUCT);
+        productEditDTO.setId(Integer.MAX_VALUE);
+
+        String jsonBody = objectMapper.writeValueAsString(productEditDTO);
+        mockMvc.perform(
+                        put("/products")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.PRODUCT_NOT_EXIST.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.PRODUCT_NOT_EXIST.getMessage()))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    @DisplayName("[IT] 3003 updateProductById - 修改品項名稱已存在，應回傳 409 及指定訊息")
+    void testUpdateProductByIdTitleDuplicate() throws Exception {
+
+        ProductEditDTO productEditDTO = getProductEditDTO(SeedProductData.MEAT_PRODUCT);
+        productEditDTO.setTitle(SeedProductData.VEG_PRODUCT.title());
+
+        String jsonBody = objectMapper.writeValueAsString(productEditDTO);
+        mockMvc.perform(
+                        put("/products")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value(MessageEnum.PRODUCT_ALREADY_EXISTS.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.PRODUCT_ALREADY_EXISTS.getMessage()))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
     private static ProductCreateDTO getProductDTO(TestProduct product){
         ProductCreateDTO productCreateDTO = new ProductCreateDTO();
         BeanUtils.copyProperties(product, productCreateDTO);
@@ -177,4 +233,11 @@ public class ProductControllerIT {
 
         return empLoginDTO;
     }
+
+    private static ProductEditDTO getProductEditDTO(TestProduct product){
+            ProductEditDTO productEditDTO = new ProductEditDTO();
+            BeanUtils.copyProperties(product, productEditDTO);
+            return productEditDTO;
+
+        }
 }

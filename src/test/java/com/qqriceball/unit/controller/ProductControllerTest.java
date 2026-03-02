@@ -2,6 +2,7 @@ package com.qqriceball.unit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qqriceball.common.exception.AlreadyExistsException;
+import com.qqriceball.common.exception.NotExistException;
 import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.controller.ProductController;
@@ -10,6 +11,7 @@ import com.qqriceball.handler.GlobalExceptionHandler;
 import com.qqriceball.integration.testData.product.SeedProductData;
 import com.qqriceball.integration.testData.product.TestProduct;
 import com.qqriceball.model.dto.ProductCreateDTO;
+import com.qqriceball.model.dto.ProductEditDTO;
 import com.qqriceball.model.dto.ProductPageQueryDTO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.ProductPageQueryVO;
@@ -63,15 +65,15 @@ public class ProductControllerTest {
     private ObjectMapper objectMapper;
 
     @BeforeEach
-    void setUpAuth(){
+    void setUpAuth() {
         EmpVO emp = new EmpVO();
         emp.setId(99);
-        Authentication auth =  new UsernamePasswordAuthenticationToken(emp, null, java.util.Collections.emptyList());
+        Authentication auth = new UsernamePasswordAuthenticationToken(emp, null, java.util.Collections.emptyList());
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     @AfterEach
-    void cleanAuth(){
+    void cleanAuth() {
         SecurityContextHolder.clearContext();
     }
 
@@ -87,9 +89,9 @@ public class ProductControllerTest {
 
         String jsonBody = objectMapper.writeValueAsString(productCreateDTO);
         mockMvc.perform(
-                post("/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonBody)
+                        post("/products")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
                 ).andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value(MessageEnum.PRODUCT_ALREADY_EXISTS.getCode()));
     }
@@ -106,7 +108,7 @@ public class ProductControllerTest {
 
         String jsonBody = objectMapper.writeValueAsString(productCreateDTO);
         mockMvc.perform(
-                post("/products")
+                        post("/products")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isOk())
@@ -116,7 +118,7 @@ public class ProductControllerTest {
 
 
     @Test
-    @DisplayName("[Unit] ProductController.pageQuery - 分頁查詢成功，應回傳 200 及資料")
+    @DisplayName("[Unit] ProductController.page - 分頁查詢成功，應回傳 200 及資料")
     void testPageQueryProductSuccess() throws Exception {
 
         ProductPageQueryDTO queryDTO = new ProductPageQueryDTO();
@@ -149,13 +151,88 @@ public class ProductControllerTest {
         verify(productService).pageQuery(any(ProductPageQueryDTO.class));
     }
 
-    private static ProductCreateDTO getProductDTO(TestProduct product){
+    @Test
+    @DisplayName("[Unit] ProductController.updateProductById - 修改成功應回傳 200 及資料")
+    void testUpdateProductByIdSuccess() throws Exception {
+
+        ProductEditDTO productEditDTO = new ProductEditDTO();
+        BeanUtils.copyProperties(SeedProductData.MEAT_PRODUCT, productEditDTO);
+
+        ProductVO productVO = new ProductVO();
+        BeanUtils.copyProperties(SeedProductData.MEAT_PRODUCT, productVO);
+
+        when(productService.updateById(any(ProductEditDTO.class))).thenReturn(productVO);
+
+        String jsonBody = objectMapper.writeValueAsString(productEditDTO);
+        mockMvc.perform(
+                        put("/products")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data").exists());
+
+        verify(productService).updateById(any(ProductEditDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] ProductController.updateProductById - 修改 id 不存在，應回傳 404 及指定訊息")
+    void testUpdateProductByIdNoExist() throws Exception {
+
+        ProductEditDTO productEditDTO = new ProductEditDTO();
+        BeanUtils.copyProperties(SeedProductData.MEAT_PRODUCT, productEditDTO);
+
+
+        doThrow(new NotExistException(MessageEnum.PRODUCT_NOT_EXIST))
+                .when(productService).updateById(any(ProductEditDTO.class));
+
+        String jsonBody = objectMapper.writeValueAsString(productEditDTO);
+
+        mockMvc.perform(
+                        put("/products")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.PRODUCT_NOT_EXIST.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.PRODUCT_NOT_EXIST.getMessage()));
+
+        verify(productService).updateById(any(ProductEditDTO.class));
+
+    }
+
+
+    @Test
+    @DisplayName("[Unit] ProductController.updateProductById - 修改品項名稱已存在，應回傳 409 及指定訊息")
+    void testUpdateProductByIdTitleDuplicate() throws Exception {
+
+        ProductEditDTO productEditDTO = new ProductEditDTO();
+        BeanUtils.copyProperties(SeedProductData.MEAT_PRODUCT, productEditDTO);
+
+        doThrow(new AlreadyExistsException(MessageEnum.PRODUCT_ALREADY_EXISTS))
+                .when(productService).updateById(any(ProductEditDTO.class));
+
+        String jsonBody = objectMapper.writeValueAsString(productEditDTO);
+
+        mockMvc.perform(
+                        put("/products")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value(MessageEnum.PRODUCT_ALREADY_EXISTS.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.PRODUCT_ALREADY_EXISTS.getMessage()));
+
+        verify(productService).updateById(any(ProductEditDTO.class));
+
+    }
+
+
+    private static ProductCreateDTO getProductDTO(TestProduct product) {
         ProductCreateDTO productCreateDTO = new ProductCreateDTO();
         BeanUtils.copyProperties(product, productCreateDTO);
         return productCreateDTO;
     }
 
-    private static  ProductPageQueryVO getProductPageQueryVO(TestProduct product){
+    private static ProductPageQueryVO getProductPageQueryVO(TestProduct product) {
         ProductPageQueryVO productPageQueryVO = new ProductPageQueryVO();
         BeanUtils.copyProperties(product, productPageQueryVO);
         return productPageQueryVO;
