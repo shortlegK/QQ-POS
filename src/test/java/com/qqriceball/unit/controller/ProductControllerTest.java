@@ -87,7 +87,6 @@ public class ProductControllerTest {
 
         String jsonBody = objectMapper.writeValueAsString(productDTO);
         mockMvc.perform(
-                post("/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
                 ).andExpect(status().isConflict())
@@ -106,7 +105,6 @@ public class ProductControllerTest {
 
         String jsonBody = objectMapper.writeValueAsString(productDTO);
         mockMvc.perform(
-                        post("/products")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isOk())

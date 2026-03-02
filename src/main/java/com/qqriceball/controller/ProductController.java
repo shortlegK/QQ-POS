@@ -77,4 +77,19 @@ public class ProductController {
 //
 
 
+//    @Operation(summary = "3004 根據 ID 查詢菜單品項")
+//    @GetMapping("/{id}")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "執行成功"),
+//            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+//    })
+//    public Result<ProductVO> getProductById(@AuthenticationPrincipal EmpVO currentEmp,
+//                                     @PathVariable Integer id){
+//        log.info("3004 查詢菜單品項,操作 id:{},id:{}",currentEmp.getId(),id);
+//        ProductVO productVO = productService.getById(id);
+//        return Result.success(productVO);
+//    }
+//
+
+
 }
