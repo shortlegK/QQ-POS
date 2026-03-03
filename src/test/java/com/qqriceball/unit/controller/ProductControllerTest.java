@@ -8,8 +8,7 @@ import com.qqriceball.common.result.PageResult;
 import com.qqriceball.controller.ProductController;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
-import com.qqriceball.integration.testData.product.SeedProductData;
-import com.qqriceball.integration.testData.product.TestProduct;
+import com.qqriceball.testData.product.SeedProductData;
 import com.qqriceball.model.dto.ProductCreateDTO;
 import com.qqriceball.model.dto.ProductEditDTO;
 import com.qqriceball.model.dto.ProductPageQueryDTO;
@@ -18,6 +17,7 @@ import com.qqriceball.model.vo.ProductPageQueryVO;
 import com.qqriceball.model.vo.ProductVO;
 import com.qqriceball.service.EmpService;
 import com.qqriceball.service.ProductService;
+import com.qqriceball.utils.product.ProductTestDataFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -81,7 +81,7 @@ public class ProductControllerTest {
     @DisplayName("[Unit] ProductController.createProduct - 建立重複品項，應回傳 409 及指定訊息")
     void testCreateProductTitleDuplicate() throws Exception {
 
-        ProductCreateDTO productCreateDTO = getProductDTO(SeedProductData.MEAT_PRODUCT);
+        ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductDTO(SeedProductData.MEAT_PRODUCT);
 
         doThrow(new AlreadyExistsException(MessageEnum.PRODUCT_ALREADY_EXISTS))
                 .when(productService)
@@ -100,7 +100,7 @@ public class ProductControllerTest {
     @DisplayName("[Unit] ProductController.createProduct - 建立品項成功，應回傳 200")
     void testCreateProductSuccess() throws Exception {
 
-        ProductCreateDTO productCreateDTO = getProductDTO(SeedProductData.MEAT_PRODUCT);
+        ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductDTO(SeedProductData.MEAT_PRODUCT);
 
         ProductVO productVO = new ProductVO();
         BeanUtils.copyProperties(productCreateDTO, productVO);
@@ -126,8 +126,8 @@ public class ProductControllerTest {
         queryDTO.setPageSize(5);
 
         List<ProductPageQueryVO> mockData = new ArrayList<>();
-        mockData.add(getProductPageQueryVO(SeedProductData.MEAT_PRODUCT));
-        mockData.add(getProductPageQueryVO(SeedProductData.DRINK_PRODUCT));
+        mockData.add(ProductTestDataFactory.getProductPageQueryVO(SeedProductData.MEAT_PRODUCT));
+        mockData.add(ProductTestDataFactory.getProductPageQueryVO(SeedProductData.DRINK_PRODUCT));
 
         Long total = (long) mockData.size();
         PageResult mockResult = new PageResult(total, queryDTO.getPage(),
@@ -155,11 +155,9 @@ public class ProductControllerTest {
     @DisplayName("[Unit] ProductController.updateProductById - 修改成功應回傳 200 及資料")
     void testUpdateProductByIdSuccess() throws Exception {
 
-        ProductEditDTO productEditDTO = new ProductEditDTO();
-        BeanUtils.copyProperties(SeedProductData.MEAT_PRODUCT, productEditDTO);
+        ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.MEAT_PRODUCT);
 
-        ProductVO productVO = new ProductVO();
-        BeanUtils.copyProperties(SeedProductData.MEAT_PRODUCT, productVO);
+        ProductVO productVO = ProductTestDataFactory.getProductVO(SeedProductData.MEAT_PRODUCT);
 
         when(productService.updateById(any(ProductEditDTO.class))).thenReturn(productVO);
 
@@ -179,8 +177,7 @@ public class ProductControllerTest {
     @DisplayName("[Unit] ProductController.updateProductById - 修改 id 不存在，應回傳 404 及指定訊息")
     void testUpdateProductByIdNoExist() throws Exception {
 
-        ProductEditDTO productEditDTO = new ProductEditDTO();
-        BeanUtils.copyProperties(SeedProductData.MEAT_PRODUCT, productEditDTO);
+        ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.MEAT_PRODUCT);
 
 
         doThrow(new NotExistException(MessageEnum.PRODUCT_NOT_EXIST))
@@ -205,8 +202,7 @@ public class ProductControllerTest {
     @DisplayName("[Unit] ProductController.updateProductById - 修改品項名稱已存在，應回傳 409 及指定訊息")
     void testUpdateProductByIdTitleDuplicate() throws Exception {
 
-        ProductEditDTO productEditDTO = new ProductEditDTO();
-        BeanUtils.copyProperties(SeedProductData.MEAT_PRODUCT, productEditDTO);
+        ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.MEAT_PRODUCT);
 
         doThrow(new AlreadyExistsException(MessageEnum.PRODUCT_ALREADY_EXISTS))
                 .when(productService).updateById(any(ProductEditDTO.class));
@@ -223,19 +219,6 @@ public class ProductControllerTest {
 
         verify(productService).updateById(any(ProductEditDTO.class));
 
-    }
-
-
-    private static ProductCreateDTO getProductDTO(TestProduct product) {
-        ProductCreateDTO productCreateDTO = new ProductCreateDTO();
-        BeanUtils.copyProperties(product, productCreateDTO);
-        return productCreateDTO;
-    }
-
-    private static ProductPageQueryVO getProductPageQueryVO(TestProduct product) {
-        ProductPageQueryVO productPageQueryVO = new ProductPageQueryVO();
-        BeanUtils.copyProperties(product, productPageQueryVO);
-        return productPageQueryVO;
     }
 
 }

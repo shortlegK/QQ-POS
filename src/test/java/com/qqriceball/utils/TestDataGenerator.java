@@ -1,10 +1,10 @@
-package com.qqriceball.integration.utils;
+package com.qqriceball.utils;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Utils {
+public class TestDataGenerator {
 
-    private static AtomicInteger counter = new AtomicInteger(1);
+    private static final AtomicInteger counter = new AtomicInteger(1);
 
     public static String getUnique(String prefix) {
         return prefix + counter.getAndIncrement();

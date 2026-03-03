@@ -6,11 +6,12 @@ import com.qqriceball.common.exception.NotExistException;
 import com.qqriceball.common.exception.PasswordErrorException;
 import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.enumeration.MessageEnum;
-import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.model.dto.EmpLoginDTO;
 import com.qqriceball.model.entity.Emp;
 import com.qqriceball.controller.LoginController;
 import com.qqriceball.service.EmpService;
+import com.qqriceball.testData.emp.SeedUserData;
+import com.qqriceball.utils.emp.EmpTestDataFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,16 +50,10 @@ class LoginControllerTest {
 
         String secretKey = "test-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secret";
 
-        String username = "manager";
-        String password = "Password";
+        EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.TESTER.username(),
+                SeedUserData.TESTER.password());
 
-        EmpLoginDTO empLoginDTO = getEmpLoginDTO(username, password);
-
-        Emp fakeEmp = new Emp();
-        fakeEmp.setId(1);
-        fakeEmp.setUsername(username);
-        fakeEmp.setPassword(password);
-        fakeEmp.setStatus(StatusEnum.ACTIVE.getCode());
+        Emp fakeEmp = EmpTestDataFactory.getEmp(SeedUserData.TESTER);
 
         when(empService.login(any(EmpLoginDTO.class))).thenReturn(fakeEmp);
 
@@ -75,14 +70,15 @@ class LoginControllerTest {
         resultActions.andExpect(status().isOk());
 
         verify(empService).login(argThat(dto ->
-                username.equals(dto.getUsername())
+                empLoginDTO.getUsername().equals(dto.getUsername()) &&
+                        empLoginDTO.getPassword().equals(dto.getPassword())
         ));
 
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.id").isNotEmpty())
-                .andExpect(jsonPath("$.data.username").value(username))
+                .andExpect(jsonPath("$.data.username").value(empLoginDTO.getUsername()))
                 .andExpect(jsonPath("$.data.token").isNotEmpty());
     }
 
@@ -90,12 +86,9 @@ class LoginControllerTest {
     @DisplayName("[Unit] LoginController.login - 登入失敗，帳號不存在應回傳 404 及指定訊息")
     void testLoginAccountNotExist() throws Exception {
 
-        String username = "NotExist";
-        String password = "Password";
+        EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
 
-        EmpLoginDTO empLoginDTO = getEmpLoginDTO(username, password);
-
-        when(empService.login(argThat(dto -> username.equals(dto.getUsername()))))
+        when(empService.login(any(EmpLoginDTO.class)))
                 .thenThrow(new NotExistException(MessageEnum.ACCOUNT_NOT_EXISTS));
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
@@ -115,12 +108,10 @@ class LoginControllerTest {
     @DisplayName("[Unit] LoginController.login - 登入失敗，密碼錯誤應回傳 401 及指定訊息")
     void testLoginPasswordError() throws Exception {
 
-        String username = "wrongUser";
-        String password = "wrongPassword";
-        EmpLoginDTO empLoginDTO = getEmpLoginDTO(username, password);
+        EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
 
 
-        when(empService.login(argThat(dto -> username.equals(dto.getUsername()))))
+        when(empService.login(any(EmpLoginDTO.class)))
                 .thenThrow(new PasswordErrorException(MessageEnum.PASSWORD_ERROR));
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
@@ -141,12 +132,10 @@ class LoginControllerTest {
     @DisplayName("[Unit] LoginController.login - 登入失敗，帳號停用應回傳 403 及指定訊息")
     void testLoginAccountInactive() throws Exception {
 
-        String username = "inactive";
-        String password = "wrongPassword";
-        EmpLoginDTO empLoginDTO = getEmpLoginDTO(username, password);
+        EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
 
 
-        when(empService.login(argThat(dto -> username.equals(dto.getUsername()))))
+        when(empService.login(any(EmpLoginDTO.class)))
                 .thenThrow(new AccountInactiveException(MessageEnum.ACCOUNT_INACTIVE));
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
@@ -159,7 +148,6 @@ class LoginControllerTest {
         resultActions
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_INACTIVE.getCode()));
-
 
     }
 
@@ -176,15 +164,6 @@ class LoginControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()));
 
-    }
-
-
-    private static EmpLoginDTO getEmpLoginDTO(String username, String password) {
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername(username);
-        empLoginDTO.setPassword(password);
-
-        return empLoginDTO;
     }
 
 }

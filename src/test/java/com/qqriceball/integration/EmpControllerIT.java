@@ -5,9 +5,10 @@ import com.jayway.jsonpath.JsonPath;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.enumeration.StatusEnum;
-import com.qqriceball.integration.testData.emp.SeedUserData;
-import com.qqriceball.integration.utils.Utils;
+import com.qqriceball.testData.emp.SeedUserData;
+import com.qqriceball.utils.TestDataGenerator;
 import com.qqriceball.model.dto.*;
+import com.qqriceball.utils.emp.EmpTestDataFactory;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -48,7 +49,7 @@ public class EmpControllerIT {
     void setUp() throws Exception {
 
         // 取得 Admin Token
-        EmpLoginDTO managerLoginDTO = getEmpLoginDTO(
+        EmpLoginDTO managerLoginDTO = EmpTestDataFactory.getEmpLoginDTO(
                 SeedUserData.MANAGER.username(), SeedUserData.MANAGER.password());
 
         String jsonBody = objectMapper.writeValueAsString(managerLoginDTO);
@@ -62,7 +63,7 @@ public class EmpControllerIT {
         tokenManager = JsonPath.read(managerResult.getResponse().getContentAsString(),"$.data.token");
 
         // 取得 Staff Token
-        EmpLoginDTO staffLoginDTO = getEmpLoginDTO(
+        EmpLoginDTO staffLoginDTO = EmpTestDataFactory.getEmpLoginDTO(
                 SeedUserData.STAFF.username(), SeedUserData.STAFF.password());
 
         jsonBody = objectMapper.writeValueAsString(staffLoginDTO);
@@ -86,9 +87,9 @@ public class EmpControllerIT {
     @DisplayName("[IT] 2001 createEmp - 建立重複帳號，應回傳 409 及指定訊息")
     void testCreateEmpUsernameDuplicate() throws Exception{
 
-        String username = Utils.getUnique("duplicate");
+        String username = TestDataGenerator.getUnique("duplicate");
 
-        EmpCreateDTO empCreateDTO = getEmpCreateDTO(username,
+        EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(username,
                 username, RoleEnum.STAFF.getCode());
 
         // 建立帳號
@@ -118,7 +119,7 @@ public class EmpControllerIT {
     @DisplayName("[IT] Emp 2001 - 帳號長度不足，應回傳 400")
     void testCreateEmpUsernameLengthError() throws Exception{
 
-        EmpCreateDTO empCreateDTO = getEmpCreateDTO("u", "testPassword1", RoleEnum.STAFF.getCode());
+        EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO("u", "testPassword1", RoleEnum.STAFF.getCode());
 
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
         mockMvc.perform(
@@ -137,8 +138,8 @@ public class EmpControllerIT {
     @DisplayName("[IT] 2001 createEmp - 建立帳號成功，應回傳 200 且可使用新帳號進行登入")
     void testCreateEmpUsernameSuccess() throws Exception{
 
-        String username = Utils.getUnique("create");
-        EmpCreateDTO empCreateDTO = getEmpCreateDTO(username, username, RoleEnum.MANAGER.getCode());
+        String username = TestDataGenerator.getUnique("create");
+        EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(username, username, RoleEnum.MANAGER.getCode());
 
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -154,7 +155,7 @@ public class EmpControllerIT {
                 .andExpect(jsonPath("$.msg").value(MessageEnum.SUCCESS.getMessage()))
                 .andExpect(jsonPath("$.data.name").value(username));
 
-        EmpLoginDTO empLoginDTO = getEmpLoginDTO(empCreateDTO.getUsername(),
+        EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(empCreateDTO.getUsername(),
                 empCreateDTO.getPassword());
 
 
@@ -179,8 +180,8 @@ public class EmpControllerIT {
     @DisplayName("[IT] 2001 createEmp - 登入帳號無管理權限，應回傳 403 無法建立帳號 ")
     void testCreateEmpWithoutAdmin() throws Exception{
 
-        String username = Utils.getUnique("create");
-        EmpCreateDTO empCreateDTO = getEmpCreateDTO(username, username, RoleEnum.STAFF.getCode());
+        String username = TestDataGenerator.getUnique("create");
+        EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(username, username, RoleEnum.STAFF.getCode());
 
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
         mockMvc.perform(
@@ -190,7 +191,7 @@ public class EmpControllerIT {
                         .content(jsonBody)
         ).andExpect(status().isForbidden());
 
-        EmpLoginDTO empLoginDTO = getEmpLoginDTO(empCreateDTO.getUsername(),
+        EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(empCreateDTO.getUsername(),
                 empCreateDTO.getPassword());
 
         jsonBody = objectMapper.writeValueAsString(empLoginDTO);
@@ -277,8 +278,8 @@ public class EmpControllerIT {
 
         // 建立測試帳號,取得 id
 
-        String statusName = Utils.getUnique("status");
-        EmpCreateDTO empCreateDTO = getEmpCreateDTO(statusName, statusName, RoleEnum.MANAGER.getCode());
+        String statusName = TestDataGenerator.getUnique("status");
+        EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(statusName, statusName, RoleEnum.MANAGER.getCode());
 
         String createJsonBody = objectMapper.writeValueAsString(empCreateDTO);
         mockMvc.perform(
@@ -288,7 +289,7 @@ public class EmpControllerIT {
                         .content(createJsonBody))
                 .andExpect(status().isOk());
 
-        EmpLoginDTO empLoginDTO = getEmpLoginDTO(empCreateDTO.getUsername(),
+        EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(empCreateDTO.getUsername(),
                 empCreateDTO.getPassword());
 
         String loginJsonBody = objectMapper.writeValueAsString(empLoginDTO);
@@ -446,24 +447,6 @@ public class EmpControllerIT {
     }
 
 
-    private static EmpCreateDTO getEmpCreateDTO(String username, String password, int role) {
-        EmpCreateDTO empCreateDTO = new EmpCreateDTO();
-        empCreateDTO.setUsername(username);
-        empCreateDTO.setPassword(password);
-        empCreateDTO.setName(username);
-        empCreateDTO.setRole(role);
-        empCreateDTO.setEntryDate(LocalDate.now());
-
-        return empCreateDTO;
-    }
-
-    private static EmpLoginDTO getEmpLoginDTO(String username, String password) {
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername(username);
-        empLoginDTO.setPassword(password);
-
-        return empLoginDTO;
-    }
 }
 
 

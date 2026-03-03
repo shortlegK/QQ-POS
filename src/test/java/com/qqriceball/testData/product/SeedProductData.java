@@ -1,8 +1,7 @@
-package com.qqriceball.integration.testData.product;
+package com.qqriceball.testData.product;
 
 import com.qqriceball.enumeration.ProductTypeEnum;
 import com.qqriceball.enumeration.StatusEnum;
-import com.qqriceball.model.entity.Product;
 
 public class SeedProductData {
 

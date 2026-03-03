@@ -5,9 +5,7 @@ import com.qqriceball.common.exception.NotExistException;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
-import com.qqriceball.enumeration.ProductTypeEnum;
-import com.qqriceball.enumeration.StatusEnum;
-import com.qqriceball.integration.testData.product.SeedProductData;
+import com.qqriceball.testData.product.SeedProductData;
 import com.qqriceball.mapper.ProductMapper;
 import com.qqriceball.model.dto.ProductCreateDTO;
 import com.qqriceball.model.dto.ProductEditDTO;
@@ -16,6 +14,7 @@ import com.qqriceball.model.entity.Product;
 import com.qqriceball.model.vo.ProductPageQueryVO;
 import com.qqriceball.model.vo.ProductVO;
 import com.qqriceball.service.ProductService;
+import com.qqriceball.utils.product.ProductTestDataFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +22,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.BeanUtils;
 import org.springframework.dao.DuplicateKeyException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -43,11 +41,7 @@ public class ProductServiceTest {
     @DisplayName("[Unit] ProductService.create - 建立菜單品項，應呼叫 productMapper.insert 傳入參數")
     void testCreateSuccess() {
 
-        ProductCreateDTO productCreateDTO = new ProductCreateDTO();
-        productCreateDTO.setTitle("測試品項");
-        productCreateDTO.setProductType(ProductTypeEnum.MEAT.getCode());
-        productCreateDTO.setPrice(100);
-        productCreateDTO.setStatus(StatusEnum.ACTIVE.getCode());
+        ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductCreateDTO(SeedProductData.MEAT_PRODUCT);
 
         productService.create(productCreateDTO);
 
@@ -68,11 +62,7 @@ public class ProductServiceTest {
     @DisplayName("[Unit] ProductService.create - 建立重複菜單品項，應拋出 AlreadyExistsException")
     void testCreateProductTitleDuplicate() {
 
-        ProductCreateDTO productCreateDTO = new ProductCreateDTO();
-        productCreateDTO.setTitle("測試品項");
-        productCreateDTO.setProductType(ProductTypeEnum.MEAT.getCode());
-        productCreateDTO.setPrice(100);
-        productCreateDTO.setStatus(StatusEnum.ACTIVE.getCode());
+        ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductCreateDTO(SeedProductData.DRINK_PRODUCT);
 
         doThrow(new DuplicateKeyException("duplicate"))
                 .when(productMapper)
@@ -92,18 +82,10 @@ public class ProductServiceTest {
         Integer pageSize = 5;
         String title = "product";
 
-        ProductPageQueryDTO productPageQueryDTO = new ProductPageQueryDTO();
-        productPageQueryDTO.setPage(page);
-        productPageQueryDTO.setPageSize(pageSize);
-        productPageQueryDTO.setTitle(title);
+        ProductPageQueryDTO productPageQueryDTO = ProductTestDataFactory.getProductPageQueryDTO(page, pageSize, title);
 
-        ProductPageQueryVO data1 = new ProductPageQueryVO();
-        data1.setId(1);
-        data1.setTitle("product1");
-
-        ProductPageQueryVO data2 = new ProductPageQueryVO();
-        data2.setId(2);
-        data2.setTitle("product2");
+        ProductPageQueryVO data1 = ProductTestDataFactory.getProductPageQueryVO(SeedProductData.DRINK_PRODUCT);
+        ProductPageQueryVO data2 = ProductTestDataFactory.getProductPageQueryVO(SeedProductData.MEAT_PRODUCT);
 
         Page<ProductPageQueryVO> mockPage = new Page<>(page, pageSize);
         mockPage.setTotal(2L);
@@ -128,11 +110,9 @@ public class ProductServiceTest {
     @DisplayName("[Unit] ProductService.updateById - 更新菜單品項，應呼叫 productMapper.updateById 傳入參數")
     void testUpdateByIdSuccess() {
 
-        ProductEditDTO productEditDTO = new ProductEditDTO();
-        BeanUtils.copyProperties(SeedProductData.DRINK_PRODUCT, productEditDTO);
+        ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.DRINK_PRODUCT);
 
-        ProductVO productVO = new ProductVO();
-        BeanUtils.copyProperties(SeedProductData.DRINK_PRODUCT, productVO);
+        ProductVO productVO = ProductTestDataFactory.getProductVO(SeedProductData.DRINK_PRODUCT);
 
         when(productMapper.getById(any(Integer.class))).thenReturn(productVO);
 
@@ -153,12 +133,11 @@ public class ProductServiceTest {
     @DisplayName("[Unit] ProductService.updateById - 菜單品項 id 不存在，應拋出 NotExistException")
     void testUpdateByIdProductNotExist() {
 
-        ProductEditDTO productEditDTO = new ProductEditDTO();
-        BeanUtils.copyProperties(SeedProductData.DRINK_PRODUCT, productEditDTO);
+        ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.DRINK_PRODUCT);
 
         when(productMapper.getById(any(Integer.class))).thenReturn(null);
 
-        NotExistException ex = assertThrows(NotExistException.class,
+        assertThrows(NotExistException.class,
                 () -> productService.updateById(productEditDTO));
 
         verify(productMapper).getById(productEditDTO.getId());
@@ -167,11 +146,9 @@ public class ProductServiceTest {
     @Test
     @DisplayName("[Unit] ProductService.updateById - 欲修改菜單品項名稱已存在，應拋出 AlreadyExistsException")
     void testUpdateByIdProductTitleDuplicate() {
-        ProductEditDTO productEditDTO = new ProductEditDTO();
-        BeanUtils.copyProperties(SeedProductData.DRINK_PRODUCT, productEditDTO);
+        ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.DRINK_PRODUCT);
 
-        ProductVO productVO = new ProductVO();
-        BeanUtils.copyProperties(SeedProductData.DRINK_PRODUCT, productVO);
+        ProductVO productVO = ProductTestDataFactory.getProductVO(SeedProductData.DRINK_PRODUCT);
 
         when(productMapper.getById(any(Integer.class))).thenReturn(productVO);
 
@@ -182,10 +159,6 @@ public class ProductServiceTest {
         AlreadyExistsException ex = assertThrows(AlreadyExistsException.class,
                 () -> productService.updateById(productEditDTO));
         assertEquals(MessageEnum.PRODUCT_ALREADY_EXISTS.getMessage(), ex.getMessage());
-
     }
-
-
-
 
 }

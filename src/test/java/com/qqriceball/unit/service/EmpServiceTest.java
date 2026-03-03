@@ -16,6 +16,8 @@ import com.qqriceball.model.vo.EmpPageQueryVO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.mapper.EmpMapper;
 import com.qqriceball.service.EmpService;
+import com.qqriceball.testData.emp.SeedUserData;
+import com.qqriceball.utils.emp.EmpTestDataFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,8 +29,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -50,10 +50,7 @@ class EmpServiceTest {
     @DisplayName("[Unit] EmpService.login - 登入帳號不存在，應拋出 NotExistException")
     void testLoginAccountNotExist() {
 
-        String username = "NotExist";
-
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername(username);
+        EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
 
         lenient().when(empMapper.getByUsername(empLoginDTO.getUsername())).thenReturn(null);
 
@@ -61,7 +58,7 @@ class EmpServiceTest {
                 () -> empService.login(empLoginDTO));
         assertEquals(MessageEnum.ACCOUNT_NOT_EXISTS.getMessage(), ex.getMessage());
 
-        verify(empMapper).getByUsername(username);
+        verify(empMapper).getByUsername(SeedUserData.TESTER.username());
 
     }
 
@@ -69,21 +66,12 @@ class EmpServiceTest {
     @DisplayName("[Unit] EmpService.login - 登入密碼錯誤，應拋出 PasswordErrorException")
     void testLoginPasswordError() {
 
-        String username = "admin";
-        String wrongPassword = "wrongPassword";
-        String encodedPassword = "encoded_password";
+        EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
 
+        Emp fakeEmp = EmpTestDataFactory.getEmp(SeedUserData.TESTER);
 
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername(username);
-        empLoginDTO.setPassword(wrongPassword);
-
-        Emp fakeEmp = new Emp();
-        fakeEmp.setUsername(username);
-        fakeEmp.setPassword(encodedPassword);
-
-        when(empMapper.getByUsername(username)).thenReturn(fakeEmp);
-        when(passwordEncoder.matches(wrongPassword, fakeEmp.getPassword())).thenReturn(false);
+        when(empMapper.getByUsername(any(String.class))).thenReturn(fakeEmp);
+        when(passwordEncoder.matches(empLoginDTO.getPassword(), fakeEmp.getPassword())).thenReturn(false);
 
         PasswordErrorException ex = assertThrows(PasswordErrorException.class,
                 () -> empService.login(empLoginDTO));
@@ -97,20 +85,12 @@ class EmpServiceTest {
     @DisplayName("[Unit] EmpService.login - 登入帳號已停用，應拋出 AccountInactiveException")
     void testLoginAccountInactive() {
 
-        String username = "admin";
-        String rawPassword = "Password";
+        EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.INACTIVE.username(), SeedUserData.TESTER.password());
 
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername(username);
-        empLoginDTO.setPassword(rawPassword);
+        Emp fakeEmp = EmpTestDataFactory.getEmp(SeedUserData.INACTIVE);
 
-        Emp fakeEmp = new Emp();
-        fakeEmp.setUsername(username);
-        fakeEmp.setPassword(rawPassword);
-        fakeEmp.setStatus(StatusEnum.INACTIVE.getCode());
-
-        when(empMapper.getByUsername(username)).thenReturn(fakeEmp);
-        when(passwordEncoder.matches(rawPassword, fakeEmp.getPassword())).thenReturn(true);
+        when(empMapper.getByUsername(any(String.class))).thenReturn(fakeEmp);
+        when(passwordEncoder.matches(empLoginDTO.getPassword(), fakeEmp.getPassword())).thenReturn(true);
 
         AccountInactiveException ex = assertThrows(AccountInactiveException.class,
                 () -> empService.login(empLoginDTO));
@@ -125,20 +105,12 @@ class EmpServiceTest {
     @DisplayName("[Unit] EmpService.login - 登入帳號啟用中且密碼正確，應回傳 Emp 資料")
     void testLoginAccountActive() {
 
-        String username = "admin";
-        String rawPassword = "Password";
+        EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
 
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername(username);
-        empLoginDTO.setPassword(rawPassword);
+        Emp fakeEmp = EmpTestDataFactory.getEmp(SeedUserData.TESTER);
 
-        Emp fakeEmp = new Emp();
-        fakeEmp.setUsername(username);
-        fakeEmp.setPassword(rawPassword);
-        fakeEmp.setStatus(StatusEnum.ACTIVE.getCode());
-
-        when(empMapper.getByUsername(username)).thenReturn(fakeEmp);
-        when(passwordEncoder.matches(rawPassword, fakeEmp.getPassword())).thenReturn(true);
+        when(empMapper.getByUsername(any(String.class))).thenReturn(fakeEmp);
+        when(passwordEncoder.matches(empLoginDTO.getPassword(), fakeEmp.getPassword())).thenReturn(true);
 
         Emp result = empService.login(empLoginDTO);
 
@@ -155,14 +127,9 @@ class EmpServiceTest {
     @DisplayName("[Unit] EmpService.create - 建立重複帳號，應拋出 AlreadyExistsException")
     void testCreateEmpUsernameDuplicate() {
 
-        String username = "admin";
-        String rawPassword = "Password";
-        String encodedPassword = "encoded_password";
-        EmpCreateDTO empCreateDTO = new EmpCreateDTO();
-        empCreateDTO.setUsername(username);
-        empCreateDTO.setPassword(rawPassword);
+        EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(SeedUserData.TESTER);
 
-        when(passwordEncoder.encode(rawPassword)).thenReturn(encodedPassword);
+        when(passwordEncoder.encode(any(String.class))).thenReturn(SeedUserData.TESTER.password());
 
         doThrow(new DuplicateKeyException("duplicate"))
                 .when(empMapper)
@@ -173,44 +140,30 @@ class EmpServiceTest {
         assertEquals(MessageEnum.USERNAME_ALREADY_EXISTS.getMessage(), ex.getMessage());
 
         verify(empMapper).insert(any(Emp.class));
-
-
     }
 
     @Test
     @DisplayName("[Unit] EmpService.create - 建立員工，應加密密碼並呼叫 insert 帶入 Emp 資料")
     void testCreateEmpSuccess() {
 
-        String username = "testSuccess";
-        String rawPassword = "Password";
-        String encodedPassword = "encoded_password";
-        String name = "tester";
-        LocalDate entryDate = LocalDate.of(2026, 1, 1);
-        int role = 1;
+        EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(SeedUserData.TESTER);
 
-        EmpCreateDTO empCreateDTO = new EmpCreateDTO();
-        empCreateDTO.setUsername(username);
-        empCreateDTO.setPassword(rawPassword);
-        empCreateDTO.setName(name);
-        empCreateDTO.setRole(role);
-        empCreateDTO.setEntryDate(entryDate);
-
-        when(passwordEncoder.encode(rawPassword)).thenReturn(encodedPassword);
+        when(passwordEncoder.encode(any(String.class))).thenReturn(SeedUserData.TESTER.password());
 
         empService.create(empCreateDTO);
 
         ArgumentCaptor<Emp> empArgumentCaptor = ArgumentCaptor.forClass(Emp.class);
         verify(empMapper).insert(empArgumentCaptor.capture());
-        verify(passwordEncoder).encode(rawPassword);
+        verify(passwordEncoder).encode(SeedUserData.TESTER.password());
 
         Emp capturedEmp = empArgumentCaptor.getValue();
 
         assertAll(
-                () -> assertEquals(username, capturedEmp.getUsername(), "username 應與傳入參數相同"),
-                () -> assertEquals(encodedPassword, capturedEmp.getPassword(), "password 應為加密後的密碼"),
-                () -> assertEquals(name, capturedEmp.getName(), "name 應與傳入參數相同"),
-                () -> assertEquals(role, capturedEmp.getRole(), "role 應與傳入參數相同"),
-                () -> assertEquals(entryDate, capturedEmp.getEntryDate(), "entryDate 應與傳入參數相同")
+                () -> assertEquals(empCreateDTO.getUsername(), capturedEmp.getUsername(), "username 應與傳入參數相同"),
+                () -> assertEquals(empCreateDTO.getPassword(), capturedEmp.getPassword(), "password 應為加密後的密碼"),
+                () -> assertEquals(empCreateDTO.getName(), capturedEmp.getName(), "name 應與傳入參數相同"),
+                () -> assertEquals(empCreateDTO.getRole(), capturedEmp.getRole(), "role 應與傳入參數相同"),
+                () -> assertEquals(empCreateDTO.getEntryDate(), capturedEmp.getEntryDate(), "entryDate 應與傳入參數相同")
         );
 
     }
@@ -326,26 +279,20 @@ class EmpServiceTest {
     @DisplayName("[Unit] EmpService.updateById - 變更員工資料，應呼叫 empMapper.updateById")
     void testUpdateByIdSuccess() {
 
-        Integer id = 1;
+        EmpEditDTO empEditDTO = EmpTestDataFactory.getEmpEditDTO(SeedUserData.TESTER);
 
-        EmpEditDTO empEditDTO = new EmpEditDTO();
-        empEditDTO.setId(id);
-        empEditDTO.setName("updateById");
-        empEditDTO.setRole(RoleEnum.STAFF.getCode());
-        empEditDTO.setEntryDate(LocalDate.of(2026, 1, 1));
-
-        EmpVO empVO = new EmpVO();
-        when(empMapper.getById(id)).thenReturn(empVO);
+        EmpVO empVO = EmpTestDataFactory.getEmpVO(SeedUserData.TESTER);
+        when(empMapper.getById(any(Integer.class))).thenReturn(empVO);
 
         empService.updateById(empEditDTO);
 
         ArgumentCaptor<Emp> empArgumentCaptor = ArgumentCaptor.forClass(Emp.class);
         verify(empMapper).updateById(empArgumentCaptor.capture());
-        verify(empMapper, times(2)).getById(id);
+        verify(empMapper, times(2)).getById(empEditDTO.getId());
 
         Emp capturedEmp = empArgumentCaptor.getValue();
         assertAll(
-                () -> assertEquals(id, capturedEmp.getId(), "id 應與傳入參數相同"),
+                () -> assertEquals(empEditDTO.getId(), capturedEmp.getId(), "id 應與傳入參數相同"),
                 () -> assertEquals(empEditDTO.getName(), capturedEmp.getName(), "name 應與傳入參數相同")
         );
     }
@@ -357,18 +304,11 @@ class EmpServiceTest {
         Integer pageSize = 5;
         String name = "emp";
 
-        EmpPageQueryDTO empPageQueryDTO = new EmpPageQueryDTO();
-        empPageQueryDTO.setPage(page);
-        empPageQueryDTO.setPageSize(pageSize);
-        empPageQueryDTO.setName(name);
+        EmpPageQueryDTO empPageQueryDTO = EmpTestDataFactory.getEmpPageQueryDTO(page, pageSize, name);
 
-        EmpPageQueryVO data1 = new EmpPageQueryVO();
-        data1.setId(1);
-        data1.setUsername("user1");
+        EmpPageQueryVO data1 = EmpTestDataFactory.getEmpPageQueryVO(SeedUserData.TESTER);
 
-        EmpPageQueryVO data2 = new EmpPageQueryVO();
-        data2.setId(2);
-        data2.setUsername("user2");
+        EmpPageQueryVO data2 = EmpTestDataFactory.getEmpPageQueryVO(SeedUserData.STAFF);
 
         Page<EmpPageQueryVO> mockPage = new Page<>(page, pageSize);
         mockPage.setTotal(2L);

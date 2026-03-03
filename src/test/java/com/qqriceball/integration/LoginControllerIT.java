@@ -2,8 +2,9 @@ package com.qqriceball.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qqriceball.enumeration.MessageEnum;
-import com.qqriceball.integration.testData.emp.SeedUserData;
+import com.qqriceball.testData.emp.SeedUserData;
 import com.qqriceball.model.dto.EmpLoginDTO;
+import com.qqriceball.utils.emp.EmpTestDataFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class LoginControllerIT {
     @DisplayName("[IT] 1001 login - 登入成功，應回傳 200 及 token")
     void testLoginSuccess() throws Exception {
 
-        EmpLoginDTO empLoginDTO = getEmpLoginDTO(
+        EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(
                 SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
@@ -55,7 +56,7 @@ public class LoginControllerIT {
     @DisplayName("[IT] 1001 login - 登入帳號不存在，應回傳 404 及指定訊息")
     void testLoginAccountNotExist() throws Exception {
 
-        EmpLoginDTO empLoginDTO = getEmpLoginDTO("notExist",
+        EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO("notExist",
                 "userPassword");
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
@@ -77,7 +78,7 @@ public class LoginControllerIT {
     void testLoginPasswordError() throws Exception {
 
 
-        EmpLoginDTO empLoginDTO = getEmpLoginDTO(SeedUserData.MANAGER.username(), "wrongPassword");
+        EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.MANAGER.username(), "wrongPassword");
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -98,7 +99,7 @@ public class LoginControllerIT {
     @DisplayName("[IT] 1001 login - 登入帳號已停用，應回傳 403 及指定訊息")
     void testLoginAccountInactive() throws Exception {
 
-        EmpLoginDTO empLoginDTO = getEmpLoginDTO(
+        EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(
                 SeedUserData.INACTIVE.username(), SeedUserData.INACTIVE.password());
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
@@ -148,11 +149,4 @@ public class LoginControllerIT {
     }
 
 
-    private static EmpLoginDTO getEmpLoginDTO(String username, String password) {
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername(username);
-        empLoginDTO.setPassword(password);
-
-        return empLoginDTO;
-    }
 }

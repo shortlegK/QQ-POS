@@ -1,9 +1,9 @@
-package com.qqriceball.integration.testData;
+package com.qqriceball.testData;
 
-import com.qqriceball.integration.testData.emp.SeedUserData;
-import com.qqriceball.integration.testData.emp.TestAccount;
-import com.qqriceball.integration.testData.product.SeedProductData;
-import com.qqriceball.integration.testData.product.TestProduct;
+import com.qqriceball.testData.emp.SeedUserData;
+import com.qqriceball.testData.emp.TestAccount;
+import com.qqriceball.testData.product.SeedProductData;
+import com.qqriceball.testData.product.TestProduct;
 import com.qqriceball.mapper.EmpMapper;
 import com.qqriceball.mapper.ProductMapper;
 import com.qqriceball.model.entity.Emp;

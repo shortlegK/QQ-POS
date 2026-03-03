@@ -8,8 +8,7 @@ import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.StatusEnum;
-import com.qqriceball.integration.testData.emp.SeedUserData;
-import com.qqriceball.integration.testData.emp.TestAccount;
+import com.qqriceball.testData.emp.SeedUserData;
 import com.qqriceball.model.dto.EmpCreateDTO;
 import com.qqriceball.model.dto.EmpEditDTO;
 import com.qqriceball.model.dto.EmpPageQueryDTO;
@@ -19,6 +18,7 @@ import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.controller.EmpController;
 import com.qqriceball.handler.GlobalExceptionHandler;
 import com.qqriceball.service.EmpService;
+import com.qqriceball.utils.emp.EmpTestDataFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -81,7 +81,7 @@ public class EmpControllerTest {
     @DisplayName("[Unit] EmpController.createEmp - 建立重複帳號，應回傳 409 及指定訊息")
     void testCreateEmpUsernameDuplicate() throws Exception {
 
-        EmpCreateDTO empCreateDTO = getEmpCreateDTO();
+        EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(SeedUserData.TESTER);
 
         doThrow(new AlreadyExistsException(MessageEnum.USERNAME_ALREADY_EXISTS))
                 .when(empService)
@@ -103,7 +103,7 @@ public class EmpControllerTest {
     @DisplayName("[Unit] EmpController.createEmp - 建立員工成功，應回傳 200")
     void testCreateEmpSuccess() throws Exception {
 
-        EmpCreateDTO empCreateDTO = getEmpCreateDTO();
+        EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(SeedUserData.TESTER);
 
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -122,7 +122,7 @@ public class EmpControllerTest {
     void testUpdateEmpStatusAccountNotExist() throws Exception {
 
         Integer id = 666;
-        EmpStatusDTO empStatusDTO = getEmpStatusDTO(StatusEnum.ACTIVE);
+        EmpStatusDTO empStatusDTO = EmpTestDataFactory.getEmpStatusDTO(StatusEnum.ACTIVE);
 
         doThrow(new NotExistException(MessageEnum.ACCOUNT_NOT_EXISTS))
                 .when(empService)
@@ -145,7 +145,7 @@ public class EmpControllerTest {
     void testUpdateEmpStatusSuccess() throws Exception {
 
         Integer id = 666;
-        EmpStatusDTO empStatusDTO = getEmpStatusDTO(StatusEnum.INACTIVE);
+        EmpStatusDTO empStatusDTO = EmpTestDataFactory.getEmpStatusDTO(StatusEnum.INACTIVE);
 
         String jsonBody = objectMapper.writeValueAsString(empStatusDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -206,7 +206,8 @@ public class EmpControllerTest {
     @DisplayName("[Unit] EmpController.updateById - 員工 id 不存在，應回傳 404")
     void testUpdateEmpByIdNoExist() throws Exception {
 
-        EmpEditDTO empEditDTO = getEmpEditDTO();
+        EmpEditDTO empEditDTO = EmpTestDataFactory.getEmpEditDTO(SeedUserData.TESTER);
+        empEditDTO.setId(Integer.MAX_VALUE);
 
         doThrow(new NotExistException(MessageEnum.ACCOUNT_NOT_EXISTS))
                 .when(empService)
@@ -233,7 +234,7 @@ public class EmpControllerTest {
     @DisplayName("[Unit] EmpController.updateById - 修改成功應回傳 200")
     void testUpdateEmpByIdSuccess() throws Exception {
 
-        EmpEditDTO empEditDTO = getEmpEditDTO();
+        EmpEditDTO empEditDTO = EmpTestDataFactory.getEmpEditDTO(SeedUserData.TESTER);
 
         String jsonBody = objectMapper.writeValueAsString(empEditDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -258,8 +259,8 @@ public class EmpControllerTest {
         queryDTO.setPageSize(5);
 
         List<EmpPageQueryVO> mockData = new ArrayList<>();
-        mockData.add(getEmpPageQueryVO(SeedUserData.MANAGER));
-        mockData.add(getEmpPageQueryVO(SeedUserData.STAFF));
+        mockData.add(EmpTestDataFactory.getEmpPageQueryVO(SeedUserData.MANAGER));
+        mockData.add(EmpTestDataFactory.getEmpPageQueryVO(SeedUserData.STAFF));
 
         Long total = (long) mockData.size();
         PageResult mockResult = new PageResult(total, queryDTO.getPage(),
@@ -281,32 +282,6 @@ public class EmpControllerTest {
                 .andExpect(jsonPath("$.data").exists());
 
         verify(empService).pageQuery(any(EmpPageQueryDTO.class));
-    }
-
-
-    private EmpCreateDTO getEmpCreateDTO() {
-
-        EmpCreateDTO empCreateDTO = new EmpCreateDTO();
-        BeanUtils.copyProperties(SeedUserData.TESTER, empCreateDTO);
-        return empCreateDTO;
-    }
-
-    private static EmpStatusDTO getEmpStatusDTO(StatusEnum status) {
-        EmpStatusDTO empStatusDTO = new EmpStatusDTO();
-        empStatusDTO.setStatus(status.getCode());
-        return empStatusDTO;
-    }
-
-    private static EmpEditDTO getEmpEditDTO() {
-        EmpEditDTO empEditDTO = new EmpEditDTO();
-        BeanUtils.copyProperties(SeedUserData.TESTER, empEditDTO);
-        return empEditDTO;
-    }
-
-    private  static EmpPageQueryVO getEmpPageQueryVO(TestAccount account) {
-        EmpPageQueryVO empPageQueryVO = new EmpPageQueryVO();
-        BeanUtils.copyProperties(account, empPageQueryVO);
-        return empPageQueryVO;
     }
 
 }

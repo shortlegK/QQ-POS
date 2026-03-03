@@ -1,4 +1,4 @@
-package com.qqriceball.integration.testData.emp;
+package com.qqriceball.testData.emp;
 
 import java.time.LocalDate;
 

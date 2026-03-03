@@ -4,16 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.ProductTypeEnum;
-import com.qqriceball.integration.testData.emp.SeedUserData;
-import com.qqriceball.integration.testData.product.SeedProductData;
-import com.qqriceball.integration.testData.product.TestProduct;
-import com.qqriceball.integration.utils.Utils;
+import com.qqriceball.testData.emp.SeedUserData;
+import com.qqriceball.testData.product.SeedProductData;
+import com.qqriceball.utils.TestDataGenerator;
 import com.qqriceball.model.dto.*;
+import com.qqriceball.utils.emp.EmpTestDataFactory;
+import com.qqriceball.utils.product.ProductTestDataFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -50,7 +50,7 @@ public class ProductControllerIT {
     void setUp() throws Exception {
 
         // 取得 Admin Token
-        EmpLoginDTO managerLoginDTO = getEmpLoginDTO(
+        EmpLoginDTO managerLoginDTO = EmpTestDataFactory.getEmpLoginDTO(
                 SeedUserData.MANAGER.username(), SeedUserData.MANAGER.password());
 
         String jsonBody = objectMapper.writeValueAsString(managerLoginDTO);
@@ -64,7 +64,7 @@ public class ProductControllerIT {
         tokenManager = JsonPath.read(managerResult.getResponse().getContentAsString(),"$.data.token");
 
         // 取得 Staff Token
-        EmpLoginDTO staffLoginDTO = getEmpLoginDTO(
+        EmpLoginDTO staffLoginDTO = EmpTestDataFactory.getEmpLoginDTO(
                 SeedUserData.STAFF.username(), SeedUserData.STAFF.password());
 
         jsonBody = objectMapper.writeValueAsString(staffLoginDTO);
@@ -87,8 +87,8 @@ public class ProductControllerIT {
     @DisplayName("[IT] 3001 createProduct - 建立品項成功，應回傳 200 及資料")
     void testCreateProductSuccess() throws Exception {
 
-        ProductCreateDTO productCreateDTO = getProductDTO(SeedProductData.DRINK_PRODUCT);
-        String productTile = Utils.getUnique("create");
+        ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductDTO(SeedProductData.DRINK_PRODUCT);
+        String productTile = TestDataGenerator.getUnique("create");
         productCreateDTO.setTitle(productTile);
 
         String jsonBody = objectMapper.writeValueAsString(productCreateDTO);
@@ -109,8 +109,8 @@ public class ProductControllerIT {
     @DisplayName("[IT] 3001 createProduct - 建立重複品項，應回傳 409 及指定訊息")
     void testCreateProductTitleDuplicate() throws Exception {
 
-        ProductCreateDTO productCreateDTO = getProductDTO(SeedProductData.DRINK_PRODUCT);
-        productCreateDTO.setTitle(Utils.getUnique("duplicate"));
+        ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductDTO(SeedProductData.DRINK_PRODUCT);
+        productCreateDTO.setTitle(TestDataGenerator.getUnique("duplicate"));
 
 
         String jsonBody = objectMapper.writeValueAsString(productCreateDTO);
@@ -167,8 +167,8 @@ public class ProductControllerIT {
     @DisplayName("[IT] 3003 updateProductById - 修改成功應回傳 200 及資料")
     void testUpdateProductByIdSuccess() throws Exception {
 
-        ProductEditDTO productEditDTO = getProductEditDTO(SeedProductData.MEAT_PRODUCT);
-        productEditDTO.setTitle(Utils.getUnique("update"));
+        ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.MEAT_PRODUCT);
+        productEditDTO.setTitle(TestDataGenerator.getUnique("update"));
 
         String jsonBody = objectMapper.writeValueAsString(productEditDTO);
         mockMvc.perform(
@@ -186,7 +186,7 @@ public class ProductControllerIT {
     @DisplayName("[IT] 3003 updateProductById - 修改品項 id 不存在，應回傳 404")
     void testUpdateProductByIdNoExist() throws Exception{
 
-        ProductEditDTO productEditDTO = getProductEditDTO(SeedProductData.MEAT_PRODUCT);
+        ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.MEAT_PRODUCT);
         productEditDTO.setId(Integer.MAX_VALUE);
 
         String jsonBody = objectMapper.writeValueAsString(productEditDTO);
@@ -205,7 +205,7 @@ public class ProductControllerIT {
     @DisplayName("[IT] 3003 updateProductById - 修改品項名稱已存在，應回傳 409 及指定訊息")
     void testUpdateProductByIdTitleDuplicate() throws Exception {
 
-        ProductEditDTO productEditDTO = getProductEditDTO(SeedProductData.MEAT_PRODUCT);
+        ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.MEAT_PRODUCT);
         productEditDTO.setTitle(SeedProductData.VEG_PRODUCT.title());
 
         String jsonBody = objectMapper.writeValueAsString(productEditDTO);
@@ -220,24 +220,4 @@ public class ProductControllerIT {
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
-    private static ProductCreateDTO getProductDTO(TestProduct product){
-        ProductCreateDTO productCreateDTO = new ProductCreateDTO();
-        BeanUtils.copyProperties(product, productCreateDTO);
-        return productCreateDTO;
-    }
-
-    private static EmpLoginDTO getEmpLoginDTO(String username, String password) {
-        EmpLoginDTO empLoginDTO = new EmpLoginDTO();
-        empLoginDTO.setUsername(username);
-        empLoginDTO.setPassword(password);
-
-        return empLoginDTO;
-    }
-
-    private static ProductEditDTO getProductEditDTO(TestProduct product){
-            ProductEditDTO productEditDTO = new ProductEditDTO();
-            BeanUtils.copyProperties(product, productEditDTO);
-            return productEditDTO;
-
-        }
 }
