@@ -7,14 +7,12 @@ import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.exception.BadRequestArgsException;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
-import com.qqriceball.mapper.EmpMapper;
 import com.qqriceball.model.dto.ProductCreateDTO;
 import com.qqriceball.model.dto.ProductEditDTO;
 import com.qqriceball.model.dto.ProductPageQueryDTO;
 import com.qqriceball.model.entity.Product;
 import com.qqriceball.model.vo.ProductPageQueryVO;
 import com.qqriceball.mapper.ProductMapper;
-import com.qqriceball.mapper.ProductOptionMapper;
 import com.qqriceball.model.vo.ProductVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -29,14 +27,10 @@ import java.util.List;
 public class ProductService {
 
     private final ProductMapper productMapper;
-    private final ProductOptionMapper productOptionMapper;
-    private final EmpMapper empMapper;
 
     @Autowired
-    public ProductService(ProductMapper productMapper, ProductOptionMapper productOptionMapper, EmpMapper empMapper) {
+    public ProductService(ProductMapper productMapper) {
         this.productMapper = productMapper;
-        this.productOptionMapper = productOptionMapper;
-        this.empMapper = empMapper;
     }
 
     public ProductVO create(ProductCreateDTO productCreateDTO) {
@@ -47,11 +41,7 @@ public class ProductService {
         try {
             //新增菜單品項
             productMapper.insert(product);
-            Integer id = product.getId();
-
-            ProductVO productVO = new ProductVO();
-            BeanUtils.copyProperties(product, productVO);
-            return productVO;
+            return productMapper.getById(product.getId());
 
         } catch (
                 DuplicateKeyException e) {
@@ -90,7 +80,7 @@ public class ProductService {
         try {
             productMapper.updateById(product);
 
-            return this.getById(product.getId());
+            return productMapper.getById(product.getId());
         } catch (
                 DuplicateKeyException e) {
             log.error("編輯菜單品項名稱已存在,title: {}", product.getTitle(), e);

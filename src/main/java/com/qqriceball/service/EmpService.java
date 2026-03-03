@@ -69,8 +69,7 @@ public class EmpService {
 
         try{
             empMapper.insert(emp);
-            Integer newId = emp.getId();
-            return empMapper.getById(newId);
+            return empMapper.getById(emp.getId());
 
         } catch (DuplicateKeyException e){
             log.error("建立員工,帳號重複,username: {}",empCreateDTO.getUsername(),e);
@@ -126,7 +125,7 @@ public class EmpService {
         BeanUtils.copyProperties(empEditDTO, emp);
         empMapper.updateById(emp);
 
-        return this.getById(emp.getId());
+        return empMapper.getById(emp.getId());
     }
 
     // 確認 Emp 啟用狀態

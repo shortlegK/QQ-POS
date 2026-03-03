@@ -1,6 +1,6 @@
 package com.qqriceball.mapper;
 
-import com.qqriceball.model.entity.ProductOption;
+import com.qqriceball.model.entity.Option;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -8,6 +8,6 @@ import org.apache.ibatis.annotations.Select;
 public interface ProductOptionMapper {
 
     @Select("select id, title, option_type, price, status from product_option where id = #{id}")
-    ProductOption getById(Integer id);
+    Option getById(Integer id);
 
 }
