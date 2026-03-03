@@ -220,4 +220,31 @@ public class ProductControllerIT {
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
+    @Test
+    @DisplayName("[IT] 3004 getById - id 不存在，應回傳 404 及指定訊息")
+    void testGetByIdProductNotExist() throws Exception {
+
+        Integer id = Integer.MAX_VALUE;
+
+        mockMvc.perform(
+                        get("/products/{id}", id)
+                                .header("Authorization", "Bearer " + tokenManager))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.PRODUCT_NOT_EXIST.getCode()));
+    }
+
+    @Test
+    @DisplayName("[IT] 3004 getById - id 存在，應回傳 200 及資料")
+    void testGetByIdProductExist() throws Exception {
+        Integer id = SeedProductData.VEG_PRODUCT.id();
+        mockMvc.perform(
+                        get("/products/{id}", id)
+                                .header("Authorization", "Bearer " + tokenManager))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.id").value(id))
+                .andExpect(jsonPath("$.data.title").value(SeedProductData.VEG_PRODUCT.title()));
+
+    }
+
 }

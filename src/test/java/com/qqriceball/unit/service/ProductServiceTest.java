@@ -161,4 +161,34 @@ public class ProductServiceTest {
         assertEquals(MessageEnum.PRODUCT_ALREADY_EXISTS.getMessage(), ex.getMessage());
     }
 
+    @Test
+    @DisplayName("[Unit] ProductService.getById - 菜單品項 id 不存在，應拋出 NotExistException")
+    void  testGetByIdProductNotExist() {
+        Integer id = Integer.MAX_VALUE;
+
+        when(productMapper.getById(id)).thenReturn(null);
+
+        assertThrows(NotExistException.class,
+                () -> productService.getById(id));
+
+        verify(productMapper).getById(id);
+    }
+
+    @Test
+    @DisplayName("[Unit] ProductService.getById - 菜單品項 id 存在，應回傳 ProductVO 資料")
+    void testGetByIdProductExist() {
+        Integer id = SeedProductData.DRINK_PRODUCT.id();
+
+        ProductVO productVO = ProductTestDataFactory.getProductVO(SeedProductData.DRINK_PRODUCT);
+        when(productMapper.getById(any(Integer.class))).thenReturn(productVO);
+
+        ProductVO result = productService.getById(id);
+
+        assertAll(
+                () -> assertEquals(productVO.getId(), result.getId(), "id 應與傳入參數相同"),
+                () -> assertEquals(productVO.getTitle(), result.getTitle(), "title 應與傳入參數相同")
+        );
+        verify(productMapper).getById(id);
+    }
+
 }

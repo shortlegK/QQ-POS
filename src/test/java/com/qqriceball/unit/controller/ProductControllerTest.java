@@ -221,4 +221,39 @@ public class ProductControllerTest {
 
     }
 
+    @Test
+    @DisplayName("[Unit] ProductController.getById - id 不存在，應回傳 404 及指定訊息")
+    void testGetByIdProductNotExist() throws Exception {
+
+        Integer id = Integer.MAX_VALUE;
+
+        doThrow(new NotExistException(MessageEnum.PRODUCT_NOT_EXIST))
+                .when(productService).getById(any(Integer.class));
+
+        mockMvc.perform(
+                        get("/products/{id}", id)
+                ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.PRODUCT_NOT_EXIST.getCode()));
+
+        verify(productService).getById(id);
+
+    }
+
+    @Test
+    @DisplayName("[Unit] ProductController.getById - id 存在，應回傳 200 及資料")
+    void testGetByIdProductExist() throws Exception {
+
+        Integer id = SeedProductData.DRINK_PRODUCT.id();
+        ProductVO productVO = ProductTestDataFactory.getProductVO(SeedProductData.DRINK_PRODUCT);
+        when(productService.getById(any(Integer.class))).thenReturn(productVO);
+
+        mockMvc.perform(
+                        get("/products/{id}", id)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data").exists());
+
+        verify(productService).getById(id);
+    }
+
 }
