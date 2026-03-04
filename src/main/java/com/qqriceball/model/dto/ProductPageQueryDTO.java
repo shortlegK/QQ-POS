@@ -9,7 +9,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-@Schema(description = "菜單品項分頁查詢資料")
+@Schema(description = "產品分頁查詢資料")
 public class ProductPageQueryDTO implements Serializable {
 
     @Schema(description = "名稱")
@@ -20,9 +20,9 @@ public class ProductPageQueryDTO implements Serializable {
     @Max(value = 2, message = "產品類型設定錯誤")
     private Integer productType;
 
-    @Schema(description = "狀態 (0: 停用, 1: 啟用, null: 不指定狀態)")
-    @Min(value = 0, message = "狀態設定錯誤，0: 停用, 1: 啟用")
-    @Max(value = 1, message = "狀態設定錯誤，0: 停用, 1: 啟用")
+    @Schema(description = "上架狀態(0: 下架, 1: 上架, null: 不指定狀態)")
+    @Min(value = 0, message = "狀態設定錯誤，0: 下架, 1: 上架")
+    @Max(value = 1, message = "狀態設定錯誤，0: 下架, 1: 上架")
     private Integer status;
 
     @Schema(description = "頁碼")

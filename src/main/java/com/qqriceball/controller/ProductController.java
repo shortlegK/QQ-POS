@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/products")
 @Slf4j
-@Tag(name = "菜單管理")
+@Tag(name = "產品品項")
 public class ProductController {
 
     private final ProductService productService;
@@ -32,21 +32,21 @@ public class ProductController {
     }
 
 
-    @Operation(summary = "3001 新增菜單品項")
+    @Operation(summary = "3001 新增產品品項")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "菜單品項新增成功"),
-            @ApiResponse(responseCode = "409", description = "菜單品項名稱已存在"),
+            @ApiResponse(responseCode = "200", description = "產品品項新增成功"),
+            @ApiResponse(responseCode = "409", description = "產品品項名稱已存在"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
     @PostMapping
     public Result<ProductVO> createProduct(@AuthenticationPrincipal EmpVO currentEmp,
                                            @Valid @RequestBody ProductCreateDTO productCreateDTO){
-        log.info("3001 新增菜單品項,操作 id: {},參數:{}",currentEmp.getId(), productCreateDTO);
+        log.info("3001 新增產品品項,操作 id: {},參數:{}",currentEmp.getId(), productCreateDTO);
         ProductVO productVO = productService.create(productCreateDTO);
         return Result.success(productVO);
     }
 
-    @Operation(summary = "3002 菜單品項分頁查詢")
+    @Operation(summary = "3002 產品品項分頁查詢")
     @GetMapping("/page")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "查詢成功"),
@@ -54,13 +54,13 @@ public class ProductController {
     })
     public Result<PageResult> pageQueryProduct(@AuthenticationPrincipal EmpVO currentEmp,
                                    @Valid ProductPageQueryDTO productPageQueryDTO){
-        log.info("3002 菜單品項分頁查詢,操作 id: {},參數:{}",currentEmp.getId(),productPageQueryDTO);
+        log.info("3002 產品品項分頁查詢,操作 id: {},參數:{}",currentEmp.getId(),productPageQueryDTO);
 
         PageResult pageResult = productService.pageQuery(productPageQueryDTO);
         return Result.success(pageResult);
     }
 
-    @Operation(summary = "3003 修改菜單品項")
+    @Operation(summary = "3003 修改產品品項")
     @PutMapping
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "執行成功"),
@@ -68,13 +68,13 @@ public class ProductController {
     })
     public Result<ProductVO> updateProductById(@AuthenticationPrincipal EmpVO currentEmp,
                                                @Valid @RequestBody ProductEditDTO productEditDTO){
-        log.info("3003 修改菜單品項,操作 id: {},參數:{}",currentEmp.getId(),productEditDTO);
+        log.info("3003 修改產品品項,操作 id: {},參數:{}",currentEmp.getId(),productEditDTO);
         ProductVO productVO = productService.updateById(productEditDTO);
         return Result.success(productVO);
     }
 
 
-    @Operation(summary = "3004 根據 ID 查詢菜單品項")
+    @Operation(summary = "3004 根據 ID 查詢產品品項")
     @GetMapping("/{id}")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "執行成功"),
@@ -82,7 +82,7 @@ public class ProductController {
     })
     public Result<ProductVO> getProductById(@AuthenticationPrincipal EmpVO currentEmp,
                                      @PathVariable Integer id){
-        log.info("3004 查詢菜單品項,操作 id:{},id:{}",currentEmp.getId(),id);
+        log.info("3004 查詢產品品項,操作 id:{},id:{}",currentEmp.getId(),id);
         ProductVO productVO = productService.getById(id);
         return Result.success(productVO);
     }

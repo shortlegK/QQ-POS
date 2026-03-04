@@ -26,7 +26,7 @@ public class Option {
     @Schema(description = "售價")
     private Integer price;
 
-    @Schema(description = "狀態(0:停用 / 1:啟用)")
+    @Schema(description = "上架狀態(0:下架 / 1:上架)")
     private Integer status;
 
     @Schema(description = "建立人員 id")

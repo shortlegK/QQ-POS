@@ -27,9 +27,9 @@ public class ProductEditDTO {
     @Min(value = 1, message = "售價不得小於 1")
     private Integer price;
 
-    @Schema(description = "啟用狀態(0:停用 / 1:啟用)")
-    @Min(value = 0, message = "啟用狀態設定錯誤")
-    @Max(value = 1, message = "啟用狀態設定錯誤")
+    @Schema(description = "上架狀態(0:下架 / 1:上架)")
+    @Min(value = 0, message = "上架狀態設定錯誤")
+    @Max(value = 1, message = "上架狀態設定錯誤")
     private Integer status;
 
 }
