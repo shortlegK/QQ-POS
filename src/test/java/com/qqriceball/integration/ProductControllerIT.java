@@ -1,87 +1,22 @@
 package com.qqriceball.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.JsonPath;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.ProductTypeEnum;
-import com.qqriceball.testData.emp.SeedUserData;
 import com.qqriceball.testData.product.SeedProductData;
 import com.qqriceball.utils.TestDataGenerator;
 import com.qqriceball.model.dto.*;
-import com.qqriceball.utils.emp.EmpTestDataFactory;
 import com.qqriceball.utils.product.ProductTestDataFactory;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ProductControllerIT {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    private String tokenManager;
-    private String tokenStaff;
-
-    @BeforeAll
-    void setUp() throws Exception {
-
-        // 取得 Admin Token
-        EmpLoginDTO managerLoginDTO = EmpTestDataFactory.getEmpLoginDTO(
-                SeedUserData.MANAGER.username(), SeedUserData.MANAGER.password());
-
-        String jsonBody = objectMapper.writeValueAsString(managerLoginDTO);
-        MvcResult managerResult = mockMvc.perform(
-                        post("/login")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(jsonBody))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        tokenManager = JsonPath.read(managerResult.getResponse().getContentAsString(),"$.data.token");
-
-        // 取得 Staff Token
-        EmpLoginDTO staffLoginDTO = EmpTestDataFactory.getEmpLoginDTO(
-                SeedUserData.STAFF.username(), SeedUserData.STAFF.password());
-
-        jsonBody = objectMapper.writeValueAsString(staffLoginDTO);
-        MvcResult staffResult = mockMvc.perform(
-                        post("/login")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(jsonBody))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        tokenStaff = JsonPath.read(staffResult.getResponse().getContentAsString(),"$.data.token");
-
-        assertAll(
-                () -> assertFalse(tokenManager.isBlank()),
-                () -> assertFalse(tokenStaff.isBlank())
-        );
-    }
+public class ProductControllerIT extends BaseIntegrationTest{
 
     @Test
     @DisplayName("[IT] 3001 createProduct - 建立品項成功，應回傳 200 及資料")

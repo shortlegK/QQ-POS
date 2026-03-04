@@ -29,59 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class EmpControllerIT {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    private String tokenManager;
-    private String tokenStaff;
-
-    @BeforeAll
-    void setUp() throws Exception {
-
-        // 取得 Admin Token
-        EmpLoginDTO managerLoginDTO = EmpTestDataFactory.getEmpLoginDTO(
-                SeedUserData.MANAGER.username(), SeedUserData.MANAGER.password());
-
-        String jsonBody = objectMapper.writeValueAsString(managerLoginDTO);
-        MvcResult managerResult = mockMvc.perform(
-                post("/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonBody))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        tokenManager = JsonPath.read(managerResult.getResponse().getContentAsString(),"$.data.token");
-
-        // 取得 Staff Token
-        EmpLoginDTO staffLoginDTO = EmpTestDataFactory.getEmpLoginDTO(
-                SeedUserData.STAFF.username(), SeedUserData.STAFF.password());
-
-        jsonBody = objectMapper.writeValueAsString(staffLoginDTO);
-        MvcResult staffResult = mockMvc.perform(
-                post("/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonBody))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        tokenStaff = JsonPath.read(staffResult.getResponse().getContentAsString(),"$.data.token");
-
-        assertAll(
-                () -> assertFalse(tokenManager.isBlank()),
-                () -> assertFalse(tokenStaff.isBlank())
-        );
-
-    }
+public class EmpControllerIT extends BaseIntegrationTest{
 
     @Test
     @DisplayName("[IT] 2001 createEmp - 建立重複帳號，應回傳 409 及指定訊息")
