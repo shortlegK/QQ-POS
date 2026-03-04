@@ -11,7 +11,7 @@
     </insert>
 
     <!--分頁查詢-->
-    <select id="pageQuery" resultType="com.qqriceball.model.vo.OptionPageQueryVO">
+    <select id="pageQuery" resultType="com.qqriceball.model.vo.OptionVO">
         select id, title, option_type, price, status
         from options
         <where>
@@ -19,7 +19,7 @@
                 title like concat('%',#{title},'%')
             </if>
             <if test="optionType != null and optionType !=''">
-                AND option_type = #{option_type}
+                AND option_type = #{optionType}
             </if>
             <if test="status != null and status !=''">
                 AND status = #{status}

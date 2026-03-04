@@ -4,10 +4,13 @@ package com.qqriceball.unit.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.properties.JwtProperties;
+import com.qqriceball.common.result.PageResult;
 import com.qqriceball.controller.OptionController;
 import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.enumeration.OptionTypeEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
 import com.qqriceball.model.dto.OptionCreateDTO;
+import com.qqriceball.model.dto.OptionPageQueryDTO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.OptionVO;
 import com.qqriceball.service.EmpService;
@@ -26,10 +29,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -68,7 +75,7 @@ public class OptionControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionController.createOption - 建立菜單細節品項，應回傳 200 及資料")
+    @DisplayName("[Unit] OptionController.createOption() - 建立產品細節選項，應回傳 200 及資料")
     void testCreateOptionSuccess() throws Exception {
         OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.PURPLE_RICE);
 
@@ -87,7 +94,7 @@ public class OptionControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionController.createOption - 建立菜單品項名稱重複，應回傳 409 及指定訊息")
+    @DisplayName("[Unit] OptionController.createOption() - 建立產品細節選項名稱重複，應回傳 409 及指定訊息")
     void testCreateOptionTitleDuplicate() throws Exception {
         OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.EGG);
 
@@ -104,8 +111,34 @@ public class OptionControllerTest {
 
     }
 
+    @Test
+    @DisplayName("[Unit] OptionController.pageQueryOption() - 分頁查詢成功，應回傳 200 及資料")
+    void testPageQueryOptionSuccess() throws Exception {
 
+        OptionPageQueryDTO optionPageQueryDTO = OptionTestDataFactory.getOptionPageQueryDTO(1,10,null, OptionTypeEnum.ADD_ON.getCode(), null);
 
+        List<OptionVO> mockData = new ArrayList<>();
+        mockData.add(OptionTestDataFactory.getOptionVO(SeedOptionData.EGG));
 
+        Long total = (long) mockData.size();
+        PageResult mockResult = new PageResult(total,optionPageQueryDTO.getPage(),
+                optionPageQueryDTO.getPageSize(), mockData);
+
+        when(optionService.pageQuery(any(OptionPageQueryDTO.class))).thenReturn(mockResult);
+
+        ResultActions resultActions = mockMvc.perform(
+                get("/options/page")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("page", optionPageQueryDTO.getPage().toString())
+                        .param("pageSize",optionPageQueryDTO.getPageSize().toString())
+                        .param("optionType",String.valueOf(optionPageQueryDTO.getOptionType()))
+        );
+
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data").exists());
+
+        verify(optionService).pageQuery(any(OptionPageQueryDTO.class));
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.qqriceball.utils.option;
 
 import com.qqriceball.model.dto.OptionCreateDTO;
+import com.qqriceball.model.dto.OptionPageQueryDTO;
 import com.qqriceball.model.vo.OptionVO;
 import com.qqriceball.testData.option.TestOption;
 import org.springframework.beans.BeanUtils;
@@ -19,19 +20,15 @@ public class OptionTestDataFactory {
 //        return productEditDTO;
 //    }
 
-//    public static ProductPageQueryDTO getProductPageQueryDTO(Integer page, Integer pageSize, String title){
-//        ProductPageQueryDTO productPageQueryDTO = new ProductPageQueryDTO();
-//        productPageQueryDTO.setPage(page);
-//        productPageQueryDTO.setPageSize(pageSize);
-//        productPageQueryDTO.setTitle(title);
-//        return productPageQueryDTO;
-//    }
-//
-//    public static ProductPageQueryVO getProductPageQueryVO(TestProduct product){
-//        ProductPageQueryVO productPageQueryVO = new ProductPageQueryVO();
-//        BeanUtils.copyProperties(product, productPageQueryVO);
-//        return productPageQueryVO;
-//    }
+    public static OptionPageQueryDTO getOptionPageQueryDTO(Integer page, Integer pageSize, String title, Integer optionType, Integer status){
+        OptionPageQueryDTO optionPageQueryDTO = new OptionPageQueryDTO();
+        optionPageQueryDTO.setPage(page);
+        optionPageQueryDTO.setPageSize(pageSize);
+        optionPageQueryDTO.setTitle(title);
+        optionPageQueryDTO.setOptionType(optionType);
+        optionPageQueryDTO.setStatus(status);
+        return optionPageQueryDTO;
+    }
 
     public static OptionVO getOptionVO(TestOption option){
         OptionVO optionVO = new OptionVO();

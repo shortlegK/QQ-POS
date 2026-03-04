@@ -1,13 +1,18 @@
 package com.qqriceball.unit.service;
 
 
+import com.github.pagehelper.Page;
 import com.qqriceball.common.exception.AlreadyExistsException;
+import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.enumeration.OptionTypeEnum;
 import com.qqriceball.mapper.OptionMapper;
 import com.qqriceball.model.dto.OptionCreateDTO;
 
+import com.qqriceball.model.dto.OptionPageQueryDTO;
 import com.qqriceball.model.entity.Option;
 
+import com.qqriceball.model.vo.OptionVO;
 import com.qqriceball.service.OptionService;
 import com.qqriceball.testData.option.SeedOptionData;
 import com.qqriceball.utils.option.OptionTestDataFactory;
@@ -33,7 +38,7 @@ public class OptionServiceTest {
     private OptionService optionService;
 
     @Test
-    @DisplayName("[Unit] OptionService.create - 建立菜單細節品項，應呼叫 optionMapper.insert 傳入參數")
+    @DisplayName("[Unit] OptionService.create() - 建立產品細節選項，應呼叫 optionMapper.insert 傳入參數")
     void testCreateOptionSuccess() {
 
         OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.PURPLE_RICE);
@@ -54,7 +59,7 @@ public class OptionServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionService.create - 建立菜單細節品項名稱重複，應拋出 AlreadyExistsException")
+    @DisplayName("[Unit] OptionService.create() - 建立產品細節選項名稱重複，應拋出 AlreadyExistsException")
     void testCreateOptionTitleDuplicate() {
 
         OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.EGG);
@@ -69,37 +74,40 @@ public class OptionServiceTest {
 
         verify(optionMapper).insert(any(Option.class));
     }
-//
-//    @Test
-//    @DisplayName("[Unit] ProductService.pageQuery - 分頁查詢成功，應回傳 PageResult 資料")
-//    void testPageQuerySuccess() {
-//        Integer page = 1;
-//        Integer pageSize = 5;
-//        String title = "product";
-//
-//        ProductPageQueryDTO productPageQueryDTO = ProductTestDataFactory.getProductPageQueryDTO(page, pageSize, title);
-//
-//        ProductPageQueryVO data1 = ProductTestDataFactory.getProductPageQueryVO(SeedProductData.DRINK_PRODUCT);
-//        ProductPageQueryVO data2 = ProductTestDataFactory.getProductPageQueryVO(SeedProductData.MEAT_PRODUCT);
-//
-//        Page<ProductPageQueryVO> mockPage = new Page<>(page, pageSize);
-//        mockPage.setTotal(2L);
-//        mockPage.add(data1);
-//        mockPage.add(data2);
-//
-//        when(productMapper.pageQuery(any(ProductPageQueryDTO.class))).thenReturn(mockPage);
-//
-//        PageResult result = productService.pageQuery(productPageQueryDTO);
-//
-//        assertAll(
-//                () -> assertEquals(page, result.getPage()),
-//                () -> assertEquals(pageSize, result.getPageSize()),
-//                () -> assertEquals(2L, result.getTotal()),
-//                () -> assertEquals(mockPage.getResult(), result.getRecords())
-//        );
-//
-//        verify(productMapper).pageQuery(any(ProductPageQueryDTO.class));
-//    }
+
+
+    @Test
+    @DisplayName("[Unit] OptionService.pageQuery() - 分頁查詢成功，應回傳 200 及資料")
+    void testPageQueryOptionSuccess(){
+
+        Integer page = 1;
+        Integer pageSize = 6;
+        Integer optionType = OptionTypeEnum.SPICE_LEVEL.getCode();
+
+        OptionPageQueryDTO optionPageQueryDTO = OptionTestDataFactory.getOptionPageQueryDTO(page, pageSize, null, optionType, null);
+
+        OptionVO data1 = OptionTestDataFactory.getOptionVO(SeedOptionData.HOT_SPICY);
+        OptionVO data2 = OptionTestDataFactory.getOptionVO(SeedOptionData.MEDIUM_SPICY);
+
+        Page<OptionVO> mockPage = new Page<>(page,pageSize);
+        mockPage.setTotal(2L);
+        mockPage.add(data1);
+        mockPage.add(data2);
+
+        when(optionMapper.pageQuery(any(OptionPageQueryDTO.class))).thenReturn(mockPage);
+
+        PageResult result = optionService.pageQuery(optionPageQueryDTO);
+
+        assertAll(
+                () -> assertEquals(page, result.getPage()),
+                () -> assertEquals(pageSize, result.getPageSize()),
+                () -> assertEquals(2L, result.getTotal()),
+                () -> assertEquals(mockPage.getResult(), result.getRecords())
+        );
+
+        verify(optionMapper).pageQuery(any(OptionPageQueryDTO.class));
+    }
+
 //
 //    @Test
 //    @DisplayName("[Unit] ProductService.updateById - 更新菜單品項，應呼叫 productMapper.updateById 傳入參數")
