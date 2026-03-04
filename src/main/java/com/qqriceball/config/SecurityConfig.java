@@ -41,6 +41,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/emps/**").hasAuthority(RoleEnum.MANAGER.getRoleName())
                         .requestMatchers("/products/**").hasAuthority(RoleEnum.MANAGER.getRoleName())
+                        .requestMatchers("/options/**").hasAuthority(RoleEnum.MANAGER.getRoleName())
                         .anyRequest().authenticated()
                 )
 

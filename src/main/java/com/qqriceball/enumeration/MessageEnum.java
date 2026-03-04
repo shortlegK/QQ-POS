@@ -22,11 +22,12 @@ public enum MessageEnum {
     ALREADY_EXISTS(2002, "資源已存在"),
     BAD_REQUEST(2003, "請求參數格式不正確"),
 
-    // 菜單品項/加料選項相關
+    // 菜單品項/細節選項相關
     PRODUCT_NOT_EXIST(3001, "菜單品項 ID 不存在"),
     OPTION_NOT_EXIST(3002, "加料選項 ID 不存在"),
     PRODUCT_ALREADY_EXISTS(3003, "菜單品項名稱已存在"),
-    TYPE_NOT_FOUND(3004,"分類 ID 不存在"),
+    OPTION_ALREADY_EXISTS(3004, "細節選項名稱已存在"),
+    TYPE_NOT_FOUND(3005,"分類 ID 不存在"),
 
     // 訂單相關
     SHOPPING_CART_IS_NULL(4001, "內容為空，無法建立訂單"),

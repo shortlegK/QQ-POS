@@ -9,19 +9,17 @@ import lombok.Data;
 
 
 @Data
-@Schema(description = "產品選項建立/編輯資料")
-public class ProductOptionDTO {
-
-    private Integer id;
+@Schema(description = "產品細節選項建立資料")
+public class OptionCreateDTO {
 
     @Schema(description = "名稱")
     @NotBlank(message = "名稱為必填")
     private String title;
 
-    @Schema(description = "產品選項類型 (0: 米飯種類, 1: 飯量, 2: 辣度, 3: 加料種類)")
-    @NotNull(message = "產品選項類型為必填")
-    @Min(value = 0, message = "細節選項類型設定錯誤")
-    @Max(value = 3, message = "細節選項類型設定錯誤")
+    @Schema(description = "選項類型 (0: 米飯種類, 1: 飯量, 2: 辣度, 3: 加料種類)")
+    @NotNull(message = "選項類型為必填")
+    @Min(value = 0, message = "選項類型設定錯誤")
+    @Max(value = 3, message = "選項類型設定錯誤")
     private Integer optionType;
 
     @Schema(description = "售價")

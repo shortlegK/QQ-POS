@@ -74,7 +74,7 @@ create table if not exists products
         unique (title)
 );
 
-create table if not exists product_option
+create table if not exists options
 (
     id          int unsigned auto_increment comment 'id'
         primary key,
@@ -90,7 +90,7 @@ create table if not exists product_option
         unique (title,
                 option_type)
 )
-    comment '額外選項表';
+    comment '產品細節選項表';
 
 create table if not exists product_type_option_type_mapping
 (
