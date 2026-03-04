@@ -13,7 +13,6 @@ import com.qqriceball.model.dto.ProductCreateDTO;
 import com.qqriceball.model.dto.ProductEditDTO;
 import com.qqriceball.model.dto.ProductPageQueryDTO;
 import com.qqriceball.model.vo.EmpVO;
-import com.qqriceball.model.vo.ProductPageQueryVO;
 import com.qqriceball.model.vo.ProductVO;
 import com.qqriceball.service.EmpService;
 import com.qqriceball.service.ProductService;
@@ -125,9 +124,9 @@ public class ProductControllerTest {
         queryDTO.setPage(1);
         queryDTO.setPageSize(5);
 
-        List<ProductPageQueryVO> mockData = new ArrayList<>();
-        mockData.add(ProductTestDataFactory.getProductPageQueryVO(SeedProductData.MEAT_PRODUCT));
-        mockData.add(ProductTestDataFactory.getProductPageQueryVO(SeedProductData.DRINK_PRODUCT));
+        List<ProductVO> mockData = new ArrayList<>();
+        mockData.add(ProductTestDataFactory.getProductVO(SeedProductData.MEAT_PRODUCT));
+        mockData.add(ProductTestDataFactory.getProductVO(SeedProductData.DRINK_PRODUCT));
 
         Long total = (long) mockData.size();
         PageResult mockResult = new PageResult(total, queryDTO.getPage(),

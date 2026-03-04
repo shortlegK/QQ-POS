@@ -3,7 +3,6 @@ package com.qqriceball.utils.product;
 import com.qqriceball.model.dto.ProductCreateDTO;
 import com.qqriceball.model.dto.ProductEditDTO;
 import com.qqriceball.model.dto.ProductPageQueryDTO;
-import com.qqriceball.model.vo.ProductPageQueryVO;
 import com.qqriceball.model.vo.ProductVO;
 import com.qqriceball.testData.product.TestProduct;
 import org.springframework.beans.BeanUtils;
@@ -28,12 +27,6 @@ public class ProductTestDataFactory {
         productPageQueryDTO.setPageSize(pageSize);
         productPageQueryDTO.setTitle(title);
         return productPageQueryDTO;
-    }
-
-    public static ProductPageQueryVO getProductPageQueryVO(TestProduct product){
-        ProductPageQueryVO productPageQueryVO = new ProductPageQueryVO();
-        BeanUtils.copyProperties(product, productPageQueryVO);
-        return productPageQueryVO;
     }
 
     public static ProductVO getProductVO(TestProduct product){

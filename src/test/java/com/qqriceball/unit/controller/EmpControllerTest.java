@@ -13,7 +13,6 @@ import com.qqriceball.model.dto.EmpCreateDTO;
 import com.qqriceball.model.dto.EmpEditDTO;
 import com.qqriceball.model.dto.EmpPageQueryDTO;
 import com.qqriceball.model.dto.EmpStatusDTO;
-import com.qqriceball.model.vo.EmpPageQueryVO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.controller.EmpController;
 import com.qqriceball.handler.GlobalExceptionHandler;
@@ -258,9 +257,9 @@ public class EmpControllerTest {
         queryDTO.setPage(1);
         queryDTO.setPageSize(5);
 
-        List<EmpPageQueryVO> mockData = new ArrayList<>();
-        mockData.add(EmpTestDataFactory.getEmpPageQueryVO(SeedUserData.MANAGER));
-        mockData.add(EmpTestDataFactory.getEmpPageQueryVO(SeedUserData.STAFF));
+        List<EmpVO> mockData = new ArrayList<>();
+        mockData.add(EmpTestDataFactory.getEmpVO(SeedUserData.MANAGER));
+        mockData.add(EmpTestDataFactory.getEmpVO(SeedUserData.STAFF));
 
         Long total = (long) mockData.size();
         PageResult mockResult = new PageResult(total, queryDTO.getPage(),

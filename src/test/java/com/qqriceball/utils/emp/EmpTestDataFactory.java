@@ -3,7 +3,6 @@ package com.qqriceball.utils.emp;
 import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.model.dto.*;
 import com.qqriceball.model.entity.Emp;
-import com.qqriceball.model.vo.EmpPageQueryVO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.testData.emp.TestAccount;
 import org.springframework.beans.BeanUtils;
@@ -62,12 +61,6 @@ public class EmpTestDataFactory {
         empPageQueryDTO.setPageSize(pageSize);
         empPageQueryDTO.setName(name);
         return empPageQueryDTO;
-    }
-
-    public static EmpPageQueryVO getEmpPageQueryVO(TestAccount account){
-        EmpPageQueryVO empPageQueryVO = new EmpPageQueryVO();
-        BeanUtils.copyProperties(account,empPageQueryVO);
-        return empPageQueryVO;
     }
 
     public static EmpStatusDTO getEmpStatusDTO(StatusEnum status) {

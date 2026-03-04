@@ -8,7 +8,6 @@ import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.model.dto.*;
 import com.qqriceball.model.entity.Emp;
-import com.qqriceball.model.vo.EmpPageQueryVO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.mapper.EmpMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -82,9 +81,9 @@ public class EmpService {
         try{
             PageHelper.startPage(empPageQueryDTO.getPage(), empPageQueryDTO.getPageSize());
 
-            List<EmpPageQueryVO> list = empMapper.pageQuery(empPageQueryDTO);
+            List<EmpVO> list = empMapper.pageQuery(empPageQueryDTO);
 
-            Page<EmpPageQueryVO> page = (Page<EmpPageQueryVO>) list;
+            Page<EmpVO> page = (Page<EmpVO>) list;
 
             return new PageResult(page.getTotal(), empPageQueryDTO.getPage(),
                     empPageQueryDTO.getPageSize(), page.getResult());

@@ -12,7 +12,6 @@ import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.model.dto.*;
 import com.qqriceball.model.entity.Emp;
-import com.qqriceball.model.vo.EmpPageQueryVO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.mapper.EmpMapper;
 import com.qqriceball.service.EmpService;
@@ -306,11 +305,10 @@ class EmpServiceTest {
 
         EmpPageQueryDTO empPageQueryDTO = EmpTestDataFactory.getEmpPageQueryDTO(page, pageSize, name);
 
-        EmpPageQueryVO data1 = EmpTestDataFactory.getEmpPageQueryVO(SeedUserData.TESTER);
+        EmpVO data1 = EmpTestDataFactory.getEmpVO(SeedUserData.TESTER);
+        EmpVO data2 = EmpTestDataFactory.getEmpVO(SeedUserData.STAFF);
 
-        EmpPageQueryVO data2 = EmpTestDataFactory.getEmpPageQueryVO(SeedUserData.STAFF);
-
-        Page<EmpPageQueryVO> mockPage = new Page<>(page, pageSize);
+        Page<EmpVO> mockPage = new Page<>(page, pageSize);
         mockPage.setTotal(2L);
         mockPage.add(data1);
         mockPage.add(data2);

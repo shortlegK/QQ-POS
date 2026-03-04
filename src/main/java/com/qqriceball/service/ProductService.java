@@ -11,7 +11,6 @@ import com.qqriceball.model.dto.ProductCreateDTO;
 import com.qqriceball.model.dto.ProductEditDTO;
 import com.qqriceball.model.dto.ProductPageQueryDTO;
 import com.qqriceball.model.entity.Product;
-import com.qqriceball.model.vo.ProductPageQueryVO;
 import com.qqriceball.mapper.ProductMapper;
 import com.qqriceball.model.vo.ProductVO;
 import lombok.extern.slf4j.Slf4j;
@@ -39,13 +38,13 @@ public class ProductService {
         BeanUtils.copyProperties(productCreateDTO, product);
 
         try {
-            //新增菜單品項
+            //新增產品品項
             productMapper.insert(product);
             return productMapper.getById(product.getId());
 
         } catch (
                 DuplicateKeyException e) {
-            log.error("新增菜單品項名稱已存在,title: {}", product.getTitle(), e);
+            log.error("新增產品品項名稱已存在,title: {}", product.getTitle(), e);
             throw new AlreadyExistsException(MessageEnum.PRODUCT_ALREADY_EXISTS);
         }
 
@@ -58,9 +57,9 @@ public class ProductService {
             PageHelper.startPage(productPageQueryDTO.getPage(),
                     productPageQueryDTO.getPageSize());
 
-            List<ProductPageQueryVO> list = productMapper.pageQuery(productPageQueryDTO);
+            List<ProductVO> list = productMapper.pageQuery(productPageQueryDTO);
 
-            Page<ProductPageQueryVO> page = (Page<ProductPageQueryVO>) list;
+            Page<ProductVO> page = (Page<ProductVO>) list;
 
             return new PageResult(page.getTotal(), productPageQueryDTO.getPage(),
                     productPageQueryDTO.getPageSize(), page.getResult());
@@ -83,7 +82,7 @@ public class ProductService {
             return productMapper.getById(product.getId());
         } catch (
                 DuplicateKeyException e) {
-            log.error("編輯菜單品項名稱已存在,title: {}", product.getTitle(), e);
+            log.error("編輯產品品項名稱已存在,title: {}", product.getTitle(), e);
             throw new AlreadyExistsException(MessageEnum.PRODUCT_ALREADY_EXISTS);
         }
 

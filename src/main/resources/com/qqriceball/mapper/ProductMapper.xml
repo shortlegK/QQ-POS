@@ -4,14 +4,14 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.qqriceball.mapper.ProductMapper">
 
-    <!--新增菜單品項-->
+    <!--新增產品品項-->
     <insert id="insert" parameterType="com.qqriceball.model.entity.Product" useGeneratedKeys="true" keyProperty="id">
         insert into products(title, product_type, price, status, create_id, create_time, update_id, update_time)
         values (#{title},#{productType}, #{price}, #{status} ,#{createId}, #{createTime}, #{updateId}, #{updateTime})
     </insert>
 
     <!--分頁查詢-->
-    <select id="pageQuery" resultType="com.qqriceball.model.vo.ProductPageQueryVO">
+    <select id="pageQuery" resultType="com.qqriceball.model.vo.ProductVO">
         select id, title, product_type, price, status
         from products
         <where>
@@ -19,16 +19,16 @@
                 title like concat('%',#{title},'%')
             </if>
             <if test="productType != null and productType !=''">
-                AND product_type = #{productType}
+                product_type = #{productType}
             </if>
             <if test="status != null and status !=''">
-                AND status = #{status}
+                status = #{status}
             </if>
         </where>
         order by create_time desc
     </select>
 
-    <!--更新品項資料-->
+    <!--更新產品品項資料-->
     <update id="updateById" parameterType="com.qqriceball.model.entity.Product">
         update products
         <set>

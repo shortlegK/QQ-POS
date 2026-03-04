@@ -13,7 +13,7 @@
 
 
     <!--分頁查詢-->
-    <select id="pageQuery" resultType="com.qqriceball.model.vo.EmpPageQueryVO">
+    <select id="pageQuery" resultType="com.qqriceball.model.vo.EmpVO">
         select id, username, name, role, status, entry_date
         from emps
         <where>

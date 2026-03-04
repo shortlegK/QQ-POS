@@ -11,7 +11,6 @@ import com.qqriceball.model.dto.ProductCreateDTO;
 import com.qqriceball.model.dto.ProductEditDTO;
 import com.qqriceball.model.dto.ProductPageQueryDTO;
 import com.qqriceball.model.entity.Product;
-import com.qqriceball.model.vo.ProductPageQueryVO;
 import com.qqriceball.model.vo.ProductVO;
 import com.qqriceball.service.ProductService;
 import com.qqriceball.utils.product.ProductTestDataFactory;
@@ -38,7 +37,7 @@ public class ProductServiceTest {
     private ProductService productService;
 
     @Test
-    @DisplayName("[Unit] ProductService.create - 建立菜單品項，應呼叫 productMapper.insert 傳入參數")
+    @DisplayName("[Unit] ProductService.create - 建立產品品項，應呼叫 productMapper.insert 傳入參數")
     void testCreateSuccess() {
 
         ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductCreateDTO(SeedProductData.MEAT_PRODUCT);
@@ -59,7 +58,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] ProductService.create - 建立重複菜單品項，應拋出 AlreadyExistsException")
+    @DisplayName("[Unit] ProductService.create - 建立重複產品品項，應拋出 AlreadyExistsException")
     void testCreateProductTitleDuplicate() {
 
         ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductCreateDTO(SeedProductData.DRINK_PRODUCT);
@@ -84,10 +83,10 @@ public class ProductServiceTest {
 
         ProductPageQueryDTO productPageQueryDTO = ProductTestDataFactory.getProductPageQueryDTO(page, pageSize, title);
 
-        ProductPageQueryVO data1 = ProductTestDataFactory.getProductPageQueryVO(SeedProductData.DRINK_PRODUCT);
-        ProductPageQueryVO data2 = ProductTestDataFactory.getProductPageQueryVO(SeedProductData.MEAT_PRODUCT);
+        ProductVO data1 = ProductTestDataFactory.getProductVO(SeedProductData.DRINK_PRODUCT);
+        ProductVO data2 = ProductTestDataFactory.getProductVO(SeedProductData.MEAT_PRODUCT);
 
-        Page<ProductPageQueryVO> mockPage = new Page<>(page, pageSize);
+        Page<ProductVO> mockPage = new Page<>(page, pageSize);
         mockPage.setTotal(2L);
         mockPage.add(data1);
         mockPage.add(data2);
@@ -107,7 +106,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] ProductService.updateById - 更新菜單品項，應呼叫 productMapper.updateById 傳入參數")
+    @DisplayName("[Unit] ProductService.updateById - 更新產品品項，應呼叫 productMapper.updateById 傳入參數")
     void testUpdateByIdSuccess() {
 
         ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.DRINK_PRODUCT);
@@ -130,7 +129,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] ProductService.updateById - 菜單品項 id 不存在，應拋出 NotExistException")
+    @DisplayName("[Unit] ProductService.updateById - 產品品項 id 不存在，應拋出 NotExistException")
     void testUpdateByIdProductNotExist() {
 
         ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.DRINK_PRODUCT);
@@ -144,7 +143,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] ProductService.updateById - 欲修改菜單品項名稱已存在，應拋出 AlreadyExistsException")
+    @DisplayName("[Unit] ProductService.updateById - 欲修改產品品項名稱已存在，應拋出 AlreadyExistsException")
     void testUpdateByIdProductTitleDuplicate() {
         ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.DRINK_PRODUCT);
 
@@ -162,7 +161,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] ProductService.getById - 菜單品項 id 不存在，應拋出 NotExistException")
+    @DisplayName("[Unit] ProductService.getById - 產品品項 id 不存在，應拋出 NotExistException")
     void  testGetByIdProductNotExist() {
         Integer id = Integer.MAX_VALUE;
 
@@ -175,7 +174,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] ProductService.getById - 菜單品項 id 存在，應回傳 ProductVO 資料")
+    @DisplayName("[Unit] ProductService.getById - 產品品項 id 存在，應回傳 ProductVO 資料")
     void testGetByIdProductExist() {
         Integer id = SeedProductData.DRINK_PRODUCT.id();
 
