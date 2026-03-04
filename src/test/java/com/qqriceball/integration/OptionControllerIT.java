@@ -5,6 +5,7 @@ import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.OptionTypeEnum;
 import com.qqriceball.mapper.OptionMapper;
 import com.qqriceball.model.dto.OptionCreateDTO;
+import com.qqriceball.model.dto.OptionEditDTO;
 import com.qqriceball.model.dto.OptionPageQueryDTO;
 import com.qqriceball.service.OptionService;
 import com.qqriceball.testData.option.SeedOptionData;
@@ -27,7 +28,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
     private OptionService optionService;
 
     @Test
-    @DisplayName("[IT] 4001 createOption - 建立產品細節選項，應回傳 200 及資料")
+    @DisplayName("[IT] 4001 createOption - 建立產品細節選項成功，應回傳 200 及資料")
     void testCreateOptionSuccess() throws Exception{
 
         OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.PURPLE_RICE);
@@ -106,4 +107,63 @@ public class OptionControllerIT extends BaseIntegrationTest{
                 .andExpect(jsonPath("$.data.records").isArray())
                 .andExpect(jsonPath("$.data.records[0].optionType").value(optionPageQueryDTO.getOptionType()));
     }
+
+    @Test
+    @DisplayName("[IT] 4003 updateOptionById - 修改成功應回傳 200 及資料")
+    void testUpdateOptionByIdSuccess() throws Exception{
+
+        OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.HOT_SPICY);
+        optionEditDTO.setTitle(TestDataGenerator.getUnique("update"));
+
+        String jsonBody = objectMapper.writeValueAsString(optionEditDTO);
+        mockMvc.perform(
+                put("/options")
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.id").value(optionEditDTO.getId()))
+                .andExpect(jsonPath("$.data.title").value(optionEditDTO.getTitle()))
+                .andExpect(jsonPath("$.data.optionType").value(optionEditDTO.getOptionType()));
+    }
+
+    @Test
+    @DisplayName("[IT] 4003 updateOptionById - 修改選項 id 不存在，應回傳 404")
+    void testUpdateOptionByIdNoExist() throws Exception{
+
+        OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.LARGE_SIZE);
+        optionEditDTO.setId(Integer.MAX_VALUE);
+
+        String jsonBody = objectMapper.writeValueAsString(optionEditDTO);
+        mockMvc.perform(
+                put("/options")
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.OPTION_NOT_EXIST.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.OPTION_NOT_EXIST.getMessage()))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    @DisplayName("[IT] 4003 updateOptionById - 修改選項名稱已存在，應回傳 409")
+    void testUpdateOptionByIdTitleDuplicate() throws Exception{
+        OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.HOT_SPICY);
+        optionEditDTO.setTitle(SeedOptionData.COLD.title());
+
+        String jsonBody = objectMapper.writeValueAsString(optionEditDTO);
+
+        mockMvc.perform(
+                put("/options")
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        ).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value(MessageEnum.OPTION_ALREADY_EXISTS.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.OPTION_ALREADY_EXISTS.getMessage()))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
 }

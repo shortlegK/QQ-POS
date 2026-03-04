@@ -87,8 +87,7 @@ create table if not exists options
     update_id   int unsigned                               not null,
     update_time datetime         default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新時間',
     constraint product_option_pk_2
-        unique (title,
-                option_type)
+        unique (title)
 )
     comment '產品細節選項表';
 

@@ -1,6 +1,7 @@
 package com.qqriceball.utils.option;
 
 import com.qqriceball.model.dto.OptionCreateDTO;
+import com.qqriceball.model.dto.OptionEditDTO;
 import com.qqriceball.model.dto.OptionPageQueryDTO;
 import com.qqriceball.model.vo.OptionVO;
 import com.qqriceball.testData.option.TestOption;
@@ -14,11 +15,11 @@ public class OptionTestDataFactory {
         return optionCreateDTO;
     }
 
-//    public static ProductEditDTO getProductEditDTO(TestProduct product){
-//        ProductEditDTO productEditDTO = new ProductEditDTO();
-//        BeanUtils.copyProperties(product, productEditDTO);
-//        return productEditDTO;
-//    }
+    public static OptionEditDTO getOptionEditDTO(TestOption option){
+        OptionEditDTO optionEditDTO = new OptionEditDTO();
+        BeanUtils.copyProperties(option, optionEditDTO);
+        return optionEditDTO;
+    }
 
     public static OptionPageQueryDTO getOptionPageQueryDTO(Integer page, Integer pageSize, String title, Integer optionType, Integer status){
         OptionPageQueryDTO optionPageQueryDTO = new OptionPageQueryDTO();

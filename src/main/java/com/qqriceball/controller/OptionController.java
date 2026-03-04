@@ -4,6 +4,7 @@ package com.qqriceball.controller;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.common.result.Result;
 import com.qqriceball.model.dto.OptionCreateDTO;
+import com.qqriceball.model.dto.OptionEditDTO;
 import com.qqriceball.model.dto.OptionPageQueryDTO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.OptionVO;
@@ -33,7 +34,7 @@ public class OptionController {
     @PostMapping
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "產品細節選項新增成功"),
-            @ApiResponse(responseCode = "409", description = "產品細節選項已存在"),
+            @ApiResponse(responseCode = "409", description = "產品細節選項名稱重複"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
     private Result<OptionVO> createOption(@AuthenticationPrincipal EmpVO currentEmp,
@@ -58,7 +59,32 @@ public class OptionController {
         return Result.success(pageResult);
     }
 
+    @Operation(summary = "4003 修改產品細節選項")
+    @PutMapping
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "執行成功"),
+            @ApiResponse(responseCode = "404", description = "產品細節選項不存在"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<OptionVO> updateOptionById(@AuthenticationPrincipal EmpVO currentEmp,
+                                             @Valid @RequestBody OptionEditDTO optionEditDTO){
+        log.info("4003 修改產品細節選項,操作id:{},參數:{}", currentEmp.getId(), optionEditDTO);
+        OptionVO optionVO = optionService.updateById(optionEditDTO);
+        return Result.success(optionVO);
+    }
 
-
+    @Operation (summary = "4004 根據 ID 查詢產品細節選項")
+    @GetMapping("/{id}")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "查詢成功"),
+            @ApiResponse(responseCode = "404", description = "產品細節選項不存在"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<OptionVO> getOptionById(@AuthenticationPrincipal EmpVO currentEmp,
+                                          @PathVariable Integer id){
+        log.info("4004 根據 ID 查詢產品細節選項,操作id:{},參數:{}", currentEmp.getId(), id);
+        OptionVO optionVO = optionService.getById(id);
+        return Result.success(optionVO);
+    }
 
 }

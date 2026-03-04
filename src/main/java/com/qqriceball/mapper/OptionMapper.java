@@ -21,5 +21,7 @@ public interface OptionMapper {
 
     List<OptionVO> pageQuery(OptionPageQueryDTO optionPageQueryDTO);
 
+    @AutoFill(value = OperationType.UPDATE)
+    void updateById(Option option);
 
 }

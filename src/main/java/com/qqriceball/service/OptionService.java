@@ -5,10 +5,12 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.exception.BadRequestArgsException;
+import com.qqriceball.common.exception.NotExistException;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.mapper.OptionMapper;
 import com.qqriceball.model.dto.OptionCreateDTO;
+import com.qqriceball.model.dto.OptionEditDTO;
 import com.qqriceball.model.dto.OptionPageQueryDTO;
 import com.qqriceball.model.entity.Option;
 import com.qqriceball.model.vo.OptionVO;
@@ -61,7 +63,34 @@ public class OptionService {
             log.error("查詢產品細節選項異常：{}", optionPageQueryDTO, e);
             throw new BadRequestArgsException(MessageEnum.BAD_REQUEST);
         }
+    }
 
+    public OptionVO updateById(OptionEditDTO optionEditDTO) {
+        this.getById(optionEditDTO.getId());
+
+        Option option = new Option();
+        BeanUtils.copyProperties(optionEditDTO, option);
+        try{
+            optionMapper.updateById(option);
+
+            return optionMapper.getById(option.getId());
+        }catch (DuplicateKeyException e) {
+            log.error("編輯產品細節選項名稱已存在,title: {}", option.getTitle(), e);
+            throw new AlreadyExistsException(MessageEnum.OPTION_ALREADY_EXISTS);
+        }
+
+
+    }
+
+    public OptionVO getById(Integer id) {
+        OptionVO optionVO = optionMapper.getById(id);
+
+        if (optionVO == null) {
+            log.error("查無資料,ID: {}", id);
+            throw new NotExistException(MessageEnum.OPTION_NOT_EXIST);
+        }else {
+            return optionVO;
+        }
     }
 
 }

@@ -33,10 +33,10 @@
         update options
         <set>
             <if test = "title != null"> title = #{title}, </if>
-            <if test = "optionType != null"> option_type = #{option_type} ,</if>
+            <if test = "optionType != null"> option_type = #{optionType} ,</if>
             <if test = "price != null"> price = #{price}, </if>
-            <if test = "status != null"> status = #{status},</if>
-            <if test = "updateId != null">update_id = #{updateId},</if>
+            <if test = "status != null"> status = #{status}, </if>
+            <if test = "updateId != null"> update_id = #{updateId},</if>
             <if test = "updateTime != null">update_time = #{updateTime} </if>
         </set>
         where id = #{id}
