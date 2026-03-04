@@ -35,7 +35,7 @@ public class ProductController {
     @Operation(summary = "3001 新增產品品項")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "產品品項新增成功"),
-            @ApiResponse(responseCode = "409", description = "產品品項名稱已存在"),
+            @ApiResponse(responseCode = "409", description = "產品品項名稱重複"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
     @PostMapping
@@ -64,6 +64,7 @@ public class ProductController {
     @PutMapping
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "執行成功"),
+            @ApiResponse(responseCode = "404", description = "產品品項不存在"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
     public Result<ProductVO> updateProductById(@AuthenticationPrincipal EmpVO currentEmp,
@@ -77,7 +78,8 @@ public class ProductController {
     @Operation(summary = "3004 根據 ID 查詢產品品項")
     @GetMapping("/{id}")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "執行成功"),
+            @ApiResponse(responseCode = "200", description = "查詢成功"),
+            @ApiResponse(responseCode = "404", description = "產品品項不存在"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
     public Result<ProductVO> getProductById(@AuthenticationPrincipal EmpVO currentEmp,
