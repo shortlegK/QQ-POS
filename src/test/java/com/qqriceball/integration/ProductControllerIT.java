@@ -87,7 +87,7 @@ public class ProductControllerIT {
     @DisplayName("[IT] 3001 createProduct - 建立品項成功，應回傳 200 及資料")
     void testCreateProductSuccess() throws Exception {
 
-        ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductDTO(SeedProductData.DRINK_PRODUCT);
+        ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductCreateDTO(SeedProductData.DRINK_PRODUCT);
         String productTile = TestDataGenerator.getUnique("create");
         productCreateDTO.setTitle(productTile);
 
@@ -109,7 +109,7 @@ public class ProductControllerIT {
     @DisplayName("[IT] 3001 createProduct - 建立重複品項，應回傳 409 及指定訊息")
     void testCreateProductTitleDuplicate() throws Exception {
 
-        ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductDTO(SeedProductData.DRINK_PRODUCT);
+        ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductCreateDTO(SeedProductData.DRINK_PRODUCT);
         productCreateDTO.setTitle(TestDataGenerator.getUnique("duplicate"));
 
 

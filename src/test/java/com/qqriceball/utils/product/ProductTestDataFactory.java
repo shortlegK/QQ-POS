@@ -10,12 +10,6 @@ import org.springframework.beans.BeanUtils;
 
 public class ProductTestDataFactory {
 
-    public static ProductCreateDTO getProductDTO(TestProduct product){
-        ProductCreateDTO productCreateDTO = new ProductCreateDTO();
-        BeanUtils.copyProperties(product, productCreateDTO);
-        return productCreateDTO;
-    }
-
     public static ProductEditDTO getProductEditDTO(TestProduct product){
         ProductEditDTO productEditDTO = new ProductEditDTO();
         BeanUtils.copyProperties(product, productEditDTO);

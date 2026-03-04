@@ -81,7 +81,7 @@ public class ProductControllerTest {
     @DisplayName("[Unit] ProductController.createProduct - 建立重複品項，應回傳 409 及指定訊息")
     void testCreateProductTitleDuplicate() throws Exception {
 
-        ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductDTO(SeedProductData.MEAT_PRODUCT);
+        ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductCreateDTO(SeedProductData.MEAT_PRODUCT);
 
         doThrow(new AlreadyExistsException(MessageEnum.PRODUCT_ALREADY_EXISTS))
                 .when(productService)
@@ -100,7 +100,7 @@ public class ProductControllerTest {
     @DisplayName("[Unit] ProductController.createProduct - 建立品項成功，應回傳 200")
     void testCreateProductSuccess() throws Exception {
 
-        ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductDTO(SeedProductData.MEAT_PRODUCT);
+        ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductCreateDTO(SeedProductData.MEAT_PRODUCT);
 
         ProductVO productVO = new ProductVO();
         BeanUtils.copyProperties(productCreateDTO, productVO);
