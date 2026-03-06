@@ -3,8 +3,10 @@ package com.qqriceball.unit.service;
 
 import com.github.pagehelper.Page;
 import com.qqriceball.common.exception.AlreadyExistsException;
+import com.qqriceball.common.exception.BadRequestArgsException;
 import com.qqriceball.common.exception.NotExistException;
 import com.qqriceball.common.result.PageResult;
+import com.qqriceball.enumeration.DefaultEnum;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.OptionTypeEnum;
 import com.qqriceball.mapper.OptionMapper;
@@ -41,15 +43,17 @@ public class OptionServiceTest {
     private OptionService optionService;
 
     @Test
-    @DisplayName("[Unit] OptionService.create() - 建立產品細節選項成功，應呼叫 optionMapper.insert 傳入參數")
-    void testCreateOptionSuccess() {
+    @DisplayName("Unit] OptionService.create() - 建立選項為「非預設選項」時不應清除同類型預設設定")
+    void testCreateOptionIsDefaultNoSuccess() {
 
         OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.PURPLE_RICE);
+        optionCreateDTO.setIsDefault(DefaultEnum.NO.getCode());
 
         optionService.create(optionCreateDTO);
 
         ArgumentCaptor<Option> optionArgumentCaptor = ArgumentCaptor.forClass(Option.class);
         verify(optionMapper).insert(optionArgumentCaptor.capture());
+        verify(optionMapper,never()).cleanDefaultByOptionType(any(Integer.class));
 
         Option captoredOption = optionArgumentCaptor.getValue();
 
@@ -59,6 +63,47 @@ public class OptionServiceTest {
                 () -> assertEquals(optionCreateDTO.getStatus(), captoredOption.getStatus(), "status 應與傳入參數相同"),
                 () -> assertEquals(optionCreateDTO.getPrice(), captoredOption.getPrice(), "price 應與傳入參數相同")
         );
+    }
+
+    @Test
+    @DisplayName("[Unit] OptionService.create() - 建立選項為「預設選項」時應清除同類型其他選項的預設設定")
+    void testCreateOptionIsDefaultYesSuccess() {
+
+        OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.PURPLE_RICE);
+        optionCreateDTO.setIsDefault(DefaultEnum.YES.getCode());
+
+        optionService.create(optionCreateDTO);
+
+        ArgumentCaptor<Option> optionArgumentCaptor = ArgumentCaptor.forClass(Option.class);
+        verify(optionMapper).insert(optionArgumentCaptor.capture());
+        verify(optionMapper).cleanDefaultByOptionType(optionCreateDTO.getOptionType());
+
+        Option captoredOption = optionArgumentCaptor.getValue();
+
+        assertAll(
+                () -> assertEquals(optionCreateDTO.getTitle(), captoredOption.getTitle(), "title 應與傳入參數相同"),
+                () -> assertEquals(optionCreateDTO.getOptionType(), captoredOption.getOptionType(), "productType 應為加密後的密碼"),
+                () -> assertEquals(optionCreateDTO.getStatus(), captoredOption.getStatus(), "status 應與傳入參數相同"),
+                () -> assertEquals(optionCreateDTO.getPrice(), captoredOption.getPrice(), "price 應與傳入參數相同")
+        );
+    }
+
+    @Test
+    @DisplayName("[Unit] OptionService.create() - 建立選項 OptionType 為 AddOn 預設設定錯誤，應拋出 BadRequestArgsException")
+    void testCreateOptionDefaultSettingError() {
+
+        OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.EGG);
+        optionCreateDTO.setOptionType(OptionTypeEnum.ADD_ON.getCode());
+        optionCreateDTO.setIsDefault(DefaultEnum.YES.getCode());
+
+        BadRequestArgsException ex = assertThrows(BadRequestArgsException.class,
+                () -> optionService.create(optionCreateDTO));
+
+        assertEquals(MessageEnum.OPTION_ADD_ON_DEFAULT_ERROR.getMessage(), ex.getMessage());
+
+        verify(optionMapper, never()).cleanDefaultByOptionType(any(Integer.class));
+        verify(optionMapper, never()).insert(any(Option.class));
+
     }
 
     @Test
@@ -113,10 +158,11 @@ public class OptionServiceTest {
 
 
     @Test
-    @DisplayName("[Unit] OptionService.updateById() - 更新產品細節選項成功，應呼叫 optionMapper.updateById 傳入參數")
-    void testUpdateByIdSuccess() {
+    @DisplayName("[Unit] OptionService.updateById() - 更新選項為「非預設選項」時不應清除同類型預設設定")
+    void testUpdateByIdIsDefaultNoSuccess() {
 
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.LARGE_SIZE);
+        optionEditDTO.setIsDefault(DefaultEnum.NO.getCode());
 
         OptionVO optionVO = OptionTestDataFactory.getOptionVO(SeedOptionData.LARGE_SIZE);
 
@@ -126,12 +172,63 @@ public class OptionServiceTest {
         ArgumentCaptor<Option> optionArgumentCaptor = ArgumentCaptor.forClass(Option.class);
         verify(optionMapper).updateById(optionArgumentCaptor.capture());
         verify(optionMapper, times(2)).getById(optionEditDTO.getId());
+        verify(optionMapper,never()).cleanDefaultByOptionType(any(Integer.class));
+
         Option captoredProduct = optionArgumentCaptor.getValue();
 
         assertAll(
                 () -> assertEquals(optionEditDTO.getId(), captoredProduct.getId(), "id 應與傳入參數相同"),
                 () -> assertEquals(optionEditDTO.getTitle(), captoredProduct.getTitle(), "title 應與傳入參數相同")
         );
+
+    }
+
+    @Test
+    @DisplayName("[Unit] OptionService.updateById() - 更新選項為「預設選項」時應清除同類型預設設定")
+    void testUpdateByIdIsDefaultYesSuccess() {
+
+        OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.LARGE_SIZE);
+        optionEditDTO.setIsDefault(DefaultEnum.YES.getCode());
+
+        OptionVO optionVO = OptionTestDataFactory.getOptionVO(SeedOptionData.LARGE_SIZE);
+
+        when(optionMapper.getById(any(Integer.class))).thenReturn(optionVO);
+
+        optionService.updateById(optionEditDTO);
+        ArgumentCaptor<Option> optionArgumentCaptor = ArgumentCaptor.forClass(Option.class);
+        verify(optionMapper).updateById(optionArgumentCaptor.capture());
+        verify(optionMapper, times(2)).getById(optionEditDTO.getId());
+        verify(optionMapper).cleanDefaultByOptionType(optionEditDTO.getOptionType());
+
+        Option captoredProduct = optionArgumentCaptor.getValue();
+
+        assertAll(
+                () -> assertEquals(optionEditDTO.getId(), captoredProduct.getId(), "id 應與傳入參數相同"),
+                () -> assertEquals(optionEditDTO.getTitle(), captoredProduct.getTitle(), "title 應與傳入參數相同")
+        );
+
+    }
+
+
+    @Test
+    @DisplayName("[Unit] OptionService.updateById() - 修改選項 OptionType 為 AddOn 預設設定錯誤，應拋出 BadRequestArgsException")
+    void testUpdateByIdOptionDefaultSettingError() {
+
+        OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.EGG);
+        optionEditDTO.setOptionType(OptionTypeEnum.ADD_ON.getCode());
+        optionEditDTO.setIsDefault(DefaultEnum.YES.getCode());
+
+        OptionVO optionVO = OptionTestDataFactory.getOptionVO(SeedOptionData.EGG);
+
+        when(optionMapper.getById(any(Integer.class))).thenReturn(optionVO);
+
+        BadRequestArgsException ex = assertThrows(BadRequestArgsException.class,
+                () -> optionService.updateById(optionEditDTO));
+
+        assertEquals(MessageEnum.OPTION_ADD_ON_DEFAULT_ERROR.getMessage(), ex.getMessage());
+
+        verify(optionMapper, never()).cleanDefaultByOptionType(any(Integer.class));
+        verify(optionMapper, never()).updateById(any(Option.class));
 
     }
 
@@ -166,6 +263,43 @@ public class OptionServiceTest {
                 () -> optionService.updateById(optionEditDTO));
         assertEquals(MessageEnum.OPTION_ALREADY_EXISTS.getMessage(), ex.getMessage());
     }
+
+    @Test
+    @DisplayName("[Unit] OptionService.updateById() - 修改為「預設選項」時同時修改 OptionType，應以修改後的 OptionType 進行預設設定檢查")
+    void testUpdateByIdIsDefaultYesWithOptionTypeChangeSuccess() {
+        OptionEditDTO optionEditDTO = new OptionEditDTO();
+        optionEditDTO.setId(SeedOptionData.LARGE_SIZE.id());
+        optionEditDTO.setIsDefault(DefaultEnum.YES.getCode());
+        optionEditDTO.setOptionType(OptionTypeEnum.DRINK_TEMPERATURE.getCode());
+
+        OptionVO originalData = OptionTestDataFactory.getOptionVO(SeedOptionData.LARGE_SIZE);
+
+        when(optionMapper.getById(any(Integer.class))).thenReturn(originalData);
+
+        optionService.updateById(optionEditDTO);
+        ArgumentCaptor<Option> optionArgumentCaptor = ArgumentCaptor.forClass(Option.class);
+        verify(optionMapper).updateById(optionArgumentCaptor.capture());
+        verify(optionMapper, times(2)).getById(optionEditDTO.getId());
+        verify(optionMapper).cleanDefaultByOptionType(optionEditDTO.getOptionType());
+    }
+
+    @Test
+    @DisplayName("[Unit] OptionService.updateById() - 修改為「預設選項」時未修改 OptionType，應以原 OptionType 進行預設設定檢查")
+    void testUpdateByIdIsDefaultYesWithoutOptionTypeChangeSuccess() {
+        OptionEditDTO optionEditDTO = new OptionEditDTO();
+        optionEditDTO.setId(SeedOptionData.LARGE_SIZE.id());
+        optionEditDTO.setIsDefault(DefaultEnum.YES.getCode());
+
+        OptionVO originalData = OptionTestDataFactory.getOptionVO(SeedOptionData.LARGE_SIZE);
+
+        when(optionMapper.getById(any(Integer.class))).thenReturn(originalData);
+        optionService.updateById(optionEditDTO);
+        ArgumentCaptor<Option> optionArgumentCaptor = ArgumentCaptor.forClass(Option.class);
+        verify(optionMapper).updateById(optionArgumentCaptor.capture());
+        verify(optionMapper, times(2)).getById(optionEditDTO.getId());
+        verify(optionMapper).cleanDefaultByOptionType(originalData.getOptionType());
+    }
+
 
     @Test
     @DisplayName("[Unit] OptionService.getById() - 產品細節選項 id 不存在，應拋出 NotExistException")

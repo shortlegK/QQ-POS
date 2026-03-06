@@ -13,7 +13,7 @@ import java.util.List;
 @Mapper
 public interface OptionMapper {
 
-    @Select("select id, title, option_type, price, status from options where id = #{id}")
+    @Select("select id, title, option_type,is_default, price, status from options where id = #{id}")
     OptionVO getById(Integer id);
 
     @AutoFill(value = OperationType.INSERT)
@@ -23,5 +23,8 @@ public interface OptionMapper {
 
     @AutoFill(value = OperationType.UPDATE)
     void updateById(Option option);
+
+    @AutoFill(value = OperationType.UPDATE)
+    void cleanDefaultByOptionType(Integer optionType);
 
 }

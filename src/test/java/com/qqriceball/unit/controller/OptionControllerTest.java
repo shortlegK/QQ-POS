@@ -3,10 +3,12 @@ package com.qqriceball.unit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qqriceball.common.exception.AlreadyExistsException;
+import com.qqriceball.common.exception.BadRequestArgsException;
 import com.qqriceball.common.exception.NotExistException;
 import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.controller.OptionController;
+import com.qqriceball.enumeration.DefaultEnum;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.OptionTypeEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
@@ -97,6 +99,63 @@ public class OptionControllerTest {
     }
 
     @Test
+    @DisplayName("[Unit] OptionController.createOption() - 建立產品細節選項缺少必要參數，應回傳 400")
+    void testCreateOptionMissingRequiredParameter() throws Exception {
+        OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.PURPLE_RICE);
+        optionCreateDTO.setTitle(null);
+
+        String jsonBody = objectMapper.writeValueAsString(optionCreateDTO);
+        mockMvc.perform(
+                post("/options")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isBadRequest());
+
+        verify(optionService, never()).create(any(OptionCreateDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OptionController.createOption() - 建立產品細節選項 OptionType 超過範圍，應回傳 400")
+    void testCreateOptionInvalidOptionType() throws Exception {
+        OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.PURPLE_RICE);
+        optionCreateDTO.setOptionType(4);
+
+        String jsonBody = objectMapper.writeValueAsString(optionCreateDTO);
+        mockMvc.perform(
+                post("/options")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isBadRequest());
+
+        verify(optionService, never()).create(any(OptionCreateDTO.class));
+    }
+
+
+    @Test
+    @DisplayName("[Unit] OptionController.createOption() - 建立選項 OptionType 為 AddOn 預設設定錯誤，應回傳 400 及指定訊息")
+    void testCreateOptionDefaultSettingError() throws Exception{
+
+        OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.EGG);
+        optionCreateDTO.setOptionType(OptionTypeEnum.ADD_ON.getCode());
+        optionCreateDTO.setIsDefault(DefaultEnum.YES.getCode());
+
+        doThrow(new BadRequestArgsException(MessageEnum.OPTION_ADD_ON_DEFAULT_ERROR))
+                .when(optionService).create(any(OptionCreateDTO.class));
+
+        String jsonBody = objectMapper.writeValueAsString(optionCreateDTO);
+        mockMvc.perform(
+                post("/options")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(MessageEnum.OPTION_ADD_ON_DEFAULT_ERROR.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.OPTION_ADD_ON_DEFAULT_ERROR.getMessage()));
+
+        verify(optionService).create(any(OptionCreateDTO.class));
+
+    }
+
+    @Test
     @DisplayName("[Unit] OptionController.createOption() - 建立產品細節選項名稱重複，應回傳 409 及指定訊息")
     void testCreateOptionTitleDuplicate() throws Exception {
         OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.EGG);
@@ -166,6 +225,61 @@ public class OptionControllerTest {
     }
 
     @Test
+    @DisplayName("[Unit] OptionController.updateById() - 更新產品細節選項缺少必要參數，應回傳 400")
+    void testUpdateByIdMissingRequiredParameter() throws Exception {
+        OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.HOT_SPICY);
+        optionEditDTO.setId(null);
+
+        String jsonBody = objectMapper.writeValueAsString(optionEditDTO);
+        mockMvc.perform(
+                put("/options")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isBadRequest());
+
+        verify(optionService, never()).updateById(any(OptionEditDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OptionController.updateById() - 更新產品細節選項 OptionType 超過範圍，應回傳 400")
+    void testUpdateByIdInvalidOptionType() throws Exception {
+        OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.HOT_SPICY);
+        optionEditDTO.setOptionType(4);
+
+        String jsonBody = objectMapper.writeValueAsString(optionEditDTO);
+        mockMvc.perform(
+                put("/options")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isBadRequest());
+
+        verify(optionService, never()).updateById(any(OptionEditDTO.class));
+    }
+
+
+    @Test
+    @DisplayName("[Unit] OptionController.updateById() - 更新選項 OptionType 為 AddOn 預設設定錯誤，應回傳 400 及指定訊息")
+    void testUpdateByIdDefaultSettingError() throws Exception {
+        OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.EGG);
+        optionEditDTO.setOptionType(OptionTypeEnum.ADD_ON.getCode());
+        optionEditDTO.setIsDefault(DefaultEnum.YES.getCode());
+
+        doThrow(new BadRequestArgsException(MessageEnum.OPTION_ADD_ON_DEFAULT_ERROR))
+                .when(optionService).updateById(any(OptionEditDTO.class));
+
+        String jsonBody = objectMapper.writeValueAsString(optionEditDTO);
+        mockMvc.perform(
+                put("/options")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(MessageEnum.OPTION_ADD_ON_DEFAULT_ERROR.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.OPTION_ADD_ON_DEFAULT_ERROR.getMessage()));
+
+        verify(optionService).updateById(any(OptionEditDTO.class));
+    }
+
+    @Test
     @DisplayName("[Unit] OptionController.updateById() - 更新 id 不存在，應回傳 404 及指定訊息")
     void testUpdateByIdNotExist() throws Exception {
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.MILD_SPICY);
@@ -220,7 +334,6 @@ public class OptionControllerTest {
 
         verify(optionService).getById(id);
     }
-
 
     @Test
     @DisplayName("[Unit] OptionController.getById() - 查詢 id 存在，應回傳 200 及資料")

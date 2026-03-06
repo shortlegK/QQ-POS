@@ -28,6 +28,7 @@ public enum MessageEnum {
     PRODUCT_ALREADY_EXISTS(3003, "菜單品項名稱已存在"),
     OPTION_ALREADY_EXISTS(3004, "細節選項名稱已存在"),
     TYPE_NOT_FOUND(3005,"分類 ID 不存在"),
+    OPTION_ADD_ON_DEFAULT_ERROR(3006, "加料類選項不可設為預設"),
 
     // 訂單相關
     SHOPPING_CART_IS_NULL(4001, "內容為空，無法建立訂單"),

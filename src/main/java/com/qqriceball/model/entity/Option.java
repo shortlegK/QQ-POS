@@ -23,6 +23,9 @@ public class Option {
     @Schema(description = "選項類型")
     private Integer optionType;
 
+    @Schema(description = "是否為預設值 (0:否 / 1:是)")
+    private Integer isDefault;
+
     @Schema(description = "售價")
     private Integer price;
 

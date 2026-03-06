@@ -6,20 +6,18 @@
 
     <!--新增產品細節選項-->
     <insert id="insert" parameterType="com.qqriceball.model.entity.Option" useGeneratedKeys="true" keyProperty="id">
-        insert into options(title, option_type, price, status, create_id, create_time, update_id, update_time)
-        values (#{title},#{optionType}, #{price}, #{status} ,#{createId}, #{createTime}, #{updateId}, #{updateTime})
+        insert into options(title, option_type, is_default, price, status, create_id, create_time, update_id, update_time)
+        values (#{title},#{optionType},#{isDefault}, #{price}, #{status} ,#{createId}, #{createTime}, #{updateId}, #{updateTime})
     </insert>
 
     <!--分頁查詢-->
     <select id="pageQuery" resultType="com.qqriceball.model.vo.OptionVO">
-        select id, title, option_type, price, status
+        select id, title, option_type,is_default, price, status
         from options
         <where>
+            option_type = #{optionType}
             <if test="title != null and title !=''">
-                title like concat('%',#{title},'%')
-            </if>
-            <if test="optionType != null and optionType !=''">
-                AND option_type = #{optionType}
+                AND title like concat('%',#{title},'%')
             </if>
             <if test="status != null and status !=''">
                 AND status = #{status}
@@ -34,12 +32,21 @@
         <set>
             <if test = "title != null"> title = #{title}, </if>
             <if test = "optionType != null"> option_type = #{optionType} ,</if>
+            <if test = "isDefault != null"> is_default = #{isDefault} ,</if>
             <if test = "price != null"> price = #{price}, </if>
             <if test = "status != null"> status = #{status}, </if>
             <if test = "updateId != null"> update_id = #{updateId},</if>
             <if test = "updateTime != null">update_time = #{updateTime} </if>
         </set>
         where id = #{id}
+    </update>
+
+    <!--更新指定 OptionType 的預設設定為 0-->
+    <update id="cleanDefaultByOptionType" parameterType="java.lang.Integer">
+        update options
+        SET is_default = 0
+        where option_type = #{optionType}
+          AND is_default = 1
     </update>
 
 

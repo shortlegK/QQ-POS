@@ -7,7 +7,9 @@ import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.exception.BadRequestArgsException;
 import com.qqriceball.common.exception.NotExistException;
 import com.qqriceball.common.result.PageResult;
+import com.qqriceball.enumeration.DefaultEnum;
 import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.enumeration.OptionTypeEnum;
 import com.qqriceball.mapper.OptionMapper;
 import com.qqriceball.model.dto.OptionCreateDTO;
 import com.qqriceball.model.dto.OptionEditDTO;
@@ -18,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -31,12 +34,21 @@ public class OptionService {
         this.optionMapper = optionMapper;
     }
 
+    @Transactional
     public OptionVO create(OptionCreateDTO optionCreateDTO) {
+
+        this.checkDefaultSetting(optionCreateDTO.getOptionType(), optionCreateDTO.getIsDefault());
 
         Option option = new Option();
         BeanUtils.copyProperties(optionCreateDTO, option);
 
         try {
+
+            // 如果預設設定為是，則清除同類型的其他選項的預設設定
+            if (option.getIsDefault() == DefaultEnum.YES.getCode()) {
+                optionMapper.cleanDefaultByOptionType(option.getOptionType());
+            }
+
             optionMapper.insert(option);
             return optionMapper.getById(option.getId());
 
@@ -65,12 +77,29 @@ public class OptionService {
         }
     }
 
+    @Transactional
     public OptionVO updateById(OptionEditDTO optionEditDTO) {
-        this.getById(optionEditDTO.getId());
+
+        OptionVO optionVO = this.getById(optionEditDTO.getId());
 
         Option option = new Option();
         BeanUtils.copyProperties(optionEditDTO, option);
+
+        if (option.getIsDefault() == DefaultEnum.YES.getCode()) {
+            // 確認是否有修改選項類型，如果有修改則以修改後的選項類型為準進行預設設定檢查，否則以原選項類型為準
+            Integer finalOptionType = option.getOptionType() != null
+                    ? option.getOptionType() : optionVO.getOptionType();
+            option.setOptionType(finalOptionType);
+            this.checkDefaultSetting(option.getOptionType(), option.getIsDefault());
+        }
+
         try{
+
+            // 如果預設設定為是，則清除同類型的其他選項的預設設定
+            if(option.getIsDefault() == DefaultEnum.YES.getCode()){
+                optionMapper.cleanDefaultByOptionType(option.getOptionType());
+            }
+
             optionMapper.updateById(option);
 
             return optionMapper.getById(option.getId());
@@ -90,6 +119,13 @@ public class OptionService {
             throw new NotExistException(MessageEnum.OPTION_NOT_EXIST);
         }else {
             return optionVO;
+        }
+    }
+
+    private void checkDefaultSetting(Integer optionType, Integer defaultSetting) {
+        if (optionType == OptionTypeEnum.ADD_ON.getCode() && defaultSetting == DefaultEnum.YES.getCode()) {
+            log.error("加料類選項不可設為預設, defaultSetting: {}", defaultSetting);
+            throw new BadRequestArgsException(MessageEnum.OPTION_ADD_ON_DEFAULT_ERROR);
         }
     }
 

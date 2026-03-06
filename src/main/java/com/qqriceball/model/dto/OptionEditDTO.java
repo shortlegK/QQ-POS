@@ -3,7 +3,6 @@ package com.qqriceball.model.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -23,6 +22,11 @@ public class OptionEditDTO {
     @Min(value = 0, message = "選項類型設定錯誤")
     @Max(value = 3, message = "選項類型設定錯誤")
     private Integer optionType;
+
+    @Schema(description = "是否為預設值 (0:否 / 1:是)")
+    @Min(value = 0, message = "預設設定錯誤")
+    @Max(value = 1, message = "預設設定錯誤")
+    private Integer isDefault;
 
     @Schema(description = "售價")
     @Min(value = 0, message = "售價不得小於 1")

@@ -80,6 +80,7 @@ create table if not exists options
         primary key,
     title       varchar(20)                                not null comment '選項名稱',
     option_type tinyint unsigned                           not null comment '選項類型(0=米飯種類, 1=飯量, 2=辣度, 3=加料)',
+    is_default  tinyint unsigned                           not null comment '是否為預設值(1=是,0=否)',
     price       int unsigned     default '0'               not null comment '價格',
     status      tinyint unsigned default '1'               not null comment '上架狀態(1=上架, 0=下架))',
     create_id   int unsigned                               not null,

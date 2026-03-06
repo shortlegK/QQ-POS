@@ -22,6 +22,12 @@ public class OptionCreateDTO {
     @Max(value = 3, message = "選項類型設定錯誤")
     private Integer optionType;
 
+    @Schema(description = "是否為預設值 (0:否 / 1:是)")
+    @NotNull(message = "預設設定為必填")
+    @Min(value = 0, message = "預設設定錯誤")
+    @Max(value = 1, message = "預設設定錯誤")
+    private Integer isDefault;
+
     @Schema(description = "售價")
     @NotNull(message = "售價為必填")
     @Min(value = 0, message = "售價不得小於 1")
