@@ -5,10 +5,11 @@ import com.jayway.jsonpath.JsonPath;
 import com.qqriceball.enumeration.DefaultEnum;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.OptionTypeEnum;
+import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.mapper.OptionMapper;
-import com.qqriceball.model.dto.OptionCreateDTO;
-import com.qqriceball.model.dto.OptionEditDTO;
-import com.qqriceball.model.dto.OptionPageQueryDTO;
+import com.qqriceball.model.dto.option.OptionCreateDTO;
+import com.qqriceball.model.dto.option.OptionEditDTO;
+import com.qqriceball.model.dto.option.OptionPageQueryDTO;
 import com.qqriceball.model.vo.OptionVO;
 import com.qqriceball.testData.option.SeedOptionData;
 import com.qqriceball.utils.TestDataGenerator;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -393,6 +395,22 @@ public class OptionControllerIT extends BaseIntegrationTest{
                 .andExpect(jsonPath("$.code").value(MessageEnum.OPTION_ALREADY_EXISTS.getCode()))
                 .andExpect(jsonPath("$.msg").value(MessageEnum.OPTION_ALREADY_EXISTS.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    @DisplayName("[IT] 4005 getActiveOptionsByType - 查詢成功，回傳 200 及資料")
+    void testGetActiveOptionsByTypeSuccess() throws Exception{
+        OptionTypeEnum optionType = OptionTypeEnum.RICE_SIZE;
+
+        mockMvc.perform(
+                get("/options/active")
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .param("optionType", String.valueOf(optionType.getCode()))
+        ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data[*].optionType").value(everyItem(equalTo(optionType.getCode()))))
+                .andExpect(jsonPath("$.data[*].status").value(everyItem(equalTo(StatusEnum.ACTIVE.getCode()))));
     }
 
 }

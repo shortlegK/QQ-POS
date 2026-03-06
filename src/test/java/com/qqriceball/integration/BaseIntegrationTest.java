@@ -3,7 +3,7 @@ package com.qqriceball.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import com.qqriceball.model.dto.EmpLoginDTO;
+import com.qqriceball.model.dto.emp.EmpLoginDTO;
 import com.qqriceball.testData.emp.SeedUserData;
 import com.qqriceball.testData.emp.TestAccount;
 import com.qqriceball.utils.emp.EmpTestDataFactory;

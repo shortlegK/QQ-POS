@@ -1,4 +1,4 @@
-package com.qqriceball.model.dto;
+package com.qqriceball.model.dto.emp;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

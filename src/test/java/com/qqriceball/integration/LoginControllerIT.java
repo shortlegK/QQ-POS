@@ -2,7 +2,7 @@ package com.qqriceball.integration;
 
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.testData.emp.SeedUserData;
-import com.qqriceball.model.dto.EmpLoginDTO;
+import com.qqriceball.model.dto.emp.EmpLoginDTO;
 import com.qqriceball.utils.emp.EmpTestDataFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

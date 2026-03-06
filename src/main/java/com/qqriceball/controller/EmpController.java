@@ -3,10 +3,10 @@ package com.qqriceball.controller;
 
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.common.result.Result;
-import com.qqriceball.model.dto.EmpCreateDTO;
-import com.qqriceball.model.dto.EmpEditDTO;
-import com.qqriceball.model.dto.EmpPageQueryDTO;
-import com.qqriceball.model.dto.EmpStatusDTO;
+import com.qqriceball.model.dto.emp.EmpCreateDTO;
+import com.qqriceball.model.dto.emp.EmpEditDTO;
+import com.qqriceball.model.dto.emp.EmpPageQueryDTO;
+import com.qqriceball.model.dto.emp.EmpStatusDTO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.service.EmpService;
 import io.swagger.v3.oas.annotations.Operation;

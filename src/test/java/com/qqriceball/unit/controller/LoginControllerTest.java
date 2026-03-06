@@ -6,7 +6,7 @@ import com.qqriceball.common.exception.NotExistException;
 import com.qqriceball.common.exception.PasswordErrorException;
 import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.enumeration.MessageEnum;
-import com.qqriceball.model.dto.EmpLoginDTO;
+import com.qqriceball.model.dto.emp.EmpLoginDTO;
 import com.qqriceball.model.entity.Emp;
 import com.qqriceball.controller.LoginController;
 import com.qqriceball.service.EmpService;
@@ -45,7 +45,7 @@ class LoginControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    @DisplayName("[Unit] LoginController.login - 登入帳號成功應回傳 200 及 token")
+    @DisplayName("[Unit] LoginController.login() - 登入帳號成功應回傳 200 及 token")
     void testLoginSuccess() throws Exception {
 
         String secretKey = "test-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secret";
@@ -83,7 +83,7 @@ class LoginControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] LoginController.login - 登入失敗，帳號不存在應回傳 404 及指定訊息")
+    @DisplayName("[Unit] LoginController.login() - 登入失敗，帳號不存在應回傳 404 及指定訊息")
     void testLoginAccountNotExist() throws Exception {
 
         EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
@@ -105,7 +105,7 @@ class LoginControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] LoginController.login - 登入失敗，密碼錯誤應回傳 401 及指定訊息")
+    @DisplayName("[Unit] LoginController.login() - 登入失敗，密碼錯誤應回傳 401 及指定訊息")
     void testLoginPasswordError() throws Exception {
 
         EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
@@ -129,7 +129,7 @@ class LoginControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] LoginController.login - 登入失敗，帳號停用應回傳 403 及指定訊息")
+    @DisplayName("[Unit] LoginController.login() - 登入失敗，帳號停用應回傳 403 及指定訊息")
     void testLoginAccountInactive() throws Exception {
 
         EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
@@ -153,7 +153,7 @@ class LoginControllerTest {
 
 
     @Test
-    @DisplayName("[Unit] LoginController.logout - 登出帳號成功應回傳 200")
+    @DisplayName("[Unit] LoginController.logout() - 登出帳號成功應回傳 200")
     void logout() throws  Exception {
 
         ResultActions resultActions = mockMvc.perform(

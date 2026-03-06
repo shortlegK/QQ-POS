@@ -9,10 +9,10 @@ import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.testData.emp.SeedUserData;
-import com.qqriceball.model.dto.EmpCreateDTO;
-import com.qqriceball.model.dto.EmpEditDTO;
-import com.qqriceball.model.dto.EmpPageQueryDTO;
-import com.qqriceball.model.dto.EmpStatusDTO;
+import com.qqriceball.model.dto.emp.EmpCreateDTO;
+import com.qqriceball.model.dto.emp.EmpEditDTO;
+import com.qqriceball.model.dto.emp.EmpPageQueryDTO;
+import com.qqriceball.model.dto.emp.EmpStatusDTO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.controller.EmpController;
 import com.qqriceball.handler.GlobalExceptionHandler;
@@ -77,7 +77,7 @@ public class EmpControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpController.createEmp - 建立重複帳號，應回傳 409 及指定訊息")
+    @DisplayName("[Unit] EmpController.createEmp() - 建立重複帳號，應回傳 409 及指定訊息")
     void testCreateEmpUsernameDuplicate() throws Exception {
 
         EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(SeedUserData.TESTER);
@@ -99,7 +99,7 @@ public class EmpControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpController.createEmp - 建立員工成功，應回傳 200")
+    @DisplayName("[Unit] EmpController.createEmp() - 建立員工成功，應回傳 200")
     void testCreateEmpSuccess() throws Exception {
 
         EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(SeedUserData.TESTER);
@@ -117,7 +117,7 @@ public class EmpControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpController.updateStatus - 變更員工啟用狀態，帳號不存在應回傳 401 及指定訊息")
+    @DisplayName("[Unit] EmpController.updateEmpStatus() - 變更員工啟用狀態，帳號不存在應回傳 401 及指定訊息")
     void testUpdateEmpStatusAccountNotExist() throws Exception {
 
         Integer id = 666;
@@ -140,7 +140,7 @@ public class EmpControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpController.updateStatus - 變更員工啟用狀態成功，應回傳 200")
+    @DisplayName("[Unit] EmpController.updateEmpStatus() - 變更員工啟用狀態成功，應回傳 200")
     void testUpdateEmpStatusSuccess() throws Exception {
 
         Integer id = 666;
@@ -161,7 +161,7 @@ public class EmpControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpController.getById - 員工 id 不存在，應回傳 404")
+    @DisplayName("[Unit] EmpController.getEmpById() - 員工 id 不存在，應回傳 404")
     void testGetEmpByIdNoExist() throws Exception {
         Integer id = 666;
 
@@ -181,7 +181,7 @@ public class EmpControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpController.getById - 查詢成功應回傳 200 及員工資料")
+    @DisplayName("[Unit] EmpController.getEmpById() - 查詢成功應回傳 200 及員工資料")
     void testGetEmpByIdSuccess() throws Exception {
         Integer id = 666;
 
@@ -202,7 +202,7 @@ public class EmpControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpController.updateById - 員工 id 不存在，應回傳 404")
+    @DisplayName("[Unit] EmpController.updateEmpById() - 員工 id 不存在，應回傳 404")
     void testUpdateEmpByIdNoExist() throws Exception {
 
         EmpEditDTO empEditDTO = EmpTestDataFactory.getEmpEditDTO(SeedUserData.TESTER);
@@ -230,7 +230,7 @@ public class EmpControllerTest {
 
 
     @Test
-    @DisplayName("[Unit] EmpController.updateById - 修改成功應回傳 200")
+    @DisplayName("[Unit] EmpController.updateEmpById() - 修改成功應回傳 200")
     void testUpdateEmpByIdSuccess() throws Exception {
 
         EmpEditDTO empEditDTO = EmpTestDataFactory.getEmpEditDTO(SeedUserData.TESTER);
@@ -250,7 +250,7 @@ public class EmpControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpController.page - 分頁查詢成功，應回傳 200 及資料")
+    @DisplayName("[Unit] EmpController.pageQueryEmp() - 分頁查詢成功，應回傳 200 及資料")
     void testPageQueryEmpSuccess() throws Exception {
 
         EmpPageQueryDTO queryDTO = new EmpPageQueryDTO();

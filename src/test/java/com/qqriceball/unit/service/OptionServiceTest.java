@@ -10,10 +10,11 @@ import com.qqriceball.enumeration.DefaultEnum;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.OptionTypeEnum;
 import com.qqriceball.mapper.OptionMapper;
-import com.qqriceball.model.dto.OptionCreateDTO;
+import com.qqriceball.model.dto.option.OptionActiveQueryDTO;
+import com.qqriceball.model.dto.option.OptionCreateDTO;
 
-import com.qqriceball.model.dto.OptionEditDTO;
-import com.qqriceball.model.dto.OptionPageQueryDTO;
+import com.qqriceball.model.dto.option.OptionEditDTO;
+import com.qqriceball.model.dto.option.OptionPageQueryDTO;
 import com.qqriceball.model.entity.Option;
 
 import com.qqriceball.model.vo.OptionVO;
@@ -29,6 +30,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -329,6 +333,24 @@ public class OptionServiceTest {
                 () -> assertEquals(optionVO.getTitle(), result.getTitle(), "title 應與傳入參數相同")
         );
         verify(optionMapper).getById(id);
+    }
+
+    @Test
+    @DisplayName("[Unit] OptionService.getActiveOptionsByType() - 查詢成功，應回傳資料")
+    void testGetActiveOptionsByTypeSuccess() {
+
+        OptionActiveQueryDTO optionActiveQueryDTO = OptionTestDataFactory.getOptionActiveQueryDTO(OptionTypeEnum.SPICE_LEVEL.getCode());
+
+        List<OptionVO> mockData = new ArrayList<>();
+        mockData.add(OptionTestDataFactory.getOptionVO(SeedOptionData.HOT_SPICY));
+        mockData.add(OptionTestDataFactory.getOptionVO(SeedOptionData.MEDIUM_SPICY));
+
+        when(optionMapper.getActiveOptionsByType(any(OptionActiveQueryDTO.class))).thenReturn(mockData);
+
+        List<OptionVO> result = optionService.getActiveOptionsByType(optionActiveQueryDTO);
+
+        assertEquals(mockData, result,"回傳資料應與 mock 資料相同");
+        verify(optionMapper).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
     }
 
 }

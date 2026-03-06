@@ -11,9 +11,10 @@ import com.qqriceball.enumeration.DefaultEnum;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.OptionTypeEnum;
 import com.qqriceball.mapper.OptionMapper;
-import com.qqriceball.model.dto.OptionCreateDTO;
-import com.qqriceball.model.dto.OptionEditDTO;
-import com.qqriceball.model.dto.OptionPageQueryDTO;
+import com.qqriceball.model.dto.option.OptionActiveQueryDTO;
+import com.qqriceball.model.dto.option.OptionCreateDTO;
+import com.qqriceball.model.dto.option.OptionEditDTO;
+import com.qqriceball.model.dto.option.OptionPageQueryDTO;
 import com.qqriceball.model.entity.Option;
 import com.qqriceball.model.vo.OptionVO;
 import lombok.extern.slf4j.Slf4j;
@@ -122,11 +123,21 @@ public class OptionService {
         }
     }
 
+    public List<OptionVO> getActiveOptionsByType(OptionActiveQueryDTO optionActiveQueryDTO){
+        try{
+            return optionMapper.getActiveOptionsByType(optionActiveQueryDTO);
+        }catch (Exception e) {
+            log.error("查詢異常：{}", optionActiveQueryDTO, e);
+            throw new BadRequestArgsException(MessageEnum.BAD_REQUEST);
+        }
+    }
+
     private void checkDefaultSetting(Integer optionType, Integer defaultSetting) {
         if (optionType == OptionTypeEnum.ADD_ON.getCode() && defaultSetting == DefaultEnum.YES.getCode()) {
             log.error("加料類選項不可設為預設, defaultSetting: {}", defaultSetting);
             throw new BadRequestArgsException(MessageEnum.OPTION_ADD_ON_DEFAULT_ERROR);
         }
     }
+
 
 }

@@ -2,9 +2,11 @@ package com.qqriceball.integration;
 
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.ProductTypeEnum;
+import com.qqriceball.model.dto.product.ProductCreateDTO;
+import com.qqriceball.model.dto.product.ProductEditDTO;
+import com.qqriceball.model.dto.product.ProductPageQueryDTO;
 import com.qqriceball.testData.product.SeedProductData;
 import com.qqriceball.utils.TestDataGenerator;
-import com.qqriceball.model.dto.*;
 import com.qqriceball.utils.product.ProductTestDataFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -156,7 +158,7 @@ public class ProductControllerIT extends BaseIntegrationTest{
     }
 
     @Test
-    @DisplayName("[IT] 3004 getById - id 不存在，應回傳 404 及指定訊息")
+    @DisplayName("[IT] 3004 getProductById - id 不存在，應回傳 404 及指定訊息")
     void testGetByIdProductNotExist() throws Exception {
 
         Integer id = Integer.MAX_VALUE;
@@ -169,7 +171,7 @@ public class ProductControllerIT extends BaseIntegrationTest{
     }
 
     @Test
-    @DisplayName("[IT] 3004 getById - id 存在，應回傳 200 及資料")
+    @DisplayName("[IT] 3004 getProductById - id 存在，應回傳 200 及資料")
     void testGetByIdProductExist() throws Exception {
         Integer id = SeedProductData.VEG_PRODUCT.id();
         mockMvc.perform(

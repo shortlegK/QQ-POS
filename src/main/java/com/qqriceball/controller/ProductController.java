@@ -2,9 +2,9 @@ package com.qqriceball.controller;
 
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.common.result.Result;
-import com.qqriceball.model.dto.ProductCreateDTO;
-import com.qqriceball.model.dto.ProductEditDTO;
-import com.qqriceball.model.dto.ProductPageQueryDTO;
+import com.qqriceball.model.dto.product.ProductCreateDTO;
+import com.qqriceball.model.dto.product.ProductEditDTO;
+import com.qqriceball.model.dto.product.ProductPageQueryDTO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.ProductVO;
 import com.qqriceball.service.ProductService;

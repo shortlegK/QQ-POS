@@ -1,8 +1,9 @@
 package com.qqriceball.utils.option;
 
-import com.qqriceball.model.dto.OptionCreateDTO;
-import com.qqriceball.model.dto.OptionEditDTO;
-import com.qqriceball.model.dto.OptionPageQueryDTO;
+import com.qqriceball.model.dto.option.OptionActiveQueryDTO;
+import com.qqriceball.model.dto.option.OptionCreateDTO;
+import com.qqriceball.model.dto.option.OptionEditDTO;
+import com.qqriceball.model.dto.option.OptionPageQueryDTO;
 import com.qqriceball.model.vo.OptionVO;
 import com.qqriceball.testData.option.TestOption;
 import org.springframework.beans.BeanUtils;
@@ -35,6 +36,12 @@ public class OptionTestDataFactory {
         OptionVO optionVO = new OptionVO();
         BeanUtils.copyProperties(option, optionVO);
         return optionVO;
+    }
+
+    public static OptionActiveQueryDTO getOptionActiveQueryDTO(Integer optionType){
+        OptionActiveQueryDTO optionActiveQueryDTO = new OptionActiveQueryDTO();
+        optionActiveQueryDTO.setOptionType(optionType);
+        return optionActiveQueryDTO;
     }
 
 }

@@ -6,7 +6,7 @@ import com.qqriceball.common.exception.*;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.StatusEnum;
-import com.qqriceball.model.dto.*;
+import com.qqriceball.model.dto.emp.*;
 import com.qqriceball.model.entity.Emp;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.mapper.EmpMapper;

@@ -3,7 +3,7 @@ package com.qqriceball.controller;
 import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.Result;
 import com.qqriceball.common.utils.JwtUtil;
-import com.qqriceball.model.dto.EmpLoginDTO;
+import com.qqriceball.model.dto.emp.EmpLoginDTO;
 import com.qqriceball.model.entity.Emp;
 import com.qqriceball.model.vo.EmpLoginVO;
 import com.qqriceball.service.EmpService;

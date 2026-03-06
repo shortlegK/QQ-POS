@@ -1,4 +1,4 @@
-package com.qqriceball.model.dto;
+package com.qqriceball.model.dto.product;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
@@ -15,7 +15,7 @@ public class ProductPageQueryDTO implements Serializable {
     @Schema(description = "名稱")
     private String title;
 
-    @Schema(description = "產品類型")
+    @Schema(description = "產品類型 (0: 葷食, 1: 素食, 2: 飲料)")
     @Min(value = 0, message = "產品類型設定錯誤")
     @Max(value = 2, message = "產品類型設定錯誤")
     private Integer productType;
@@ -27,12 +27,12 @@ public class ProductPageQueryDTO implements Serializable {
 
     @Schema(description = "頁碼")
     @NotNull(message = "頁碼為必填")
-    @Min(value = 1, message = "頁碼不得為 0")
+    @Min(value = 1, message = "頁碼不得小於 1")
     private Integer page = 1 ;
 
     @Schema(description = "每頁筆數")
     @NotNull(message = "每頁筆數為必填")
-    @Min(value = 1, message = "筆數不得為 0")
+    @Min(value = 1, message = "筆數不得小於 1")
     private Integer pageSize = 10;
 
 

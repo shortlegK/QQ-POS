@@ -10,7 +10,7 @@ import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.enumeration.StatusEnum;
-import com.qqriceball.model.dto.*;
+import com.qqriceball.model.dto.emp.*;
 import com.qqriceball.model.entity.Emp;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.mapper.EmpMapper;
@@ -46,7 +46,7 @@ class EmpServiceTest {
 
 
     @Test
-    @DisplayName("[Unit] EmpService.login - 登入帳號不存在，應拋出 NotExistException")
+    @DisplayName("[Unit] EmpService.login() - 登入帳號不存在，應拋出 NotExistException")
     void testLoginAccountNotExist() {
 
         EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
@@ -62,7 +62,7 @@ class EmpServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpService.login - 登入密碼錯誤，應拋出 PasswordErrorException")
+    @DisplayName("[Unit] EmpService.login() - 登入密碼錯誤，應拋出 PasswordErrorException")
     void testLoginPasswordError() {
 
         EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
@@ -81,7 +81,7 @@ class EmpServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpService.login - 登入帳號已停用，應拋出 AccountInactiveException")
+    @DisplayName("[Unit] EmpService.login() - 登入帳號已停用，應拋出 AccountInactiveException")
     void testLoginAccountInactive() {
 
         EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.INACTIVE.username(), SeedUserData.TESTER.password());
@@ -101,7 +101,7 @@ class EmpServiceTest {
 
 
     @Test
-    @DisplayName("[Unit] EmpService.login - 登入帳號啟用中且密碼正確，應回傳 Emp 資料")
+    @DisplayName("[Unit] EmpService.login() - 登入帳號啟用中且密碼正確，應回傳 Emp 資料")
     void testLoginAccountActive() {
 
         EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
@@ -123,7 +123,7 @@ class EmpServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpService.create - 建立重複帳號，應拋出 AlreadyExistsException")
+    @DisplayName("[Unit] EmpService.create() - 建立重複帳號，應拋出 AlreadyExistsException")
     void testCreateEmpUsernameDuplicate() {
 
         EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(SeedUserData.TESTER);
@@ -142,7 +142,7 @@ class EmpServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpService.create - 建立員工，應加密密碼並呼叫 insert 帶入 Emp 資料")
+    @DisplayName("[Unit] EmpService.create() - 建立員工，應加密密碼並呼叫 insert 帶入 Emp 資料")
     void testCreateEmpSuccess() {
 
         EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(SeedUserData.TESTER);
@@ -168,7 +168,7 @@ class EmpServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpService.updateStatus - 員工 id 不存在，應拋出 NotExistException")
+    @DisplayName("[Unit] EmpService.updateStatus() - 員工 id 不存在，應拋出 NotExistException")
     void testUpdateStatusAccountNotExist() {
 
         EmpStatusDTO empStatusDTO = new EmpStatusDTO();
@@ -186,7 +186,7 @@ class EmpServiceTest {
 
     }
 
-    @ParameterizedTest(name = "[Unit] EmpService.updateStatus - 變更員工啟用狀態，應呼叫 empMapper.updateById")
+    @ParameterizedTest(name = "[Unit] EmpService.updateStatus() - 變更員工啟用狀態，應呼叫 empMapper.updateById")
     @EnumSource(value = StatusEnum.class, names = {"ACTIVE", "INACTIVE"})
     void testUpdateStatusSetInactive(StatusEnum statusEnum) {
 
@@ -213,7 +213,7 @@ class EmpServiceTest {
 
 
     @Test
-    @DisplayName("[Unit] EmpService.getById - 員工 id 不存在，應拋出 NotExistException")
+    @DisplayName("[Unit] EmpService.getById() - 員工 id 不存在，應拋出 NotExistException")
     void testGetByIdAccountNotExist() {
 
         Integer id = Integer.MAX_VALUE;
@@ -229,7 +229,7 @@ class EmpServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpService.getById - 員工 id 存在，應呼叫 empMapper.getById 回傳 EmpVO 資料")
+    @DisplayName("[Unit] EmpService.getById() - 員工 id 存在，應呼叫 empMapper.getById 回傳 EmpVO 資料")
     void testGetByIdAccountExist() {
 
         Integer id = 1;
@@ -257,7 +257,7 @@ class EmpServiceTest {
 
 
     @Test
-    @DisplayName("[Unit] EmpService.updateById - 員工 id 不存在，應拋出 NotExistException")
+    @DisplayName("[Unit] EmpService.updateById() - 員工 id 不存在，應拋出 NotExistException")
     void testUpdateByIdAccountNotExist() {
 
         EmpEditDTO empEditDTO = new EmpEditDTO();
@@ -275,7 +275,7 @@ class EmpServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpService.updateById - 變更員工資料，應呼叫 empMapper.updateById")
+    @DisplayName("[Unit] EmpService.updateById() - 變更員工資料，應呼叫 empMapper.updateById")
     void testUpdateByIdSuccess() {
 
         EmpEditDTO empEditDTO = EmpTestDataFactory.getEmpEditDTO(SeedUserData.TESTER);
@@ -297,7 +297,7 @@ class EmpServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpService.pageQuery - 分頁查詢成功，應回傳 PageResult 資料")
+    @DisplayName("[Unit] EmpService.pageQuery() - 分頁查詢成功，應回傳 PageResult 資料")
     void testPageQuerySuccess() {
         Integer page = 1;
         Integer pageSize = 5;

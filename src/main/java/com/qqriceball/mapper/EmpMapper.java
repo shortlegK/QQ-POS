@@ -2,7 +2,7 @@ package com.qqriceball.mapper;
 
 
 import com.qqriceball.enumeration.OperationType;
-import com.qqriceball.model.dto.EmpPageQueryDTO;
+import com.qqriceball.model.dto.emp.EmpPageQueryDTO;
 import com.qqriceball.model.entity.Emp;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.annotation.AutoFill;

@@ -1,28 +1,20 @@
 package com.qqriceball.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.enumeration.StatusEnum;
+import com.qqriceball.model.dto.emp.*;
 import com.qqriceball.testData.emp.SeedUserData;
 import com.qqriceball.utils.TestDataGenerator;
-import com.qqriceball.model.dto.*;
 import com.qqriceball.utils.emp.EmpTestDataFactory;
 import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -64,7 +56,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
     }
 
     @Test
-    @DisplayName("[IT] Emp 2001 - 帳號長度不足，應回傳 400")
+    @DisplayName("[IT] 2001 createEmp - 帳號長度不足，應回傳 400")
     void testCreateEmpUsernameLengthError() throws Exception{
 
         EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO("u", "testPassword1", RoleEnum.STAFF.getCode());
@@ -125,7 +117,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
 
 
     @Test
-    @DisplayName("[IT] 2001 createEmp - 登入帳號無管理權限，應回傳 403 無法建立帳號 ")
+    @DisplayName("[IT] 2001 createEmp - 帳號無管理權限嘗試建立員工資料，應回傳 403 無法建立帳號 ")
     void testCreateEmpWithoutAdmin() throws Exception{
 
         String username = TestDataGenerator.getUnique("create");
@@ -303,7 +295,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
     }
 
     @Test
-    @DisplayName("[IT] 2004 getById - 查詢 id 不存在，應回傳 404")
+    @DisplayName("[IT] 2004 getEmpById - 查詢 id 不存在，應回傳 404")
     void testGetByIdNoExist() throws Exception {
 
         mockMvc.perform(
@@ -314,7 +306,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
     }
 
     @Test
-    @DisplayName("[IT] 2004 getById - 查詢成功，應回傳 200 及查詢結果")
+    @DisplayName("[IT] 2004 getEmpById - 查詢成功，應回傳 200 及查詢結果")
     void testGetByIdSuccess() throws Exception {
 
         mockMvc.perform(
@@ -328,7 +320,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
     }
 
     @Test
-    @DisplayName("[IT] 2005 updateById - 修改 id 不存在，應回傳 404")
+    @DisplayName("[IT] 2005 updateEmpById - 修改 id 不存在，應回傳 404")
     void testUpdateByIdNoExist() throws Exception {
 
         EmpEditDTO empEditDTO = new EmpEditDTO();
@@ -347,7 +339,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
     }
 
     @Test
-    @DisplayName("[IT] 2005 updateById - 修改成功，應回傳 200")
+    @DisplayName("[IT] 2005 updateEmpById - 修改成功，應回傳 200")
     void testUpdateByIdSuccess() throws Exception {
 
         EmpEditDTO empEditDTO = new EmpEditDTO();

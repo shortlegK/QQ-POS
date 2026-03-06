@@ -1,8 +1,8 @@
 package com.qqriceball.utils.product;
 
-import com.qqriceball.model.dto.ProductCreateDTO;
-import com.qqriceball.model.dto.ProductEditDTO;
-import com.qqriceball.model.dto.ProductPageQueryDTO;
+import com.qqriceball.model.dto.product.ProductCreateDTO;
+import com.qqriceball.model.dto.product.ProductEditDTO;
+import com.qqriceball.model.dto.product.ProductPageQueryDTO;
 import com.qqriceball.model.vo.ProductVO;
 import com.qqriceball.testData.product.TestProduct;
 import org.springframework.beans.BeanUtils;

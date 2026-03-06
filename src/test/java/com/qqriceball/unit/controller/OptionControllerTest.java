@@ -12,9 +12,10 @@ import com.qqriceball.enumeration.DefaultEnum;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.OptionTypeEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
-import com.qqriceball.model.dto.OptionCreateDTO;
-import com.qqriceball.model.dto.OptionEditDTO;
-import com.qqriceball.model.dto.OptionPageQueryDTO;
+import com.qqriceball.model.dto.option.OptionActiveQueryDTO;
+import com.qqriceball.model.dto.option.OptionCreateDTO;
+import com.qqriceball.model.dto.option.OptionEditDTO;
+import com.qqriceball.model.dto.option.OptionPageQueryDTO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.OptionVO;
 import com.qqriceball.service.EmpService;
@@ -350,5 +351,40 @@ public class OptionControllerTest {
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data").exists());
     }
+
+    @Test
+    @DisplayName("[Unit] OptionController.getActiveOptionsByType() - 查詢成功，應回傳 200 及資料")
+    void testGetActiveOptionsByTypeSuccess() throws Exception {
+        Integer optionType = OptionTypeEnum.ADD_ON.getCode();
+
+        List<OptionVO> mockData = new ArrayList<>();
+        mockData.add(OptionTestDataFactory.getOptionVO(SeedOptionData.EGG));
+
+        when(optionService.getActiveOptionsByType(any())).thenReturn(mockData);
+
+        mockMvc.perform(
+                get("/options/active")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("optionType", String.valueOf(optionType))
+        ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data").exists());
+
+        verify(optionService).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
+    }
+
+     @Test
+     @DisplayName("[Unit] OptionController.getActiveOptionsByType() - 查詢參數超出範圍，應回傳 400")
+     void testGetActiveOptionsByTypeBadRequest() throws Exception {
+         Integer optionType = 4;
+
+         mockMvc.perform(
+                 get("/options/active")
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .param("optionType", String.valueOf(optionType))
+         ).andExpect(status().isBadRequest());
+
+         verify(optionService,never()).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
+     }
 
 }

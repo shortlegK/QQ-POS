@@ -2,7 +2,8 @@ package com.qqriceball.mapper;
 
 import com.qqriceball.annotation.AutoFill;
 import com.qqriceball.enumeration.OperationType;
-import com.qqriceball.model.dto.OptionPageQueryDTO;
+import com.qqriceball.model.dto.option.OptionActiveQueryDTO;
+import com.qqriceball.model.dto.option.OptionPageQueryDTO;
 import com.qqriceball.model.entity.Option;
 import com.qqriceball.model.vo.OptionVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -26,5 +27,7 @@ public interface OptionMapper {
 
     @AutoFill(value = OperationType.UPDATE)
     void cleanDefaultByOptionType(Integer optionType);
+
+    List<OptionVO> getActiveOptionsByType(OptionActiveQueryDTO optionActiveQueryDTO);
 
 }

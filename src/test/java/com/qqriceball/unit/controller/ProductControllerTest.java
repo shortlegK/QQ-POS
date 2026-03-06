@@ -9,9 +9,9 @@ import com.qqriceball.controller.ProductController;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
 import com.qqriceball.testData.product.SeedProductData;
-import com.qqriceball.model.dto.ProductCreateDTO;
-import com.qqriceball.model.dto.ProductEditDTO;
-import com.qqriceball.model.dto.ProductPageQueryDTO;
+import com.qqriceball.model.dto.product.ProductCreateDTO;
+import com.qqriceball.model.dto.product.ProductEditDTO;
+import com.qqriceball.model.dto.product.ProductPageQueryDTO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.ProductVO;
 import com.qqriceball.service.EmpService;
@@ -77,7 +77,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] ProductController.createProduct - 建立重複品項，應回傳 409 及指定訊息")
+    @DisplayName("[Unit] ProductController.createProduct() - 建立重複品項，應回傳 409 及指定訊息")
     void testCreateProductTitleDuplicate() throws Exception {
 
         ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductCreateDTO(SeedProductData.MEAT_PRODUCT);
@@ -96,7 +96,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] ProductController.createProduct - 建立品項成功，應回傳 200")
+    @DisplayName("[Unit] ProductController.createProduct() - 建立品項成功，應回傳 200")
     void testCreateProductSuccess() throws Exception {
 
         ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductCreateDTO(SeedProductData.MEAT_PRODUCT);
@@ -117,7 +117,7 @@ public class ProductControllerTest {
 
 
     @Test
-    @DisplayName("[Unit] ProductController.page - 分頁查詢成功，應回傳 200 及資料")
+    @DisplayName("[Unit] ProductController.pageQueryProduct() - 分頁查詢成功，應回傳 200 及資料")
     void testPageQueryProductSuccess() throws Exception {
 
         ProductPageQueryDTO queryDTO = new ProductPageQueryDTO();
@@ -151,7 +151,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] ProductController.updateProductById - 修改成功應回傳 200 及資料")
+    @DisplayName("[Unit] ProductController.updateProductById() - 修改成功應回傳 200 及資料")
     void testUpdateProductByIdSuccess() throws Exception {
 
         ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.MEAT_PRODUCT);
@@ -173,7 +173,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] ProductController.updateProductById - 修改 id 不存在，應回傳 404 及指定訊息")
+    @DisplayName("[Unit] ProductController.updateProductById() - 修改 id 不存在，應回傳 404 及指定訊息")
     void testUpdateProductByIdNoExist() throws Exception {
 
         ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.MEAT_PRODUCT);
@@ -198,7 +198,7 @@ public class ProductControllerTest {
 
 
     @Test
-    @DisplayName("[Unit] ProductController.updateProductById - 修改品項名稱已存在，應回傳 409 及指定訊息")
+    @DisplayName("[Unit] ProductController.updateProductById() - 修改品項名稱已存在，應回傳 409 及指定訊息")
     void testUpdateProductByIdTitleDuplicate() throws Exception {
 
         ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.MEAT_PRODUCT);
@@ -221,7 +221,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] ProductController.getById - id 不存在，應回傳 404 及指定訊息")
+    @DisplayName("[Unit] ProductController.getProductById() - id 不存在，應回傳 404 及指定訊息")
     void testGetByIdProductNotExist() throws Exception {
 
         Integer id = Integer.MAX_VALUE;
@@ -239,7 +239,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] ProductController.getById - id 存在，應回傳 200 及資料")
+    @DisplayName("[Unit] ProductController.getProductById() - id 存在，應回傳 200 及資料")
     void testGetByIdProductExist() throws Exception {
 
         Integer id = SeedProductData.DRINK_PRODUCT.id();
