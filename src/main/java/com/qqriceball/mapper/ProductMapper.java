@@ -1,6 +1,7 @@
 package com.qqriceball.mapper;
 
 import com.qqriceball.enumeration.OperationType;
+import com.qqriceball.model.dto.product.ProductActiveQueryDTO;
 import com.qqriceball.model.dto.product.ProductPageQueryDTO;
 import com.qqriceball.model.entity.Product;
 import com.qqriceball.annotation.AutoFill;
@@ -23,5 +24,7 @@ public interface ProductMapper {
 
     @AutoFill(value = OperationType.UPDATE)
     void updateById(Product product);
+
+    List<ProductVO> getActiveProductByType(ProductActiveQueryDTO productActiveQueryDTO);
 
 }

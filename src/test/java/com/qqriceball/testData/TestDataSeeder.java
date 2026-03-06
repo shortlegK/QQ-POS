@@ -59,19 +59,28 @@ public class TestDataSeeder implements ApplicationRunner {
         createProduct(SeedProductData.MEAT_PRODUCT);
         createProduct(SeedProductData.VEG_PRODUCT);
         createProduct(SeedProductData.DRINK_PRODUCT);
+        createProduct(SeedProductData.MEAT_INACTIVE);
+        createProduct(SeedProductData.DRINK_INACTIVE);
+        createProduct(SeedProductData.VEG_INACTIVE);
+
 
         createOption(SeedOptionData.WHITE_RICE);
         createOption(SeedOptionData.PURPLE_RICE);
+        createOption(SeedOptionData.RICE_TYPE_INACTIVE);
         createOption(SeedOptionData.SMALL_SIZE);
         createOption(SeedOptionData.NORMAL_SIZE);
         createOption(SeedOptionData.LARGE_SIZE);
+        createOption(SeedOptionData.SIZE_INACTIVE);
         createOption(SeedOptionData.NO_SPICY);
         createOption(SeedOptionData.MILD_SPICY);
         createOption(SeedOptionData.MEDIUM_SPICY);
+        createOption(SeedOptionData.SPICY_INACTIVE);
         createOption(SeedOptionData.HOT_SPICY);
         createOption(SeedOptionData.HOT);
         createOption(SeedOptionData.COLD);
+        createOption(SeedOptionData.TEMP_INACTIVE);
         createOption(SeedOptionData.EGG);
+        createOption(SeedOptionData.ADD_ON_INACTIVE);
 
     }
 

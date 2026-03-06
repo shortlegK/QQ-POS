@@ -1,5 +1,6 @@
 package com.qqriceball.utils.product;
 
+import com.qqriceball.model.dto.product.ProductActiveQueryDTO;
 import com.qqriceball.model.dto.product.ProductCreateDTO;
 import com.qqriceball.model.dto.product.ProductEditDTO;
 import com.qqriceball.model.dto.product.ProductPageQueryDTO;
@@ -33,6 +34,12 @@ public class ProductTestDataFactory {
         ProductVO productVO = new ProductVO();
         BeanUtils.copyProperties(product, productVO);
         return productVO;
+    }
+
+    public static ProductActiveQueryDTO getProductActiveQueryDTO(Integer productType){
+        ProductActiveQueryDTO productActiveQueryDTO = new ProductActiveQueryDTO();
+        productActiveQueryDTO.setProductType(productType);
+        return productActiveQueryDTO;
     }
 
 }

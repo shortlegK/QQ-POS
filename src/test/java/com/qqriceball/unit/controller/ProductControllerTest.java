@@ -8,6 +8,7 @@ import com.qqriceball.common.result.PageResult;
 import com.qqriceball.controller.ProductController;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
+import com.qqriceball.model.dto.product.ProductActiveQueryDTO;
 import com.qqriceball.testData.product.SeedProductData;
 import com.qqriceball.model.dto.product.ProductCreateDTO;
 import com.qqriceball.model.dto.product.ProductEditDTO;
@@ -115,6 +116,22 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.data").exists());
     }
 
+    @Test
+    @DisplayName("[Unit] ProductController.createProduct() - 建立品項參數錯誤，應回傳 400")
+    void testCreateProductBadRequest() throws Exception {
+        ProductCreateDTO productCreateDTO = ProductTestDataFactory.getProductCreateDTO(SeedProductData.MEAT_PRODUCT);
+        productCreateDTO.setPrice(0);
+
+        String jsonBody = objectMapper.writeValueAsString(productCreateDTO);
+        mockMvc.perform(
+                        post("/products")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isBadRequest());
+
+        verify(productService, never()).create(any(ProductCreateDTO.class));
+    }
+
 
     @Test
     @DisplayName("[Unit] ProductController.pageQueryProduct() - 分頁查詢成功，應回傳 200 及資料")
@@ -148,6 +165,23 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.data").exists());
 
         verify(productService).pageQuery(any(ProductPageQueryDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] ProductController.pageQueryProduct() - 分頁查詢參數錯誤，應回傳 400")
+    void testPageQueryProductBadRequest() throws Exception {
+        ProductPageQueryDTO queryDTO = new ProductPageQueryDTO();
+        queryDTO.setPage(0);
+        queryDTO.setPageSize(5);
+
+        mockMvc.perform(
+                        get("/products/page")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("page", queryDTO.getPage().toString())
+                                .param("pageSize", queryDTO.getPageSize().toString())
+                ).andExpect(status().isBadRequest());
+
+        verify(productService, never()).pageQuery(any(ProductPageQueryDTO.class));
     }
 
     @Test
@@ -221,6 +255,22 @@ public class ProductControllerTest {
     }
 
     @Test
+    @DisplayName("[Unit] ProductController.updateProductById() - 修改參數錯誤，應回傳 400")
+    void testUpdateProductByIdBadRequest() throws Exception {
+        ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.MEAT_PRODUCT);
+        productEditDTO.setProductType(3);
+
+        String jsonBody = objectMapper.writeValueAsString(productEditDTO);
+        mockMvc.perform(
+                        put("/products")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isBadRequest());
+
+        verify(productService, never()).updateById(any(ProductEditDTO.class));
+    }
+
+    @Test
     @DisplayName("[Unit] ProductController.getProductById() - id 不存在，應回傳 404 及指定訊息")
     void testGetByIdProductNotExist() throws Exception {
 
@@ -255,4 +305,40 @@ public class ProductControllerTest {
         verify(productService).getById(id);
     }
 
+    @Test
+    @DisplayName("[Unit] ProductController.getActiveProductByType() - 查詢成功，應回傳 200 及資料")
+    void testGetActiveProductByTypeSuccess() throws Exception {
+
+        Integer productType = SeedProductData.MEAT_PRODUCT.productType();
+        List<ProductVO> mockData = new ArrayList<>();
+        mockData.add(ProductTestDataFactory.getProductVO(SeedProductData.MEAT_PRODUCT));
+        mockData.add(ProductTestDataFactory.getProductVO(SeedProductData.VEG_PRODUCT));
+
+        when(productService.getActiveProductByType(any())).thenReturn(mockData);
+
+        mockMvc.perform(
+                        get("/products/active")
+                                .param("productType", String.valueOf(productType))
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data").exists());
+
+        verify(productService).getActiveProductByType(any(ProductActiveQueryDTO.class));
+
+    }
+
+    @Test
+    @DisplayName("[Unit] ProductController.getActiveProductByType() - 查詢參數超出範圍，應回傳 400")
+    void testGetActiveProductByTypeBadRequest() throws Exception {
+
+        Integer productType = 3;
+
+        mockMvc.perform(
+                get("/products/active")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("productType", String.valueOf(productType))
+        ).andExpect(status().isBadRequest());
+
+        verify(productService, never()).getActiveProductByType(any(ProductActiveQueryDTO.class));
+    }
 }

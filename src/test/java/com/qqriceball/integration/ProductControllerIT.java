@@ -2,6 +2,7 @@ package com.qqriceball.integration;
 
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.ProductTypeEnum;
+import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.model.dto.product.ProductCreateDTO;
 import com.qqriceball.model.dto.product.ProductEditDTO;
 import com.qqriceball.model.dto.product.ProductPageQueryDTO;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -182,6 +184,22 @@ public class ProductControllerIT extends BaseIntegrationTest{
                 .andExpect(jsonPath("$.data.id").value(id))
                 .andExpect(jsonPath("$.data.title").value(SeedProductData.VEG_PRODUCT.title()));
 
+    }
+
+    @Test
+    @DisplayName("[IT] 3005 getActiveProductByType - 查詢成功，應回傳 200 及資料")
+    void testGetActiveProductByTypeSuccess() throws Exception {
+        ProductTypeEnum productType = ProductTypeEnum.DRINKS;
+
+        mockMvc.perform(
+                        get("/products/active")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .param("productType", String.valueOf(productType.getCode()))
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data[*].productType").value(everyItem(equalTo(productType.getCode()))))
+                .andExpect(jsonPath("$.data[*].status").value(everyItem(equalTo(StatusEnum.ACTIVE.getCode()))));
     }
 
 }

@@ -7,6 +7,7 @@ import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.exception.BadRequestArgsException;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.model.dto.product.ProductActiveQueryDTO;
 import com.qqriceball.model.dto.product.ProductCreateDTO;
 import com.qqriceball.model.dto.product.ProductEditDTO;
 import com.qqriceball.model.dto.product.ProductPageQueryDTO;
@@ -97,6 +98,15 @@ public class ProductService {
             throw new NotExistException(MessageEnum.PRODUCT_NOT_EXIST);
         }else {
             return productVO;
+        }
+    }
+
+    public List<ProductVO> getActiveProductByType(ProductActiveQueryDTO productActiveQueryDTO){
+        try {
+            return productMapper.getActiveProductByType(productActiveQueryDTO);
+        }catch (Exception e) {
+            log.error("查詢異常：{}", productActiveQueryDTO, e);
+            throw new BadRequestArgsException(MessageEnum.BAD_REQUEST);
         }
     }
 

@@ -2,6 +2,7 @@ package com.qqriceball.controller;
 
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.common.result.Result;
+import com.qqriceball.model.dto.product.ProductActiveQueryDTO;
 import com.qqriceball.model.dto.product.ProductCreateDTO;
 import com.qqriceball.model.dto.product.ProductEditDTO;
 import com.qqriceball.model.dto.product.ProductPageQueryDTO;
@@ -17,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/products")
@@ -87,6 +90,19 @@ public class ProductController {
         log.info("3004 查詢產品品項,操作 id:{},id:{}",currentEmp.getId(),id);
         ProductVO productVO = productService.getById(id);
         return Result.success(productVO);
+    }
+
+    @Operation(summary = "3005 根據 ProductType 查詢上架狀態的產品")
+    @GetMapping("/active")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "查詢成功"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<List<ProductVO>> getActiveProductByType(@AuthenticationPrincipal EmpVO currentEmp,
+                                                          @Valid ProductActiveQueryDTO productActiveQueryDTO){
+        log.info("3005 根據 ProductType 查詢上架狀態的產品,操作 id:{},參數:{}",currentEmp.getId(),productActiveQueryDTO);
+        List<ProductVO> productVOList = productService.getActiveProductByType(productActiveQueryDTO);
+        return Result.success(productVOList);
     }
 
 }
