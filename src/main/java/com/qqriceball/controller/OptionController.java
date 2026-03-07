@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ public class OptionController {
 
     private final OptionService optionService;
 
+    @Autowired
     public OptionController(OptionService optionService) {
         this.optionService = optionService;
     }
@@ -40,7 +42,7 @@ public class OptionController {
             @ApiResponse(responseCode = "409", description = "產品細節選項名稱重複"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
-    private Result<OptionVO> createOption(@AuthenticationPrincipal EmpVO currentEmp,
+    public Result<OptionVO> createOption(@AuthenticationPrincipal EmpVO currentEmp,
                                           @Valid @RequestBody OptionCreateDTO optionCreateDTO){
 
         log.info("4001 新增產品細節選項,操作id:{},參數:{}", currentEmp.getId(), optionCreateDTO);
