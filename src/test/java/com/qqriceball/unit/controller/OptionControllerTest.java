@@ -119,7 +119,7 @@ public class OptionControllerTest {
     @DisplayName("[Unit] OptionController.createOption() - 建立產品細節選項 OptionType 超過範圍，應回傳 400")
     void testCreateOptionInvalidOptionType() throws Exception {
         OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.PURPLE_RICE);
-        optionCreateDTO.setOptionType(4);
+        optionCreateDTO.setOptionType(5);
 
         String jsonBody = objectMapper.writeValueAsString(optionCreateDTO);
         mockMvc.perform(
@@ -245,7 +245,7 @@ public class OptionControllerTest {
     @DisplayName("[Unit] OptionController.updateById() - 更新產品細節選項 OptionType 超過範圍，應回傳 400")
     void testUpdateByIdInvalidOptionType() throws Exception {
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.HOT_SPICY);
-        optionEditDTO.setOptionType(4);
+        optionEditDTO.setOptionType(5);
 
         String jsonBody = objectMapper.writeValueAsString(optionEditDTO);
         mockMvc.perform(
@@ -376,7 +376,7 @@ public class OptionControllerTest {
      @Test
      @DisplayName("[Unit] OptionController.getActiveOptionsByType() - 查詢參數超出範圍，應回傳 400")
      void testGetActiveOptionsByTypeBadRequest() throws Exception {
-         Integer optionType = 4;
+         Integer optionType = 5;
 
          mockMvc.perform(
                  get("/options/active")

@@ -19,7 +19,7 @@ public class ProductVO {
     @Schema(description = "名稱")
     private String title;
 
-    @Schema(description = "產品類型")
+    @Schema(description = "產品類型 (0: 葷食, 1: 素食, 2: 飲料)")
     private Integer productType;
 
     @Schema(description = "售價")
