@@ -25,7 +25,7 @@ public class EmpCreateDTO implements Serializable {
     //TODO 開發完成後記得刪除密碼規則限制註解
     @Schema(description = "密碼")
     @NotBlank(message = "請輸入密碼")
-    // @Size(min = 8, max = 50, message = "密碼長度為 8~50")
+//    @Size(min = 8, max = 50, message = "密碼長度為 8~50")
 //    @Pattern(
 //            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\\\d!@#$%^&*()_+]+$",
 //            message = "密碼需包含至少一個大寫字母、一個小寫字母與一個數字"

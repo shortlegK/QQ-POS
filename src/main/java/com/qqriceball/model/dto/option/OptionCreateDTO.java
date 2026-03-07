@@ -1,10 +1,7 @@
 package com.qqriceball.model.dto.option;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 
@@ -14,6 +11,7 @@ public class OptionCreateDTO {
 
     @Schema(description = "名稱")
     @NotBlank(message = "名稱為必填")
+    @Size(max = 20, message = "名稱最大長度為 20")
     private String title;
 
     @Schema(description = "選項類型 (0: 米飯種類, 1: 飯量, 2: 辣度, 3: 加料種類, 4:飲品溫度)")

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -13,6 +14,7 @@ import java.io.Serializable;
 public class EmpPageQueryDTO implements Serializable {
 
     @Schema(description = "員工姓名")
+    @Size(max = 20, message = "姓名最大長度為20")
     private String name;
 
     @Schema(description = "狀態 (0: 停用, 1: 啟用, null: 不指定狀態)")

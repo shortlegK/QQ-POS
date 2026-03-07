@@ -1,10 +1,7 @@
 package com.qqriceball.model.dto.product;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
@@ -13,6 +10,7 @@ public class ProductCreateDTO {
 
     @Schema(description = "名稱")
     @NotBlank(message = "名稱為必填")
+    @Size(max = 20, message = "名稱最大長度為 20")
     private String title;
 
     @Schema(description = "產品類型 (0: 葷食, 1: 素食, 2: 飲料)")

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
@@ -15,6 +16,7 @@ public class ProductEditDTO {
     private Integer id;
 
     @Schema(description = "名稱")
+    @Size(max = 20, message = "名稱最大長度為 20")
     private String title;
 
     @Schema(description = "產品類型 (0: 葷食, 1: 素食, 2: 飲料)")
