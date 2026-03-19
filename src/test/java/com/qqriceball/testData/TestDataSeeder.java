@@ -20,6 +20,7 @@ import com.qqriceball.mapper.EmpMapper;
 import com.qqriceball.mapper.ProductMapper;
 import com.qqriceball.model.entity.Emp;
 import com.qqriceball.model.entity.Product;
+import com.qqriceball.utils.order.OrderTestDataFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -32,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Profile("test")
@@ -102,11 +104,11 @@ public class TestDataSeeder implements ApplicationRunner {
         createOption(SeedOptionData.EGG);
         createOption(SeedOptionData.ADD_ON_INACTIVE);
 
-        createOrder(SeedOrderData.orderMaking,SeedProductData.MEAT_PRODUCT,SeedOptionData.WHITE_RICE);
-        createOrder(SeedOrderData.orderMakingNextWeek,SeedProductData.VEG_PRODUCT,SeedOptionData.NORMAL_SIZE);
-        createOrder(SeedOrderData.orderReady,SeedProductData.DRINK_PRODUCT,SeedOptionData.COLD);
-        createOrder(SeedOrderData.orderPickedUp,SeedProductData.MEAT_PRODUCT,SeedOptionData.LARGE_SIZE);
-        createOrder(SeedOrderData.orderCancel,SeedProductData.VEG_PRODUCT,SeedOptionData.MILD_SPICY);
+        createOrder(SeedOrderData.orderMaking,SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        createOrder(SeedOrderData.orderMakingNextWeek,SeedProductData.VEG_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        createOrder(SeedOrderData.orderReady,SeedProductData.DRINK_PRODUCT,OrderTestDataFactory.DRINK_OPTIONS);
+        createOrder(SeedOrderData.orderPickedUp,SeedProductData.MEAT_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        createOrder(SeedOrderData.orderCancel,SeedProductData.VEG_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
 
         log.info("完成 TestDataSeeder，測試資料已建立完成");
     }
@@ -143,7 +145,7 @@ public class TestDataSeeder implements ApplicationRunner {
 
     }
 
-    private void createOrder(TestOrder testOrder,TestProduct testProduct,TestOption testOption){
+    private void createOrder(TestOrder testOrder, TestProduct testProduct, List<TestOption> testOptions){
 
         Order order = new Order();
         BeanUtils.copyProperties(testOrder, order);
@@ -153,10 +155,10 @@ public class TestDataSeeder implements ApplicationRunner {
         order.setUpdateTime(LocalDateTime.now());
         orderMapper.insert(order);
 
-        this.buildOrderItem(order.getId(),testProduct,testOption);
+        this.buildOrderItem(order.getId(),testProduct,testOptions);
     }
 
-    private void buildOrderItem(Integer orderId,TestProduct testProduct,TestOption testOption){
+    private void buildOrderItem(Integer orderId,TestProduct testProduct,List<TestOption> testOptions){
 
         OrderItem orderItem = new OrderItem();
         orderItem.setOrderId(orderId);
@@ -167,18 +169,21 @@ public class TestDataSeeder implements ApplicationRunner {
         orderItem.setQuantity(1);
         orderItem.setLineTotal(10);
         orderItemMapper.insert(orderItem);
-        this.buildOrderItemOption(orderItem.getId(),testOption);
+        this.buildOrderItemOption(orderItem.getId(),testOptions);
     }
 
-    private void buildOrderItemOption(Integer orderItemId,TestOption testOption){
-        OrderItemOption orderItemOption = new OrderItemOption();
-        orderItemOption.setOrderItemId(orderItemId);
-        orderItemOption.setOptionId(testOption.id());
-        orderItemOption.setOptionType(testOption.optionType());
-        orderItemOption.setOptionTitle(testOption.title());
-        orderItemOption.setOptionPrice(testOption.price());
-        orderItemOption.setQuantity(2);
-        orderItemOptionMapper.insert(orderItemOption);
+    private void buildOrderItemOption(Integer orderItemId,List<TestOption> testOptions){
+
+        for(TestOption option: testOptions) {
+            OrderItemOption orderItemOption = new OrderItemOption();
+            orderItemOption.setOrderItemId(orderItemId);
+            orderItemOption.setOptionId(option.id());
+            orderItemOption.setOptionType(option.optionType());
+            orderItemOption.setOptionTitle(option.title());
+            orderItemOption.setOptionPrice(option.price());
+            orderItemOption.setQuantity(2);
+            orderItemOptionMapper.insert(orderItemOption);
+        }
     }
 
 }

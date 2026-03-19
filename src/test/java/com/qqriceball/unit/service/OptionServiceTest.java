@@ -129,7 +129,7 @@ public class OptionServiceTest {
 
 
     @Test
-    @DisplayName("[Unit] OptionService.pageQuery() - 分頁查詢成功，應回傳 200 及資料")
+    @DisplayName("[Unit] OptionService.pageQuery() - 分頁查詢成功，應呼叫 OptionMapper.pageQuery() 並回傳分頁結果")
     void testPageQueryOptionSuccess(){
 
         Integer page = 1;

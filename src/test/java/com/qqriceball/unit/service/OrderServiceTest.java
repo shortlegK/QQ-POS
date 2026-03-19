@@ -1,9 +1,11 @@
 package com.qqriceball.unit.service;
 
 
+import com.github.pagehelper.Page;
 import com.qqriceball.common.exception.BadRequestArgsException;
 import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.exception.ResourceUnavailableException;
+import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.OrderStatusEnum;
 import com.qqriceball.mapper.OptionMapper;
@@ -14,13 +16,16 @@ import com.qqriceball.mapper.order.OrderMapper;
 import com.qqriceball.model.dto.order.OrderCreateDTO;
 import com.qqriceball.model.dto.order.OrderItemDTO;
 import com.qqriceball.model.dto.order.OrderItemOptionDTO;
+import com.qqriceball.model.dto.order.OrderPageQueryDTO;
 import com.qqriceball.model.entity.order.Order;
 import com.qqriceball.model.entity.order.OrderItem;
 import com.qqriceball.model.entity.order.OrderItemOption;
 import com.qqriceball.model.vo.OptionVO;
 import com.qqriceball.model.vo.ProductVO;
+import com.qqriceball.model.vo.order.OrderDetailVO;
 import com.qqriceball.service.OrderService;
 import com.qqriceball.testData.option.SeedOptionData;
+import com.qqriceball.testData.order.SeedOrderData;
 import com.qqriceball.testData.product.SeedProductData;
 import com.qqriceball.utils.option.OptionTestDataFactory;
 import com.qqriceball.utils.order.OrderTestDataFactory;
@@ -33,6 +38,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -464,6 +470,31 @@ public class OrderServiceTest {
         verify(orderMapper, never()).insert(any(Order.class));
         verify(orderItemMapper, never()).insert(any(OrderItem.class));
         verify(orderItemOptionMapper, never()).insert(any(OrderItemOption.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OrderService.pageQuery() - 查詢訂單列表，應呼叫 Order 相關 Mapper 傳入參數")
+    void testPageQuerySuccess() {
+        Integer page = 1;
+        Integer pageSize = 2;
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = LocalDate.now().plusDays(2);
+
+        OrderPageQueryDTO orderPageQueryDTO = OrderTestDataFactory.getOrderPageQueryDTO(page, pageSize, null, null, startDate, endDate);
+
+        Page<OrderDetailVO> mockPage = new Page<>(page, pageSize);
+        mockPage.add(OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON));
+
+        when(orderMapper.pageQuery(any(OrderPageQueryDTO.class))).thenReturn(mockPage);
+
+        PageResult result = orderService.pageQuery(orderPageQueryDTO);
+
+        assertAll(
+                () -> assertEquals(page, result.getPage(), "page 應為傳入的 page"),
+                () -> assertEquals(pageSize, result.getPageSize(), "pageSize 應為傳入的 pageSize"),
+                () -> assertEquals(mockPage.getResult(), result.getRecords(), "list 應為 mock page 的 result")
+        );
     }
 
 }

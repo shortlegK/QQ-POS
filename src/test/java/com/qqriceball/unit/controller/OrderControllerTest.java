@@ -6,13 +6,16 @@ import com.qqriceball.common.exception.BadRequestArgsException;
 import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.exception.ResourceUnavailableException;
 import com.qqriceball.common.properties.JwtProperties;
+import com.qqriceball.common.result.PageResult;
 import com.qqriceball.controller.OrderController;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
 import com.qqriceball.model.dto.order.OrderCreateDTO;
 import com.qqriceball.model.dto.order.OrderItemDTO;
 import com.qqriceball.model.dto.order.OrderItemOptionDTO;
+import com.qqriceball.model.dto.order.OrderPageQueryDTO;
 import com.qqriceball.model.vo.EmpVO;
+import com.qqriceball.model.vo.order.OrderDetailVO;
 import com.qqriceball.model.vo.order.OrderSummaryVO;
 import com.qqriceball.service.EmpService;
 import com.qqriceball.service.OrderService;
@@ -35,6 +38,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -362,6 +366,85 @@ public class OrderControllerTest {
         verify(orderService).create(any(OrderCreateDTO.class));
     }
 
+    @Test
+    @DisplayName("[Unit] OrderController.pageQueryOrder() - 查詢訂單列表成功，應回傳 200 及資料")
+    void testPageQueryOrderSuccess() throws Exception {
 
+        Integer page = 1;
+        Integer pageSize = 2;
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = LocalDate.now().plusDays(2);
+
+        OrderPageQueryDTO orderPageQueryDTO = OrderTestDataFactory.getOrderPageQueryDTO(page, pageSize,
+                null, null, startDate, endDate);
+
+        List <OrderDetailVO> mockData = new ArrayList<>();
+        mockData.add(OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON));
+
+        Long total = 1L;
+        PageResult mockResult = new PageResult(total, orderPageQueryDTO.getPage(),
+                orderPageQueryDTO.getPageSize(), mockData);
+
+        when(orderService.pageQuery(any(OrderPageQueryDTO.class))).thenReturn(mockResult);
+
+       mockMvc.perform(
+                get("/orders/page")
+                        .param("page", orderPageQueryDTO.getPage().toString())
+                        .param("pageSize", orderPageQueryDTO.getPageSize().toString())
+                        .param("startDate", orderPageQueryDTO.getStartDate().toString())
+                        .param("endDate", orderPageQueryDTO.getEndDate().toString())
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data").exists());
+       verify(orderService).pageQuery(any(OrderPageQueryDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OrderController.pageQueryOrder() - 查詢訂單列表，狀態參數超出範圍應回傳 400")
+    void testPageQueryOrderInvalidStatus() throws Exception {
+
+        Integer page = 1;
+        Integer pageSize = 2;
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = LocalDate.now().plusDays(2);
+        Integer invalidStatus = 5;
+
+        OrderPageQueryDTO orderPageQueryDTO = OrderTestDataFactory.getOrderPageQueryDTO(page, pageSize,
+                null, invalidStatus, startDate, endDate);
+
+        mockMvc.perform(
+                        get("/orders/page")
+                                .param("page", orderPageQueryDTO.getPage().toString())
+                                .param("pageSize", orderPageQueryDTO.getPageSize().toString())
+                                .param("status", orderPageQueryDTO.getStatus().toString())
+                                .param("startDate", orderPageQueryDTO.getStartDate().toString())
+                                .param("endDate", orderPageQueryDTO.getEndDate().toString())
+                ).andExpect(status().isBadRequest());
+
+        verify(orderService, never()).pageQuery(any(OrderPageQueryDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OrderController.pageQueryOrder() - 查詢訂單列表，缺少必填日期參數應回傳 400")
+    void testPageQueryOrderMissingDate() throws Exception {
+
+        Integer page = 1;
+        Integer pageSize = 2;
+        LocalDate startDate = LocalDate.now();
+
+
+        OrderPageQueryDTO orderPageQueryDTO = OrderTestDataFactory.getOrderPageQueryDTO(page, pageSize,
+                null, null, startDate, null);
+
+        mockMvc.perform(
+                        get("/orders/page")
+                                .param("page", orderPageQueryDTO.getPage().toString())
+                                .param("pageSize", orderPageQueryDTO.getPageSize().toString())
+                                .param("startDate", orderPageQueryDTO.getStartDate().toString())
+                ).andExpect(status().isBadRequest());
+
+        verify(orderService, never()).pageQuery(any(OrderPageQueryDTO.class));
+    }
 
 }

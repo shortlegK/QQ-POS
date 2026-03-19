@@ -20,7 +20,7 @@ public enum MessageEnum {
     // 通用錯誤
     UNKNOWN_ERROR(2001, "未知的錯誤"),
     ALREADY_EXISTS(2002, "資源已存在"),
-    BAD_REQUEST(2003, "請求參數格式不正確"),
+    BAD_REQUEST(2003, "資料查詢異常"),
 
     // 產品相關
     PRODUCT_NOT_EXIST(3001, "產品 ID 不存在"),

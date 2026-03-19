@@ -13,11 +13,17 @@ import java.util.List;
 @Schema(description = "訂單商品明細資料")
 public class OrderItemVO {
 
-    @Schema(description = "商品 id")
+    @Schema(description = "訂單商品 id")
+    private Integer id;
+
+    @Schema(description = "產品資料 id")
     private Integer productId;
     
     @Schema(description = "商品名稱")
     private String productTitle;
+
+    @Schema(description = "商品類型 (0 - 葷飯糰,1 - 素飯糰 ,2 - 飲品 )")
+    private Integer productType;
 
     @Schema(description = "商品價格")
     private Integer productPrice;

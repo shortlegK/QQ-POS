@@ -14,6 +14,9 @@ import java.util.List;
 @Schema(description = "訂單詳細資料")
 public class OrderDetailVO {
 
+    @Schema(description = "訂單 id")
+    private Integer id;
+
     @Schema(description = "訂單編號")
     private String orderNo;
 
@@ -26,11 +29,17 @@ public class OrderDetailVO {
     @Schema(description = "訂單狀態(0: 製作中, 1: 待領取, 2: 已領取, 3: 已取消)")
     private Integer status;
 
-    @Schema(description = "訂單成立時間")
+    @Schema(description = "建立人員名稱")
+    private String createName;
+
+    @Schema(description = "建立時間")
     private LocalDateTime createTime;
 
-    @Schema(description = "最後更新人員名稱")
+    @Schema(description = "更新人員名稱")
     private String updateName;
+
+    @Schema(description = "更新時間")
+    private LocalDateTime updateTime;
 
     @Schema(description = "訂單商品明細")
     private List<OrderItemVO> items;

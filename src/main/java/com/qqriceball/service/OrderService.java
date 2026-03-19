@@ -1,8 +1,11 @@
 package com.qqriceball.service;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.qqriceball.common.exception.BadRequestArgsException;
 import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.exception.ResourceUnavailableException;
+import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.*;
 import com.qqriceball.mapper.*;
 import com.qqriceball.mapper.order.OrderItemMapper;
@@ -11,11 +14,15 @@ import com.qqriceball.mapper.order.OrderMapper;
 import com.qqriceball.model.dto.order.OrderCreateDTO;
 import com.qqriceball.model.dto.order.OrderItemDTO;
 import com.qqriceball.model.dto.order.OrderItemOptionDTO;
+import com.qqriceball.model.dto.order.OrderPageQueryDTO;
 import com.qqriceball.model.entity.order.Order;
 import com.qqriceball.model.entity.order.OrderItem;
 import com.qqriceball.model.entity.order.OrderItemOption;
 import com.qqriceball.model.vo.OptionVO;
 import com.qqriceball.model.vo.ProductVO;
+import com.qqriceball.model.vo.order.OrderDetailVO;
+import com.qqriceball.model.vo.order.OrderItemOptionVO;
+import com.qqriceball.model.vo.order.OrderItemVO;
 import com.qqriceball.model.vo.order.OrderSummaryVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -97,6 +104,32 @@ public class OrderService {
 
         // 5. 回傳結果摘要
         return buildOrderSummaryVO(order);
+    }
+
+    public PageResult pageQuery(OrderPageQueryDTO orderPageQueryDTO){
+        try{
+            PageHelper.startPage(orderPageQueryDTO.getPage(),
+                    orderPageQueryDTO.getPageSize());
+
+            List<OrderDetailVO> orderList = orderMapper.pageQuery(orderPageQueryDTO);
+
+            for(OrderDetailVO order: orderList){
+                List<OrderItemVO> items = orderItemMapper.getItemsByOrderId(order.getId());
+                for(OrderItemVO item: items){
+                    List<OrderItemOptionVO> options = orderItemOptionMapper.getOptionsByItemId(item.getId());
+                    item.setOptions(options);
+                }
+                order.setItems(items);
+            }
+
+            Page<OrderDetailVO> page = (Page<OrderDetailVO>) orderList;
+            return new PageResult(page.getTotal(), orderPageQueryDTO.getPage(),
+                    orderPageQueryDTO.getPageSize(), page.getResult());
+
+        }catch (Exception e) {
+            log.error("查詢訂單異常：{}", orderPageQueryDTO, e);
+            throw new BadRequestArgsException(MessageEnum.BAD_REQUEST);
+        }
     }
 
     private PreparedOrder prepareOrderDraft(List<OrderItemDTO> itemDTOList) {
@@ -257,7 +290,6 @@ public class OrderService {
         order.setStatus(OrderStatusEnum.MAKING.getCode());
         return order;
     }
-
 
     private void insertOrderDetails(Integer orderId, List<PreparedOrderItem> preparedOrderItemList) {
         for (PreparedOrderItem preparedOrderItem : preparedOrderItemList) {

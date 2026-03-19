@@ -8,6 +8,7 @@ import com.qqriceball.enumeration.OrderStatusEnum;
 import com.qqriceball.model.dto.order.OrderCreateDTO;
 import com.qqriceball.model.dto.order.OrderItemDTO;
 import com.qqriceball.model.dto.order.OrderItemOptionDTO;
+import com.qqriceball.testData.order.SeedOrderData;
 import com.qqriceball.testData.product.SeedProductData;
 import com.qqriceball.utils.order.OrderTestDataFactory;
 import org.junit.jupiter.api.DisplayName;
@@ -15,10 +16,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -219,6 +222,79 @@ public class OrderControllerIT extends BaseIntegrationTest {
                 ).andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value(MessageEnum.OPTION_UNAVAILABLE.getCode()));
 
+    }
+
+    @Test
+    @DisplayName("[IT] 5002 pageQueryOrder - 分頁查詢指定日期訂單成功，回傳 200 及資料")
+    void testPageQueryOrderByDateSuccess() throws Exception {
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = LocalDate.now();
+        String orderNoPrefix = startDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        mockMvc.perform(
+                        get("/orders/page")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .param("startDate", startDate.toString())
+                                .param("endDate", endDate.toString())
+                                .param("page", "1")
+                                .param("pageSize", "10")
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.records").isArray())
+                .andExpect(jsonPath("$.data.records").isNotEmpty())
+                .andExpect(jsonPath("$.data.records[*].orderNo").value(everyItem(startsWith(orderNoPrefix))))
+                .andExpect(jsonPath("$.data.records[*].items").isArray())
+                .andExpect(jsonPath("$.data.records[*].items").isNotEmpty())
+                .andExpect(jsonPath("$.data.records[*].items[*].options").isArray())
+                .andExpect(jsonPath("$.data.records[*].items[*].options").isNotEmpty());
+    }
+
+    @Test
+    @DisplayName("[IT] 5002 pageQueryOrder - 分頁查詢指定狀態訂單成功，回傳 200 及資料")
+    void testPageQueryOrderByStatusSuccess() throws Exception {
+
+        mockMvc.perform(
+                        get("/orders/page")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .param("status", OrderStatusEnum.MAKING.getCode()+"")
+                                .param("startDate", LocalDate.now().toString())
+                                .param("endDate", LocalDate.now().toString())
+                                .param("page", "1")
+                                .param("pageSize", "10")
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.records").isArray())
+                .andExpect(jsonPath("$.data.records").isNotEmpty())
+                .andExpect(jsonPath("$.data.records[*].status").value(everyItem(equalTo(OrderStatusEnum.MAKING.getCode()))))
+                .andExpect(jsonPath("$.data.records[*].items").isArray())
+                .andExpect(jsonPath("$.data.records[*].items").isNotEmpty())
+                .andExpect(jsonPath("$.data.records[*].items[*].options").isArray())
+                .andExpect(jsonPath("$.data.records[*].items[*].options").isNotEmpty());
+    }
+
+    @Test
+    @DisplayName("[IT] 5002 pageQueryOrder - 分頁查詢指定訂單編號成功，應回傳 200 及資料")
+    void testPageQueryOrderByOrderNoSuccess() throws Exception {
+        String orderNo = SeedOrderData.orderMaking.orderNo();
+
+        mockMvc.perform(
+                        get("/orders/page")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .param("orderNo", orderNo)
+                                .param("startDate", LocalDate.now().toString())
+                                .param("endDate", LocalDate.now().toString())
+                                .param("page", "1")
+                                .param("pageSize", "10")
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.records").isArray())
+                .andExpect(jsonPath("$.data.records.size()").value(1))
+                .andExpect(jsonPath("$.data.records[0].orderNo").value(orderNo))
+                .andExpect(jsonPath("$.data.records[0].status").value(OrderStatusEnum.MAKING.getCode()))
+                .andExpect(jsonPath("$.data.records[0].items").isArray())
+                .andExpect(jsonPath("$.data.records[0].items").isNotEmpty())
+                .andExpect(jsonPath("$.data.records[0].items[*].options").isArray())
+                .andExpect(jsonPath("$.data.records[0].items[*].options").isNotEmpty());
     }
 
 }

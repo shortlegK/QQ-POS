@@ -2,10 +2,17 @@ package com.qqriceball.utils.order;
 
 import com.qqriceball.model.dto.order.OrderItemDTO;
 import com.qqriceball.model.dto.order.OrderItemOptionDTO;
+import com.qqriceball.model.dto.order.OrderPageQueryDTO;
+import com.qqriceball.model.vo.order.OrderDetailVO;
+import com.qqriceball.model.vo.order.OrderItemOptionVO;
+import com.qqriceball.model.vo.order.OrderItemVO;
 import com.qqriceball.testData.option.SeedOptionData;
 import com.qqriceball.testData.option.TestOption;
+import com.qqriceball.testData.order.TestOrder;
 import com.qqriceball.testData.product.TestProduct;
+import org.springframework.beans.BeanUtils;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,5 +80,50 @@ public class OrderTestDataFactory {
 
         return (product.price()+ optionsTotal) * productQuantity ;
     }
+
+    public static OrderPageQueryDTO getOrderPageQueryDTO(Integer page, Integer pageSize, String orderNo, Integer status, LocalDate startDate, LocalDate endDate) {
+        OrderPageQueryDTO orderPageQueryDTO = new OrderPageQueryDTO();
+        orderPageQueryDTO.setPage(page);
+        orderPageQueryDTO.setPageSize(pageSize);
+        orderPageQueryDTO.setStartDate(startDate);
+        orderPageQueryDTO.setEndDate(endDate);
+
+        if(orderNo != null) {
+            orderPageQueryDTO.setOrderNo(orderNo);
+        }
+        if(status != null) {
+            orderPageQueryDTO.setStatus(status);
+        }
+        return orderPageQueryDTO;
+    }
+
+    public static OrderDetailVO getOrderDetailVO(TestOrder testOrder, TestProduct testProduct, List<TestOption> testOptions) {
+        OrderDetailVO orderDetailVO = new OrderDetailVO();
+        BeanUtils.copyProperties(testOrder, orderDetailVO);
+
+        OrderItemVO itemVO = new OrderItemVO();
+        itemVO.setId(1);
+        itemVO.setProductId(testProduct.id());
+        itemVO.setProductTitle(testProduct.title());
+        itemVO.setProductType(testProduct.productType());
+        itemVO.setProductPrice(testProduct.price());
+        itemVO.setQuantity(1);
+        itemVO.setLineTotal(10);
+
+        List<OrderItemOptionVO> optionVOList = new ArrayList<>();
+        for (TestOption option : testOptions) {
+            OrderItemOptionVO optionVO = new OrderItemOptionVO();
+            optionVO.setId(option.id());
+            optionVO.setOptionId(option.id());
+            optionVO.setOptionTitle(option.title());
+            optionVO.setOptionPrice(option.price());
+            optionVO.setQuantity(1);
+            optionVOList.add(optionVO);
+        }
+        itemVO.setOptions(optionVOList);
+
+        return orderDetailVO;
+    }
+
 
 }

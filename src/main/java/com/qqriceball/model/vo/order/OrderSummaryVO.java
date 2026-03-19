@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 @Schema(description = "訂單摘要資料")
 public class OrderSummaryVO {
 
+    @Schema(description = "訂單 id")
+    private Integer id;
+
     @Schema(description = "訂單編號")
     private String orderNo;
 

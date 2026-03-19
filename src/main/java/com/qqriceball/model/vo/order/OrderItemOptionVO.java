@@ -13,7 +13,10 @@ import java.util.List;
 @Schema(description = "訂單商品細節選項資料")
 public class OrderItemOptionVO {
 
-    @Schema(description = "選項 id")
+    @Schema(description = "訂單選項 id")
+    private Integer id;
+
+    @Schema(description = "選項資料 id")
     private Integer optionId;
 
     @Schema(description = "選項名稱")

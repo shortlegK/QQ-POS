@@ -1,8 +1,10 @@
 package com.qqriceball.controller;
 
 
+import com.qqriceball.common.result.PageResult;
 import com.qqriceball.common.result.Result;
 import com.qqriceball.model.dto.order.OrderCreateDTO;
+import com.qqriceball.model.dto.order.OrderPageQueryDTO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.order.OrderSummaryVO;
 import com.qqriceball.service.OrderService;
@@ -14,10 +16,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/orders")
@@ -45,6 +44,17 @@ public class OrderController {
         return Result.success(orderSummaryVO);
     }
 
-
+    @Operation(summary = "5002 訂單分頁查詢")
+    @GetMapping("/page")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "查詢成功"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<PageResult> pageQueryOrder(@AuthenticationPrincipal EmpVO currentEmp,
+                                             @Valid OrderPageQueryDTO orderPageQueryDTO){
+        log.info("5002 訂單分頁查詢,操作 id:{},參數:{}",currentEmp.getId());
+        PageResult pageResult = orderService.pageQuery(orderPageQueryDTO);
+        return Result.success(pageResult);
+    }
 
 }

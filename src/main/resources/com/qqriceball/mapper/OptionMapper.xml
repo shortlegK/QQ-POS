@@ -19,7 +19,7 @@
             <if test="title != null and title !=''">
                 AND title like concat('%',#{title},'%')
             </if>
-            <if test="status != null and status !=''">
+            <if test="status != null">
                 AND status = #{status}
             </if>
         </where>
