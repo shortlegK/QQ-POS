@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 public class AutoFillAspect {
 
 
-    @Pointcut("execution(* com.qqriceball.mapper.*.*(..)) && @annotation(com.qqriceball.annotation.AutoFill)")
+    @Pointcut("execution(* com.qqriceball.mapper..*.*(..)) && @annotation(com.qqriceball.annotation.AutoFill)")
     public void autoFillPointCut(){}
 
     @Before("autoFillPointCut()")

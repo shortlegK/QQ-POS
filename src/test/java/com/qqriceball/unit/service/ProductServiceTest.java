@@ -1,7 +1,7 @@
 package com.qqriceball.unit.service;
 
 import com.github.pagehelper.Page;
-import com.qqriceball.common.exception.NotExistException;
+import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
@@ -134,14 +134,14 @@ public class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] ProductService.updateById() - 產品品項 id 不存在，應拋出 NotExistException")
+    @DisplayName("[Unit] ProductService.updateById() - 產品品項 id 不存在，應拋出 ResourceNotFoundException")
     void testUpdateByIdProductNotExist() {
 
         ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.DRINK_PRODUCT);
 
         when(productMapper.getById(any(Integer.class))).thenReturn(null);
 
-        assertThrows(NotExistException.class,
+        assertThrows(ResourceNotFoundException.class,
                 () -> productService.updateById(productEditDTO));
 
         verify(productMapper).getById(productEditDTO.getId());
@@ -166,13 +166,13 @@ public class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] ProductService.getById() - 產品品項 id 不存在，應拋出 NotExistException")
+    @DisplayName("[Unit] ProductService.getById() - 產品品項 id 不存在，應拋出 ResourceNotFoundException")
     void  testGetByIdProductNotExist() {
         Integer id = Integer.MAX_VALUE;
 
         when(productMapper.getById(id)).thenReturn(null);
 
-        assertThrows(NotExistException.class,
+        assertThrows(ResourceNotFoundException.class,
                 () -> productService.getById(id));
 
         verify(productMapper).getById(id);

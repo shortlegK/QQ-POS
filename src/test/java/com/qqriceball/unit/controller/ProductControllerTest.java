@@ -2,7 +2,7 @@ package com.qqriceball.unit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qqriceball.common.exception.AlreadyExistsException;
-import com.qqriceball.common.exception.NotExistException;
+import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.controller.ProductController;
@@ -213,7 +213,7 @@ public class ProductControllerTest {
         ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.MEAT_PRODUCT);
 
 
-        doThrow(new NotExistException(MessageEnum.PRODUCT_NOT_EXIST))
+        doThrow(new ResourceNotFoundException(MessageEnum.PRODUCT_NOT_EXIST))
                 .when(productService).updateById(any(ProductEditDTO.class));
 
         String jsonBody = objectMapper.writeValueAsString(productEditDTO);
@@ -276,7 +276,7 @@ public class ProductControllerTest {
 
         Integer id = Integer.MAX_VALUE;
 
-        doThrow(new NotExistException(MessageEnum.PRODUCT_NOT_EXIST))
+        doThrow(new ResourceNotFoundException(MessageEnum.PRODUCT_NOT_EXIST))
                 .when(productService).getById(any(Integer.class));
 
         mockMvc.perform(

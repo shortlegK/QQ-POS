@@ -19,14 +19,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PasswordErrorException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED) // 回傳 HTTP 401 Unauthorized
     public Result<Object> handlePasswordError(PasswordErrorException ex) {
-        log.error("操作異常: {}", ex.getMessage());
+        log.error("密碼錯誤: {}", ex.getMessage());
         return Result.error(ex.getMessageEnum());
     }
 
     @ExceptionHandler(AccountInactiveException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN) // 回傳 HTTP 403 Forbidden
     public Result<Object> handleAccountLocked(AccountInactiveException ex) {
-        log.error("操作異常: {}", ex.getMessage());
+        log.error("帳號已停用: {}", ex.getMessage());
         return Result.error(ex.getMessageEnum());
     }
 
@@ -34,27 +34,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT) // 回傳 HTTP 409 Conflict
     public Result<Object> handleAlreadyExists(AlreadyExistsException ex) {
-        log.error("操作異常: {}", ex.getMessageEnum().getMessage());
-        return Result.error(ex.getMessageEnum());
-    }
-
-    @ExceptionHandler(OptionNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND) // 回傳 HTTP 404 Not Found
-    public Result<Object> handleOptionNotFound(OptionNotFoundException ex) {
-        log.error("操作異常: {}", ex.getMessageEnum().getMessage());
+        log.error("資源已存在: {}", ex.getMessage());
         return Result.error(ex.getMessageEnum());
     }
 
     @ExceptionHandler(TypeNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND) // 回傳 HTTP 404 Not Found
     public Result<Object> handleOptionNotFound(TypeNotFoundException ex) {
-        log.error("操作異常: {}", ex.getMessageEnum().getMessage());
+        log.error("查無此類型: {}", ex.getMessage());
         return Result.error(ex.getMessageEnum());
     }
 
-    @ExceptionHandler(NotExistException.class)
+    @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND) // 回傳 HTTP 404 NOT_FOUND
-    public Result<Object> handleAccountNotFound(NotExistException ex) {
+    public Result<Object> handleAccountNotFound(ResourceNotFoundException ex) {
         log.error("操作異常: {}", ex.getMessage());
         return Result.error(ex.getMessageEnum());
     }
@@ -87,4 +80,12 @@ public class GlobalExceptionHandler {
         log.error("系統未知異常! {}", ex.getMessage());
         return Result.error(MessageEnum.UNKNOWN_ERROR);
     }
+
+    @ExceptionHandler(ResourceUnavailableException.class)
+    @ResponseStatus(HttpStatus.CONFLICT) //回傳 HTTP 409 Conflict
+    public Result<Object> handleResourceUnavailable(ResourceUnavailableException ex){
+        log.error("資源無法使用! {}", ex.getMessage());
+        return Result.error(ex.getMessageEnum());
+    }
+
 }

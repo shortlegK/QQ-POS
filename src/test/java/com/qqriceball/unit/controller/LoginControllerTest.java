@@ -2,7 +2,7 @@ package com.qqriceball.unit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qqriceball.common.exception.AccountInactiveException;
-import com.qqriceball.common.exception.NotExistException;
+import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.exception.PasswordErrorException;
 import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.enumeration.MessageEnum;
@@ -89,7 +89,7 @@ class LoginControllerTest {
         EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
 
         when(empService.login(any(EmpLoginDTO.class)))
-                .thenThrow(new NotExistException(MessageEnum.ACCOUNT_NOT_EXISTS));
+                .thenThrow(new ResourceNotFoundException(MessageEnum.ACCOUNT_NOT_EXISTS));
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
         ResultActions resultActions = mockMvc.perform(

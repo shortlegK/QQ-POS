@@ -4,7 +4,7 @@ package com.qqriceball.unit.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.exception.BadRequestArgsException;
-import com.qqriceball.common.exception.NotExistException;
+import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.controller.OptionController;
@@ -285,7 +285,7 @@ public class OptionControllerTest {
     void testUpdateByIdNotExist() throws Exception {
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.MILD_SPICY);
 
-        doThrow(new NotExistException(MessageEnum.OPTION_NOT_EXIST))
+        doThrow(new ResourceNotFoundException(MessageEnum.OPTION_NOT_EXIST))
                 .when(optionService).updateById(any(OptionEditDTO.class));
 
         String jsonBody = objectMapper.writeValueAsString(optionEditDTO);
@@ -324,7 +324,7 @@ public class OptionControllerTest {
     void testGetByIdNotExist() throws Exception {
         Integer id = Integer.MAX_VALUE;
 
-        doThrow(new NotExistException(MessageEnum.OPTION_NOT_EXIST))
+        doThrow(new ResourceNotFoundException(MessageEnum.OPTION_NOT_EXIST))
                 .when(optionService).getById(id);
 
         mockMvc.perform(

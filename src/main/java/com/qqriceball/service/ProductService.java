@@ -2,7 +2,7 @@ package com.qqriceball.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.qqriceball.common.exception.NotExistException;
+import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.exception.BadRequestArgsException;
 import com.qqriceball.common.result.PageResult;
@@ -95,7 +95,7 @@ public class ProductService {
 
         if (productVO == null) {
             log.error("查無資料,ID: {}", id);
-            throw new NotExistException(MessageEnum.PRODUCT_NOT_EXIST);
+            throw new ResourceNotFoundException(MessageEnum.PRODUCT_NOT_EXIST);
         }else {
             return productVO;
         }

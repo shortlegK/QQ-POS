@@ -5,7 +5,7 @@ create table if not exists emps
     username    varchar(20)                                not null comment '帳號',
     password    varchar(100)                               not null comment '密碼雜湊',
     name        varchar(20)                                not null comment '姓名',
-    role        tinyint unsigned default '1'               not null comment '角色權限',
+    role        tinyint unsigned default '1'               not null comment '職位(0:管理 / 1:一般)',
     status      tinyint unsigned default '1'               not null comment '啟用狀態(1=啟用,0=停用)',
     entry_date  date                                       not null comment '入職日期',
     create_id   int unsigned                               not null,
@@ -17,44 +17,50 @@ create table if not exists emps
 )
     comment '員工表';
 
-create table if not exists order_detail
+create table if not exists order_items
 (
-    id                int unsigned auto_increment comment 'ID'
+    id            int unsigned auto_increment comment '訂單商品 id'
         primary key,
-    order_id          varchar(20)  not null comment '訂單編號',
-    product_type      int unsigned not null comment '產品類型  (0=葷飯糰, 1=素飯糰, 2=飲品)',
-    product_id        int unsigned not null comment '產品 ID',
-    product_price     int unsigned not null comment '單一商品售價快照(未含額外選項)',
-    quantity          int unsigned not null comment '訂購數量',
-    line_total_amount int unsigned not null comment '項目總金額(包含 order_detail_option)'
+    order_id      int unsigned not null comment '訂單 ID',
+    product_type  int unsigned not null comment '0 - 葷食, 1 -  素食, 2 - 飲料',
+    product_title varchar(20)  null comment '產品名稱',
+    product_id    int unsigned not null comment '產品 ID',
+    product_price int unsigned not null comment '單一商品售價快照（未含額外選項）',
+    quantity      int unsigned not null comment '訂購數量',
+    line_total    int unsigned not null comment '項目總金額(含 order_item_option)'
 )
-    comment '訂單明細表';
+    comment '訂單商品明細表';
 
-create table if not exists order_detail_option
+create table if not exists order_item_options
 (
-    order_detail_id int unsigned             not null comment '訂單明細 ID',
-    option_id       int unsigned             not null comment '額外選項 ID',
-    option_price    int unsigned default '0' not null comment '單一選項售價快照',
-    quantity        int unsigned default '1' not null comment '訂購數量',
-    primary key (option_id,
-                 order_detail_id)
+    id            int unsigned auto_increment comment '訂單商品明細 id'
+        primary key,
+    order_item_id int unsigned     not null comment '訂單商品 id',
+    option_id     tinyint unsigned not null comment '細節選項 id',
+    option_type   tinyint unsigned not null comment '選項類型',
+    option_title  varchar(20)      not null comment '明細選項名稱',
+    option_price  int unsigned     not null comment '明細選項售價',
+    quantity      int unsigned     not null comment '數量',
+    constraint order_item_option_pk_2
+        unique (option_id,
+                order_item_id)
 )
-    comment '額外選項明細表';
+    comment '訂單商品設定明細表';
 
 create table if not exists orders
 (
-    id             int unsigned auto_increment comment 'id'
+    id          int unsigned auto_increment comment 'ID'
         primary key,
-    order_id       varchar(20)                                not null comment '訂單編號',
-    operate_emp_id int unsigned                               not null comment '操作人員 ID',
-    amount         int unsigned                               not null comment '訂單金額',
-    status         tinyint unsigned default '0'               not null comment '訂單狀態(0=未完成, 1=已完成, 2=已取消)',
-    create_id      int unsigned                               not null,
-    create_time    datetime         default CURRENT_TIMESTAMP not null comment '建立時間',
-    update_id      int unsigned                               not null,
-    update_time    datetime         default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新時間',
+    order_no    varchar(20)                                not null comment '訂單編號(yyyyMMdd+流水號)',
+    pickup_time datetime                                   not null comment '預計取餐時間',
+    total       int unsigned                               not null comment '訂單總金額',
+    status      tinyint unsigned default '0'               not null comment '訂單狀態(0: 製作中, 1: 待領取, 2: 已領取, 3: 已取消)',
+    create_id   int unsigned                               not null,
+    create_time datetime         default CURRENT_TIMESTAMP not null comment '建立時間',
+    update_id   int unsigned                               not null,
+    update_time datetime         default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新時間',
     constraint orders_pk_2
-        unique (order_id)
+        unique (order_no)
 )
     comment '訂單表';
 
@@ -91,27 +97,3 @@ create table if not exists options
         unique (title)
 )
     comment '產品細節選項表';
-
-create table if not exists product_type_option_type_mapping
-(
-    product_type_id int unsigned                 not null comment '產品類型 id',
-    option_type_id  int unsigned                 not null comment '選項類型 id',
-    is_required     tinyint unsigned default '1' not null comment '1=必填, 0=選填',
-    primary key (product_type_id,
-                 option_type_id)
-)
-    comment '產品、設定類型中間表';
-
-INSERT INTO product_type_option_type_mapping (product_type_id, option_type_id, is_required) VALUES
-                                                                                          (0, 0, 1),  -- 葷食-米飯種類(必填)
-                                                                                          (0, 1, 1),  -- 葷食-飯量(必填)
-                                                                                          (0, 2, 0), -- 葷食-辣度(選填)
-                                                                                          (0, 3, 0), -- 葷食-加料(選填)
-
-                                                                                          (1, 0, 1),  -- 素食-米飯種類(必填)
-                                                                                          (1, 1, 1),  -- 素食-飯量(必填)
-                                                                                          (1, 2, 0), -- 素食-辣度(選填)
-                                                                                          (1, 3, 0), -- 素食-加料(選填)
-
-                                                                                          (2, 4, 1);  -- 飲料-溫度(必填)
-

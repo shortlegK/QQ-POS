@@ -2,7 +2,7 @@ package com.qqriceball.unit.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.qqriceball.common.exception.NotExistException;
+import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.PageResult;
@@ -123,7 +123,7 @@ public class EmpControllerTest {
         Integer id = 666;
         EmpStatusDTO empStatusDTO = EmpTestDataFactory.getEmpStatusDTO(StatusEnum.ACTIVE);
 
-        doThrow(new NotExistException(MessageEnum.ACCOUNT_NOT_EXISTS))
+        doThrow(new ResourceNotFoundException(MessageEnum.ACCOUNT_NOT_EXISTS))
                 .when(empService)
                 .updateStatus(any(EmpStatusDTO.class), anyInt()
                 );
@@ -165,7 +165,7 @@ public class EmpControllerTest {
     void testGetEmpByIdNoExist() throws Exception {
         Integer id = 666;
 
-        doThrow(new NotExistException(MessageEnum.ACCOUNT_NOT_EXISTS))
+        doThrow(new ResourceNotFoundException(MessageEnum.ACCOUNT_NOT_EXISTS))
                 .when(empService)
                 .getById(anyInt());
 
@@ -208,7 +208,7 @@ public class EmpControllerTest {
         EmpEditDTO empEditDTO = EmpTestDataFactory.getEmpEditDTO(SeedUserData.TESTER);
         empEditDTO.setId(Integer.MAX_VALUE);
 
-        doThrow(new NotExistException(MessageEnum.ACCOUNT_NOT_EXISTS))
+        doThrow(new ResourceNotFoundException(MessageEnum.ACCOUNT_NOT_EXISTS))
                 .when(empService)
                 .updateById(any(EmpEditDTO.class)
                 );

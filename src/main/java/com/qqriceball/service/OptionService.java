@@ -5,7 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.exception.BadRequestArgsException;
-import com.qqriceball.common.exception.NotExistException;
+import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.DefaultEnum;
 import com.qqriceball.enumeration.MessageEnum;
@@ -119,7 +119,7 @@ public class OptionService {
 
         if (optionVO == null) {
             log.error("查無資料,ID: {}", id);
-            throw new NotExistException(MessageEnum.OPTION_NOT_EXIST);
+            throw new ResourceNotFoundException(MessageEnum.OPTION_NOT_EXIST);
         }else {
             return optionVO;
         }

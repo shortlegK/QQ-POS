@@ -2,7 +2,7 @@ package com.qqriceball.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qqriceball.common.exception.AccountInactiveException;
-import com.qqriceball.common.exception.NotExistException;
+import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.Result;
 import com.qqriceball.common.utils.JwtUtil;
@@ -80,7 +80,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             // 塞進 SecurityContext，Controller 就可以取得「目前使用者」
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-        }catch (NotExistException e) {
+        }catch (ResourceNotFoundException e) {
             log.warn("JWT 驗證失敗：帳號不存在");
             writeError(response, HttpStatus.UNAUTHORIZED, MessageEnum.ACCOUNT_NOT_EXISTS);
             return;

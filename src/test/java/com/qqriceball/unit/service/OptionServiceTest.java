@@ -4,7 +4,7 @@ package com.qqriceball.unit.service;
 import com.github.pagehelper.Page;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.exception.BadRequestArgsException;
-import com.qqriceball.common.exception.NotExistException;
+import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.DefaultEnum;
 import com.qqriceball.enumeration.MessageEnum;
@@ -237,14 +237,14 @@ public class OptionServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionService.updateById() - 產品細節選項 id 不存在，應拋出 NotExistException")
+    @DisplayName("[Unit] OptionService.updateById() - 產品細節選項 id 不存在，應拋出 ResourceNotFoundException")
     void testUpdateByIdOptionNotExist() {
 
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.WHITE_RICE);
 
         when(optionMapper.getById(any(Integer.class))).thenReturn(null);
 
-        assertThrows(NotExistException.class,
+        assertThrows(ResourceNotFoundException.class,
                 () -> optionService.updateById(optionEditDTO));
 
         verify(optionMapper).getById(optionEditDTO.getId());
@@ -306,13 +306,13 @@ public class OptionServiceTest {
 
 
     @Test
-    @DisplayName("[Unit] OptionService.getById() - 產品細節選項 id 不存在，應拋出 NotExistException")
+    @DisplayName("[Unit] OptionService.getById() - 產品細節選項 id 不存在，應拋出 ResourceNotFoundException")
     void  testGetByIdOptionNotExist() {
         Integer id = Integer.MAX_VALUE;
 
         when(optionMapper.getById(id)).thenReturn(null);
 
-        assertThrows(NotExistException.class,
+        assertThrows(ResourceNotFoundException.class,
                 () -> optionService.getById(id));
 
         verify(optionMapper).getById(id);

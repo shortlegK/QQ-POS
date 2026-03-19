@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qqriceball.mapper.order.OrderItemMapper">
+
+    <!--新增訂單項目-->
+    <insert id="insert" parameterType="com.qqriceball.model.entity.order.OrderItem" useGeneratedKeys="true" keyProperty="id">
+        insert into order_items(order_id, product_id, product_type, product_title, product_price, quantity, line_total)
+        values (#{orderId},#{productId},#{productType},#{productTitle},#{productPrice}, #{quantity}, #{lineTotal})
+    </insert>
+
+</mapper>

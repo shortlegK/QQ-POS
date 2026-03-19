@@ -40,7 +40,7 @@ public class EmpService {
         Emp emp = empMapper.getByUsername(username);
 
         if (emp == null) {
-            throw new NotExistException(MessageEnum.ACCOUNT_NOT_EXISTS);
+            throw new ResourceNotFoundException(MessageEnum.ACCOUNT_NOT_EXISTS);
         }
 
         if (!passwordEncoder.matches(password, emp.getPassword())) {
@@ -111,7 +111,7 @@ public class EmpService {
 
         if (empVO == null){
             log.error("查無資料,ID: {}", id);
-            throw new NotExistException(MessageEnum.ACCOUNT_NOT_EXISTS);
+            throw new ResourceNotFoundException(MessageEnum.ACCOUNT_NOT_EXISTS);
         }else{
             return  empVO;
         }

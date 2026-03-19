@@ -3,7 +3,7 @@ package com.qqriceball.unit.service;
 
 import com.github.pagehelper.Page;
 import com.qqriceball.common.exception.AccountInactiveException;
-import com.qqriceball.common.exception.NotExistException;
+import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.exception.PasswordErrorException;
 import com.qqriceball.common.result.PageResult;
@@ -46,14 +46,14 @@ class EmpServiceTest {
 
 
     @Test
-    @DisplayName("[Unit] EmpService.login() - 登入帳號不存在，應拋出 NotExistException")
+    @DisplayName("[Unit] EmpService.login() - 登入帳號不存在，應拋出 ResourceNotFoundException")
     void testLoginAccountNotExist() {
 
         EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
 
         lenient().when(empMapper.getByUsername(empLoginDTO.getUsername())).thenReturn(null);
 
-        NotExistException ex = assertThrows(NotExistException.class,
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
                 () -> empService.login(empLoginDTO));
         assertEquals(MessageEnum.ACCOUNT_NOT_EXISTS.getMessage(), ex.getMessage());
 
@@ -168,7 +168,7 @@ class EmpServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] EmpService.updateStatus() - 員工 id 不存在，應拋出 NotExistException")
+    @DisplayName("[Unit] EmpService.updateStatus() - 員工 id 不存在，應拋出 ResourceNotFoundException")
     void testUpdateStatusAccountNotExist() {
 
         EmpStatusDTO empStatusDTO = new EmpStatusDTO();
@@ -176,7 +176,7 @@ class EmpServiceTest {
 
         when(empMapper.getById(id)).thenReturn(null);
 
-        NotExistException ex = assertThrows(NotExistException.class,
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
                 () -> empService.updateStatus(empStatusDTO, id));
         assertEquals(MessageEnum.ACCOUNT_NOT_EXISTS.getMessage(), ex.getMessage());
 
@@ -213,14 +213,14 @@ class EmpServiceTest {
 
 
     @Test
-    @DisplayName("[Unit] EmpService.getById() - 員工 id 不存在，應拋出 NotExistException")
+    @DisplayName("[Unit] EmpService.getById() - 員工 id 不存在，應拋出 ResourceNotFoundException")
     void testGetByIdAccountNotExist() {
 
         Integer id = Integer.MAX_VALUE;
 
         when(empMapper.getById(id)).thenReturn(null);
 
-        NotExistException ex = assertThrows(NotExistException.class,
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
                 () -> empService.getById(id));
         assertEquals(MessageEnum.ACCOUNT_NOT_EXISTS.getMessage(), ex.getMessage());
 
@@ -257,7 +257,7 @@ class EmpServiceTest {
 
 
     @Test
-    @DisplayName("[Unit] EmpService.updateById() - 員工 id 不存在，應拋出 NotExistException")
+    @DisplayName("[Unit] EmpService.updateById() - 員工 id 不存在，應拋出 ResourceNotFoundException")
     void testUpdateByIdAccountNotExist() {
 
         EmpEditDTO empEditDTO = new EmpEditDTO();
@@ -265,7 +265,7 @@ class EmpServiceTest {
 
         when(empMapper.getById(Integer.MAX_VALUE)).thenReturn(null);
 
-        NotExistException ex = assertThrows(NotExistException.class,
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
                 () -> empService.updateById(empEditDTO));
         assertEquals(MessageEnum.ACCOUNT_NOT_EXISTS.getMessage(), ex.getMessage());
 

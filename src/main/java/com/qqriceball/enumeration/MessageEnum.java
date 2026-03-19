@@ -22,19 +22,25 @@ public enum MessageEnum {
     ALREADY_EXISTS(2002, "資源已存在"),
     BAD_REQUEST(2003, "請求參數格式不正確"),
 
-    // 菜單品項/細節選項相關
-    PRODUCT_NOT_EXIST(3001, "菜單品項 ID 不存在"),
-    OPTION_NOT_EXIST(3002, "加料選項 ID 不存在"),
-    PRODUCT_ALREADY_EXISTS(3003, "菜單品項名稱已存在"),
-    OPTION_ALREADY_EXISTS(3004, "細節選項名稱已存在"),
-    TYPE_NOT_FOUND(3005,"分類 ID 不存在"),
-    OPTION_ADD_ON_DEFAULT_ERROR(3006, "加料類選項不可設為預設"),
+    // 產品相關
+    PRODUCT_NOT_EXIST(3001, "產品 ID 不存在"),
+    PRODUCT_ALREADY_EXISTS(3002, "產品名稱已存在"),
+
+
+    // 選項相關
+    OPTION_NOT_EXIST(4001, "細節選項 ID 不存在"),
+    OPTION_ALREADY_EXISTS(4002, "細節選項名稱已存在"),
+    OPTION_ADD_ON_DEFAULT_ERROR(4003, "加料類選項不可設為預設"),
 
     // 訂單相關
-    SHOPPING_CART_IS_NULL(4001, "內容為空，無法建立訂單"),
-    ORDER_STATUS_ERROR(4002, "訂單狀態錯誤"),
-    ORDER_NOT_FOUND(4003, "訂單不存在");
-
+    ORDER_STATUS_ERROR(5001, "訂單狀態錯誤"),
+    ORDER_NOT_FOUND(5002, "訂單不存在"),
+    PRODUCT_UNAVAILABLE(5003,"訂單內容含有已下架商品"),
+    OPTION_UNAVAILABLE(5004,"訂單內容含有已下架細節選項"),
+    OPTION_TYPE_NOT_ALLOWED(5005,"商品細節選項類型設定錯誤"),
+    DUPLICATE_OPTION(5006, "商品選項重複設定"),
+    REQUIRED_OPTION_MISSING(5007, "缺少必填商品細節選項"),
+    SINGLE_SELECT_OPTION_QUANTITY_EXCEED(5008, "單選的細節選項設定數量超過限制");
 
     private final int code;
     private final String message;

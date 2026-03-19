@@ -4,6 +4,7 @@ import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.mapper.EmpMapper;
 import com.qqriceball.model.entity.Emp;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Profile("dev")
 @Component
 @ConditionalOnProperty(prefix = "app", name = "seed-demo", havingValue = "true")
@@ -31,8 +33,10 @@ public class DevDemoSeeder implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
+        log.info("開始執行 DevDemoSeeder，為開發環境建立基本使用帳號");
         seed("demomanager", "Qq!pos3426", RoleEnum.MANAGER.getCode());
         seed("demostaff", "Qq!pos3426", RoleEnum.STAFF.getCode());
+        log.info("完成 DevDemoSeeder，帳號已建立完成");
     }
 
     private void seed(String username, String rawPassword, int role) {
