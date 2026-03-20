@@ -28,8 +28,29 @@
             AND o.pickup_time &gt;= CONCAT(#{startDate}, ' 00:00:00')
             AND o.pickup_time &lt;= CONCAT(#{endDate}, ' 23:59:59')
         </where>
-        order by o.status ASC, o.order_no ASC
+        order by o.status, o.order_no
     </select>
 
+    <!-- 根據 orderNo 查詢訂單詳情-->
+    <select id="getByOrderNo" resultType="com.qqriceball.model.vo.order.OrderDetailVO">
+        select o.id, o.order_no, o.pickup_time, o.total, o.status,
+               creator.name as createName, o.create_time,
+               updater.name as updateName, o.update_time
+        from orders o
+        left join emps creator on o.create_id = creator.id
+        left join emps updater on o.update_id = updater.id
+        where o.order_no = #{orderNo}
+    </select>
+
+    <!-- 更新訂單主表資料 -->
+    <update id="updateByOrderNo" parameterType="com.qqriceball.model.entity.order.Order">
+        update orders
+        set
+        pickup_time = #{pickupTime},
+        total = #{total},
+        update_id = #{updateId},
+        update_time = #{updateTime}
+        where order_no = #{orderNo}
+    </update>
 
 </mapper>

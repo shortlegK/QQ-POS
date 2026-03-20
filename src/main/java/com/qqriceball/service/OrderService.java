@@ -11,10 +11,7 @@ import com.qqriceball.mapper.*;
 import com.qqriceball.mapper.order.OrderItemMapper;
 import com.qqriceball.mapper.order.OrderItemOptionMapper;
 import com.qqriceball.mapper.order.OrderMapper;
-import com.qqriceball.model.dto.order.OrderCreateDTO;
-import com.qqriceball.model.dto.order.OrderItemDTO;
-import com.qqriceball.model.dto.order.OrderItemOptionDTO;
-import com.qqriceball.model.dto.order.OrderPageQueryDTO;
+import com.qqriceball.model.dto.order.*;
 import com.qqriceball.model.entity.order.Order;
 import com.qqriceball.model.entity.order.OrderItem;
 import com.qqriceball.model.entity.order.OrderItemOption;
@@ -32,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Slf4j
@@ -88,22 +86,21 @@ public class OrderService {
     public OrderSummaryVO create(OrderCreateDTO orderCreateDTO) {
 
         // 1. 準備訂單草稿（驗證資料、計算金額、組裝草稿）
-        PreparedOrder preparedOrder = prepareOrderDraft(orderCreateDTO.getItems());
+        PreparedOrder preparedOrder = this.prepareOrderDraft(orderCreateDTO.getItems());
 
         // 2. 確認 pickupTime，建立訂單編號
-        LocalDateTime pickupTime = orderCreateDTO.getPickupTime() == null
-                ? LocalDateTime.now().plusMinutes(15) : orderCreateDTO.getPickupTime();
+        LocalDateTime pickupTime = this.validateAndGetPickupTime(orderCreateDTO.getPickupTime());
         String orderNo = this.generateOrderNo(pickupTime);
 
         // 3. 建立訂單主表
-        Order order = buildOrder(orderNo, preparedOrder.total(),pickupTime);
+        Order order = this.buildOrder(orderNo, preparedOrder.total(),pickupTime);
         orderMapper.insert(order);
 
         // 4. 建立訂單明細與選項
-        insertOrderDetails(order.getId(), preparedOrder.items());
+        this.insertOrderDetails(order.getId(), preparedOrder.items());
 
         // 5. 回傳結果摘要
-        return buildOrderSummaryVO(order);
+        return this.buildOrderSummaryVO(order);
     }
 
     public PageResult pageQuery(OrderPageQueryDTO orderPageQueryDTO){
@@ -132,6 +129,39 @@ public class OrderService {
         }
     }
 
+    @Transactional
+    public OrderSummaryVO updateByOrderNo(OrderEditDTO orderEditDTO){
+
+        // 1. 根據 orderNo 取得原有訂單資料
+        OrderDetailVO existingOrder = this.getExistingOrderByOrderNo(orderEditDTO.getOrderNo());
+
+        // 2. 確認訂單狀態為製作中
+        if (existingOrder.getStatus() != OrderStatusEnum.MAKING.getCode()) {
+            log.error("無法修改訂單資料,訂單編號: {},訂單狀態: {}", orderEditDTO.getOrderNo(), existingOrder.getStatus());
+            throw new ResourceUnavailableException(MessageEnum.ORDER_CAN_NOT_BE_MODIFIED);
+        }
+
+        // 3. 準備訂單草稿（驗證資料、計算金額、組裝草稿）
+        PreparedOrder preparedOrder = this.prepareOrderDraft(orderEditDTO.getItems());
+
+        // 4. 確認 pickupTime
+        LocalDateTime pickupTime = this.validateAndGetPickupTime(orderEditDTO.getPickupTime());
+
+        // 5. 刪除原有訂單商品及選項資料
+        this.deleteOrderItemsAndOptions(existingOrder);
+
+        // 6. 修改訂單主表
+        Order order = this.buildOrder(existingOrder.getOrderNo(), preparedOrder.total(),pickupTime);
+        orderMapper.updateByOrderNo(order);
+
+        // 7. 建立訂單明細與選項
+        this.insertOrderDetails(existingOrder.getId(), preparedOrder.items());
+
+        // 8. 回傳結果摘要
+        return this.buildOrderSummaryVO(order);
+
+    }
+
     private PreparedOrder prepareOrderDraft(List<OrderItemDTO> itemDTOList) {
 
         List<PreparedOrderItem> preparedOrderItemList = new ArrayList<>();
@@ -158,7 +188,7 @@ public class OrderService {
                 dtoOptionTypes.add(optionType);
 
                 // 4. 建立 OrderItemOption 資料，計算 option 金額
-                OrderItemOption orderItemOption = buildOrderItemOption(option, itemOptionDTO.getQuantity());
+                OrderItemOption orderItemOption = this.buildOrderItemOption(option, itemOptionDTO.getQuantity());
                 optionsDraftList.add(orderItemOption);
                 optionTotal += option.getPrice() * itemOptionDTO.getQuantity();
             }
@@ -170,12 +200,19 @@ public class OrderService {
             int lineTotal = (product.getPrice() + optionTotal) * itemDTO.getQuantity();
 
             // 7. 生成 item 訂單草稿
-            OrderItem orderItem = buildOrderItem(product, itemDTO.getQuantity(), lineTotal);
+            OrderItem orderItem = this.buildOrderItem(product, itemDTO.getQuantity(), lineTotal);
             PreparedOrderItem preparedOrderItem = new PreparedOrderItem(orderItem, optionsDraftList);
             preparedOrderItemList.add(preparedOrderItem);
             orderTotal += lineTotal;
         }
         return new PreparedOrder(preparedOrderItemList, orderTotal);
+    }
+
+    private LocalDateTime validateAndGetPickupTime(LocalDateTime pickupTime) {
+        if (pickupTime == null || pickupTime.isBefore(LocalDateTime.now().plusMinutes(15))) {
+            return LocalDateTime.now().plusMinutes(15).truncatedTo(ChronoUnit.MINUTES);
+        }
+        return pickupTime.truncatedTo(ChronoUnit.MINUTES);
     }
 
     private ProductVO getAndValidateProductStatus(Integer productId) {
@@ -205,7 +242,7 @@ public class OrderService {
     }
 
     private void validateAllowedOptionTypeAndSingleSelect(ProductTypeEnum productType, OptionTypeEnum optionType,
-                                                          Set<OptionTypeEnum> seenSingleOptions, Integer quantity) {
+                                                          Set<OptionTypeEnum> seenSingleOptionSet, Integer quantity) {
         // 檢查 ProductType 是否允許使用此 OptionType
         if (!ALLOWED_OPTIONS.get(productType).contains(optionType)) {
             log.error("商品類型: {} 不允許設定選項類型: {}", productType, optionType);
@@ -213,7 +250,7 @@ public class OrderService {
         }
 
         // 檢查是否有設定重複單選的 Option
-        if (optionType.isSingleSelect() && !seenSingleOptions.add(optionType)) {
+        if (optionType.isSingleSelect() && !seenSingleOptionSet.add(optionType)) {
             log.error("單選項目重複設定: {}", optionType);
             throw new BadRequestArgsException(MessageEnum.DUPLICATE_OPTION);
         }
@@ -226,7 +263,7 @@ public class OrderService {
 
     }
 
-    private void validateRequiredOptionsByProductType(ProductTypeEnum productType, List<OptionTypeEnum> dtoOptionTypes) {
+    private void validateRequiredOptionsByProductType(ProductTypeEnum productType, List<OptionTypeEnum> dtoOptionTypeList) {
         Set<OptionTypeEnum> requiredList = switch (productType) {
             case DRINKS -> REQUIRED_DRINK_OPTIONS;
             case MEAT, VEGAN -> REQUIRED_FOOD_OPTIONS;
@@ -234,15 +271,15 @@ public class OrderService {
 
         // 檢查已選選項是否包含所有必填項目
         requiredList.forEach(required -> {
-            if (!dtoOptionTypes.contains(required)) {
+            if (!dtoOptionTypeList.contains(required)) {
                 log.error("缺少必填選項類型:{}", required);
                 throw new BadRequestArgsException(MessageEnum.REQUIRED_OPTION_MISSING);
             }
         });
 
         // 飲品的必選選項皆為單選，且無法設定其他選項，已設 optionType 數量應與必選選項清單相同
-        if (productType.equals(ProductTypeEnum.DRINKS) && dtoOptionTypes.size() != requiredList.size()) {
-            log.error("商品類型: {} 選項設定錯誤: {}", productType, dtoOptionTypes);
+        if (productType.equals(ProductTypeEnum.DRINKS) && dtoOptionTypeList.size() != requiredList.size()) {
+            log.error("商品類型: {} 選項設定錯誤: {}", productType, dtoOptionTypeList);
             throw new BadRequestArgsException(MessageEnum.OPTION_TYPE_NOT_ALLOWED);
         }
 
@@ -311,6 +348,34 @@ public class OrderService {
         OrderSummaryVO orderSummaryVO = new OrderSummaryVO();
         BeanUtils.copyProperties(order, orderSummaryVO);
         return orderSummaryVO;
+    }
+
+    private OrderDetailVO getExistingOrderByOrderNo(String orderNo){
+        OrderDetailVO existingOrder = orderMapper.getByOrderNo(orderNo);
+
+        // 確認訂單是否存在
+        if (existingOrder == null){
+            log.error("查無訂單資料,訂單編號: {}", orderNo);
+            throw new ResourceNotFoundException(MessageEnum.ORDER_NOT_EXIST);
+        }
+
+        List<OrderItemVO> items = orderItemMapper.getItemsByOrderId(existingOrder.getId());
+        for(OrderItemVO item: items) {
+            List<OrderItemOptionVO> options = orderItemOptionMapper.getOptionsByItemId(item.getId());
+            item.setOptions(options);
+        }
+        existingOrder.setItems(items);
+        return existingOrder;
+    }
+
+    private void deleteOrderItemsAndOptions(OrderDetailVO existingOrder) {
+        // 刪除原有訂單商品選項資料
+        for (OrderItemVO item : existingOrder.getItems()) {
+            orderItemOptionMapper.deleteOptionsByItemId(item.getId());
+        }
+
+        // 刪除原有訂單商品資料
+        orderItemMapper.deleteItemsByOrderId(existingOrder.getId());
     }
 
     private record PreparedOrder(List<PreparedOrderItem> items, Integer total) {

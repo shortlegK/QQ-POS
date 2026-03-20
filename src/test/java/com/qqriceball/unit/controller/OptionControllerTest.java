@@ -206,7 +206,7 @@ public class OptionControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionController.updateById() - 更新產品細節選項成功，應回傳 200 及資料")
+    @DisplayName("[Unit] OptionController.updateByOrderNo() - 更新產品細節選項成功，應回傳 200 及資料")
     void testUpdateByIdSuccess() throws Exception {
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.HOT_SPICY);
 
@@ -226,7 +226,7 @@ public class OptionControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionController.updateById() - 更新產品細節選項缺少必要參數，應回傳 400")
+    @DisplayName("[Unit] OptionController.updateByOrderNo() - 更新產品細節選項缺少必要參數，應回傳 400")
     void testUpdateByIdMissingRequiredParameter() throws Exception {
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.HOT_SPICY);
         optionEditDTO.setId(null);
@@ -242,7 +242,7 @@ public class OptionControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionController.updateById() - 更新產品細節選項 OptionType 超過範圍，應回傳 400")
+    @DisplayName("[Unit] OptionController.updateByOrderNo() - 更新產品細節選項 OptionType 超過範圍，應回傳 400")
     void testUpdateByIdInvalidOptionType() throws Exception {
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.HOT_SPICY);
         optionEditDTO.setOptionType(5);
@@ -259,7 +259,7 @@ public class OptionControllerTest {
 
 
     @Test
-    @DisplayName("[Unit] OptionController.updateById() - 更新選項 OptionType 為 AddOn 預設設定錯誤，應回傳 400 及指定訊息")
+    @DisplayName("[Unit] OptionController.updateByOrderNo() - 更新選項 OptionType 為 AddOn 預設設定錯誤，應回傳 400 及指定訊息")
     void testUpdateByIdDefaultSettingError() throws Exception {
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.EGG);
         optionEditDTO.setOptionType(OptionTypeEnum.ADD_ON.getCode());
@@ -281,7 +281,7 @@ public class OptionControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionController.updateById() - 更新 id 不存在，應回傳 404 及指定訊息")
+    @DisplayName("[Unit] OptionController.updateByOrderNo() - 更新 id 不存在，應回傳 404 及指定訊息")
     void testUpdateByIdNotExist() throws Exception {
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.MILD_SPICY);
 
@@ -300,7 +300,7 @@ public class OptionControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionController.updateById() - 更新產品細節選項名稱重複，應回傳 409 及指定訊息")
+    @DisplayName("[Unit] OptionController.updateByOrderNo() - 更新產品細節選項名稱重複，應回傳 409 及指定訊息")
     void testUpdateByIdOptionTitleDuplicate() throws Exception {
 
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.MILD_SPICY);

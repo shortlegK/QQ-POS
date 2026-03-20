@@ -23,4 +23,10 @@ public interface OrderMapper {
     void insert(Order order);
 
     List<OrderDetailVO> pageQuery(OrderPageQueryDTO orderPageQueryDTO);
+
+    OrderDetailVO getByOrderNo(String orderNo);
+
+    @AutoFill(value = OperationType.UPDATE)
+    void updateByOrderNo(Order order);
+
 }

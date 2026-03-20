@@ -4,6 +4,7 @@ package com.qqriceball.controller;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.common.result.Result;
 import com.qqriceball.model.dto.order.OrderCreateDTO;
+import com.qqriceball.model.dto.order.OrderEditDTO;
 import com.qqriceball.model.dto.order.OrderPageQueryDTO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.order.OrderSummaryVO;
@@ -52,9 +53,22 @@ public class OrderController {
     })
     public Result<PageResult> pageQueryOrder(@AuthenticationPrincipal EmpVO currentEmp,
                                              @Valid OrderPageQueryDTO orderPageQueryDTO){
-        log.info("5002 訂單分頁查詢,操作 id:{},參數:{}",currentEmp.getId());
+        log.info("5002 訂單分頁查詢,操作 id:{},參數:{}",currentEmp.getId(),orderPageQueryDTO);
         PageResult pageResult = orderService.pageQuery(orderPageQueryDTO);
         return Result.success(pageResult);
     }
 
+    @Operation(summary = "5003 根據 OrderNo 修改訂單資料")
+    @PutMapping
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "訂單修改成功"),
+            @ApiResponse(responseCode = "404", description = "訂單不存在"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<OrderSummaryVO> updateOrderByOrderNo(@AuthenticationPrincipal EmpVO currentEmp,
+                                           @Valid @RequestBody OrderEditDTO orderEditDTO) {
+        log.info("5003 修改訂單,操作 id:{},參數:{}", currentEmp.getId(), orderEditDTO);
+        OrderSummaryVO orderSummaryVO = orderService.updateByOrderNo(orderEditDTO);
+        return Result.success(orderSummaryVO);
+    }
 }

@@ -1,9 +1,8 @@
 package com.qqriceball.mapper.order;
 
-import com.qqriceball.annotation.AutoFill;
-import com.qqriceball.enumeration.OperationType;
 import com.qqriceball.model.entity.order.OrderItem;
 import com.qqriceball.model.vo.order.OrderItemVO;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -14,4 +13,7 @@ public interface OrderItemMapper {
     void insert(OrderItem orderItem);
 
     List<OrderItemVO> getItemsByOrderId(Integer orderId);
+
+    @Delete("DELETE FROM order_items WHERE order_id = #{orderId}")
+    void deleteItemsByOrderId(Integer orderId);
 }

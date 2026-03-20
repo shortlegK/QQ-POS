@@ -12,7 +12,7 @@
 
     <!-- 根據 orderId 查詢訂單項目列表-->
     <select id="getItemsByOrderId" resultType="com.qqriceball.model.vo.order.OrderItemVO">
-        select id, product_id, product_title, product_type, product_price, quantity, line_total
+        select id, order_id, product_id, product_title, product_type, product_price, quantity, line_total
         from order_items
         where order_id = #{orderId}
     </select>

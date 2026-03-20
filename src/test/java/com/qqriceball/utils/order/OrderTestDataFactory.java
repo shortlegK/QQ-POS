@@ -51,7 +51,7 @@ public class OrderTestDataFactory {
     );
 
 
-    public static List<OrderItemOptionDTO> toOptionDTOList(List<TestOption> options , Integer optionQuantity) {
+    public static List<OrderItemOptionDTO> getOptionDTOList(List<TestOption> options , Integer optionQuantity) {
         List<OrderItemOptionDTO> optionDTOS = new ArrayList<>();
         for (TestOption option : options) {
             OrderItemOptionDTO optionDTO = new OrderItemOptionDTO();
@@ -100,9 +100,10 @@ public class OrderTestDataFactory {
     public static OrderDetailVO getOrderDetailVO(TestOrder testOrder, TestProduct testProduct, List<TestOption> testOptions) {
         OrderDetailVO orderDetailVO = new OrderDetailVO();
         BeanUtils.copyProperties(testOrder, orderDetailVO);
+        orderDetailVO.setId(2);
 
         OrderItemVO itemVO = new OrderItemVO();
-        itemVO.setId(1);
+        itemVO.setOrderId(orderDetailVO.getId());
         itemVO.setProductId(testProduct.id());
         itemVO.setProductTitle(testProduct.title());
         itemVO.setProductType(testProduct.productType());
@@ -113,6 +114,7 @@ public class OrderTestDataFactory {
         List<OrderItemOptionVO> optionVOList = new ArrayList<>();
         for (TestOption option : testOptions) {
             OrderItemOptionVO optionVO = new OrderItemOptionVO();
+            optionVO.setOrderItemId(itemVO.getId());
             optionVO.setId(option.id());
             optionVO.setOptionId(option.id());
             optionVO.setOptionTitle(option.title());
@@ -121,6 +123,7 @@ public class OrderTestDataFactory {
             optionVOList.add(optionVO);
         }
         itemVO.setOptions(optionVOList);
+        orderDetailVO.setItems(List.of(itemVO));
 
         return orderDetailVO;
     }

@@ -6,6 +6,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.OrderStatusEnum;
 import com.qqriceball.model.dto.order.OrderCreateDTO;
+import com.qqriceball.model.dto.order.OrderEditDTO;
 import com.qqriceball.model.dto.order.OrderItemDTO;
 import com.qqriceball.model.dto.order.OrderItemOptionDTO;
 import com.qqriceball.testData.order.SeedOrderData;
@@ -19,6 +20,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -35,13 +37,13 @@ public class OrderControllerIT extends BaseIntegrationTest {
     void testCreateOrderWithManagerSuccess() throws Exception {
 
         Integer optionQuantity = 1;
-        List<OrderItemOptionDTO> itemOptionsDTO = OrderTestDataFactory.toOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
+        List<OrderItemOptionDTO> itemOptionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
 
         Integer productQuantity = 2;
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, itemOptionsDTO);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, itemOptionDTOList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
-        LocalDateTime expectedPickupTime = LocalDateTime.now();
+        LocalDateTime expectedPickupTime = LocalDateTime.now().plusMinutes(15).truncatedTo(ChronoUnit.MINUTES);
         orderCreateDTO.setPickupTime(expectedPickupTime);
         orderCreateDTO.setItems(List.of(orderItemDTO));
 
@@ -57,7 +59,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.total").value(expectedTotal))
-                .andExpect(jsonPath("$.data.pickupTime").value(expectedPickupTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))))
+                .andExpect(jsonPath("$.data.pickupTime").value(expectedPickupTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
                 .andExpect(jsonPath("$.data.status").value(OrderStatusEnum.MAKING.getCode()))
                 .andReturn();
 
@@ -77,15 +79,15 @@ public class OrderControllerIT extends BaseIntegrationTest {
     void testCreateOrderWithStaffSuccess() throws Exception {
 
         Integer optionQuantity = 1;
-        List<OrderItemOptionDTO> itemOptions0 = OrderTestDataFactory.toOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
-        List<OrderItemOptionDTO> itemOptions1 = OrderTestDataFactory.toOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, optionQuantity);
+        List<OrderItemOptionDTO> itemOptions0 = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
+        List<OrderItemOptionDTO> itemOptions1 = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, optionQuantity);
 
         Integer productQuantity = 2;
         OrderItemDTO orderItem0 = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, itemOptions0);
         OrderItemDTO orderItem1 = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, productQuantity, itemOptions1);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
-        LocalDateTime expectedPickupTime = LocalDateTime.now();
+        LocalDateTime expectedPickupTime = LocalDateTime.now().plusMinutes(15).truncatedTo(ChronoUnit.MINUTES);
         orderCreateDTO.setPickupTime(expectedPickupTime);
         orderCreateDTO.setItems(List.of(orderItem0, orderItem1));
 
@@ -106,7 +108,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.total").value(expectedTotal))
-                .andExpect(jsonPath("$.data.pickupTime").value(expectedPickupTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))))
+                .andExpect(jsonPath("$.data.pickupTime").value(expectedPickupTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
                 .andExpect(jsonPath("$.data.status").value(OrderStatusEnum.MAKING.getCode()))
                 .andReturn();
 
@@ -126,10 +128,10 @@ public class OrderControllerIT extends BaseIntegrationTest {
     void testCreateOrderProductNotFound() throws Exception {
 
         Integer optionQuantity = 1;
-        List<OrderItemOptionDTO> itemOptionsDTO = OrderTestDataFactory.toOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
+        List<OrderItemOptionDTO> itemOptionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
 
         Integer productQuantity = 2;
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, itemOptionsDTO);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, itemOptionDTOList);
         orderItemDTO.setProductId(Integer.MAX_VALUE);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
@@ -152,11 +154,11 @@ public class OrderControllerIT extends BaseIntegrationTest {
     void testCreateOrderOptionNotFound() throws Exception {
 
         Integer optionQuantity = 1;
-        List<OrderItemOptionDTO> itemOptionsDTO = OrderTestDataFactory.toOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
-        itemOptionsDTO.get(0).setOptionId(Integer.MAX_VALUE);
+        List<OrderItemOptionDTO> itemOptionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
+        itemOptionDTOList.get(0).setOptionId(Integer.MAX_VALUE);
 
         Integer productQuantity = 2;
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, itemOptionsDTO);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, itemOptionDTOList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -178,10 +180,10 @@ public class OrderControllerIT extends BaseIntegrationTest {
     void testCreateOrderProductUnavailable() throws Exception {
 
         Integer optionQuantity = 1;
-        List<OrderItemOptionDTO> itemOptionsDTO = OrderTestDataFactory.toOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
+        List<OrderItemOptionDTO> itemOptionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
 
         Integer productQuantity = 2;
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_INACTIVE, productQuantity, itemOptionsDTO);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_INACTIVE, productQuantity, itemOptionDTOList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         LocalDateTime expectedPickupTime = LocalDateTime.now();
@@ -204,10 +206,10 @@ public class OrderControllerIT extends BaseIntegrationTest {
     void testCreateOrderOptionUnavailable() throws Exception {
 
         Integer optionQuantity = 1;
-        List<OrderItemOptionDTO> itemOptionsDTO = OrderTestDataFactory.toOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_INACTIVE, optionQuantity);
+        List<OrderItemOptionDTO> itemOptionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_INACTIVE, optionQuantity);
 
         Integer productQuantity = 2;
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, itemOptionsDTO);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, itemOptionDTOList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -296,5 +298,85 @@ public class OrderControllerIT extends BaseIntegrationTest {
                 .andExpect(jsonPath("$.data.records[0].items[*].options").isArray())
                 .andExpect(jsonPath("$.data.records[0].items[*].options").isNotEmpty());
     }
+
+    @Test
+    @DisplayName("[IT] 5003 updateOrderByOrderNo - 更新訂單資料，成功修改訂單，回傳 200 及資料")
+    void testUpdateOrderByOrderNoSuccess() throws Exception {
+        String expectedOrderNo = SeedOrderData.orderMaking.orderNo();
+
+        OrderEditDTO orderEditDTO = new OrderEditDTO();
+        LocalDateTime expectedPickupTime = LocalDateTime.now().plusMinutes(30).truncatedTo(ChronoUnit.MINUTES);
+        orderEditDTO.setPickupTime(expectedPickupTime);
+        orderEditDTO.setOrderNo(expectedOrderNo);
+
+        Integer optionQuantity = 1;
+        List<OrderItemOptionDTO> itemOptionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
+        Integer productQuantity = 4;
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, itemOptionDTOList);
+        orderEditDTO.setItems(List.of(orderItemDTO));
+
+        Integer expectedTotal = OrderTestDataFactory.calculateTotalPrice(SeedProductData.MEAT_PRODUCT, productQuantity,
+                OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
+
+        String jsonBody = objectMapper.writeValueAsString(orderEditDTO);
+        mockMvc.perform(
+                        put("/orders")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.orderNo").value(expectedOrderNo))
+                .andExpect(jsonPath("$.data.pickupTime").value(expectedPickupTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                .andExpect(jsonPath("$.data.status").value(OrderStatusEnum.MAKING.getCode()))
+                .andExpect(jsonPath("$.data.total").value(expectedTotal));
+    }
+
+    @Test
+    @DisplayName("[IT] 5003 updateOrderByOrderNo - 更新訂單資料，查無訂單，應回傳 404")
+    void testUpdateOrderByOrderNoNotFound() throws Exception {
+        OrderEditDTO orderEditDTO = new OrderEditDTO();
+        LocalDateTime expectedPickupTime = LocalDateTime.now().plusMinutes(30).truncatedTo(ChronoUnit.MINUTES);
+        orderEditDTO.setPickupTime(expectedPickupTime);
+        orderEditDTO.setOrderNo("NotExistOrderNo");
+
+        List<OrderItemOptionDTO> itemOptionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, 1);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 1, itemOptionDTOList);
+        orderEditDTO.setItems(List.of(orderItemDTO));
+
+        String jsonBody = objectMapper.writeValueAsString(orderEditDTO);
+        mockMvc.perform(
+                        put("/orders")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_NOT_EXIST.getCode()));
+    }
+
+    @Test
+    @DisplayName("[IT] 5003 updateOrderByOrderNo - 更新訂單資料，訂單狀態非製作中，應回傳 409")
+    void testUpdateOrderByOrderNoInvalidStatus() throws Exception {
+        String orderNo = SeedOrderData.orderReady.orderNo();
+        OrderEditDTO orderEditDTO = new OrderEditDTO();
+        LocalDateTime expectedPickupTime = LocalDateTime.now().plusMinutes(30).truncatedTo(ChronoUnit.MINUTES);
+        orderEditDTO.setPickupTime(expectedPickupTime);
+        orderEditDTO.setOrderNo(orderNo);
+
+        List<OrderItemOptionDTO> itemOptionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, 1);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 1, itemOptionDTOList);
+        orderEditDTO.setItems(List.of(orderItemDTO));
+
+        String jsonBody = objectMapper.writeValueAsString(orderEditDTO);
+        mockMvc.perform(
+                        put("/orders")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_CAN_NOT_BE_MODIFIED.getCode()));
+    }
+
+
 
 }

@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,6 +13,9 @@ public class OrderItemOptionVO {
 
     @Schema(description = "訂單選項 id")
     private Integer id;
+
+    @Schema(description = "訂單商品 id")
+    private Integer orderItemId;
 
     @Schema(description = "選項資料 id")
     private Integer optionId;

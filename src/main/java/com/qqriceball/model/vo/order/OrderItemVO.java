@@ -16,6 +16,9 @@ public class OrderItemVO {
     @Schema(description = "訂單商品 id")
     private Integer id;
 
+    @Schema(description = "訂單 id")
+    private Integer orderId;
+
     @Schema(description = "產品資料 id")
     private Integer productId;
     
