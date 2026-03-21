@@ -20,6 +20,7 @@ import com.qqriceball.model.entity.order.OrderItemOption;
 import com.qqriceball.model.vo.OptionVO;
 import com.qqriceball.model.vo.ProductVO;
 import com.qqriceball.model.vo.order.OrderDetailVO;
+import com.qqriceball.model.vo.order.OrderItemOptionVO;
 import com.qqriceball.model.vo.order.OrderItemVO;
 import com.qqriceball.model.vo.order.OrderSummaryVO;
 import com.qqriceball.service.OrderService;
@@ -562,5 +563,60 @@ public class OrderServiceTest {
         assertEquals(MessageEnum.ORDER_CAN_NOT_BE_MODIFIED.getMessage(), exception.getMessage(), "異常訊息應與預期相同");
     }
 
+    @Test
+    @DisplayName("[Unit] OrderService.getByOrderNo() - 查詢訂單資料，應呼叫 orderMapper.getByOrderNo、 orderItemMapper.getItemsByOrderId、orderItemOptionMapper.getOptionsByItemId 傳入參數")
+    void testGetByOrderNoSuccess() {
+        String expectedOrderNo = SeedOrderData.orderMaking.orderNo();
+
+        OrderDetailVO mockOrderDetail = OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        List<OrderItemVO> mockItemList = mockOrderDetail.getItems();
+        List<OrderItemOptionVO> mockOptionList = mockItemList.get(0).getOptions();
+
+        Integer expectedOrderId = mockOrderDetail.getId();
+        Integer expectedItemId = mockItemList.get(0).getId();
+
+        when(orderMapper.getByOrderNo(any(String.class))).thenReturn(mockOrderDetail);
+        when(orderItemMapper.getItemsByOrderId(any(Integer.class))).thenReturn(mockItemList);
+        when(orderItemOptionMapper.getOptionsByItemId(any(Integer.class))).thenReturn(mockOptionList);
+
+        OrderDetailVO result = orderService.getByOrderNo(expectedOrderNo);
+
+        ArgumentCaptor<String> getOrderCaptor = ArgumentCaptor.forClass(String.class);
+        verify(orderMapper).getByOrderNo(getOrderCaptor.capture());
+        String getOrderCaptoredRusult = getOrderCaptor.getValue();
+
+        ArgumentCaptor<Integer> getItemCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(orderItemMapper).getItemsByOrderId(getItemCaptor.capture());
+        Integer getItemCaptoredRusult = getItemCaptor.getValue();
+
+        ArgumentCaptor<Integer> getOptionCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(orderItemOptionMapper).getOptionsByItemId(getOptionCaptor.capture());
+        Integer getOptionCaptoredRusult = getOptionCaptor.getValue();
+
+        assertAll(
+                () -> assertEquals(mockOrderDetail, result, "回傳結果應與 mockOrderDetail 相同"),
+                () -> assertEquals(expectedOrderNo, getOrderCaptoredRusult, "應依據 orderNo 查詢訂單"),
+                () -> assertEquals(expectedOrderId, getItemCaptoredRusult, "應依據 OrderId 查詢訂單項目"),
+                () -> assertEquals(expectedItemId, getOptionCaptoredRusult, "應依據 ItemId 查詢訂單選項")
+        );
+    }
+
+
+    @Test
+    @DisplayName("[Unit] OrderService.getByOrderNo() - 查詢訂單資料，查無訂單編號，應拋出 ResourceNotFoundException")
+    void testGetByOrderNoNotExist() {
+        String orderNo = SeedOrderData.orderMaking.orderNo();
+
+        when(orderMapper.getByOrderNo(any(String.class))).thenReturn(null);
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> orderService.getByOrderNo(orderNo));
+
+        assertEquals(MessageEnum.ORDER_NOT_EXIST.getMessage(), exception.getMessage(), "異常訊息應與預期相同");
+        verify(orderMapper).getByOrderNo(any(String.class));
+        verify(orderItemMapper, never()).getItemsByOrderId(any(Integer.class));
+        verify(orderItemOptionMapper, never()).getOptionsByItemId(any(Integer.class));
+    }
 
 }

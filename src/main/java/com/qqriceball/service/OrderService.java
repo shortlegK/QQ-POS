@@ -162,6 +162,10 @@ public class OrderService {
 
     }
 
+    public OrderDetailVO getByOrderNo(String orderNo){
+        return this.getExistingOrderByOrderNo(orderNo);
+    }
+
     private PreparedOrder prepareOrderDraft(List<OrderItemDTO> itemDTOList) {
 
         List<PreparedOrderItem> preparedOrderItemList = new ArrayList<>();

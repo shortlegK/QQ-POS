@@ -7,6 +7,7 @@ import com.qqriceball.model.dto.order.OrderCreateDTO;
 import com.qqriceball.model.dto.order.OrderEditDTO;
 import com.qqriceball.model.dto.order.OrderPageQueryDTO;
 import com.qqriceball.model.vo.EmpVO;
+import com.qqriceball.model.vo.order.OrderDetailVO;
 import com.qqriceball.model.vo.order.OrderSummaryVO;
 import com.qqriceball.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -71,4 +72,19 @@ public class OrderController {
         OrderSummaryVO orderSummaryVO = orderService.updateByOrderNo(orderEditDTO);
         return Result.success(orderSummaryVO);
     }
+
+    @Operation(summary = "5004 根據 OrderNo 查詢訂單資料")
+    @GetMapping("/{orderNo}")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "查詢成功"),
+            @ApiResponse(responseCode = "404", description = "訂單不存在"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<OrderDetailVO> getOrderByOrderNo(@AuthenticationPrincipal EmpVO currentEmp,
+                                                   @PathVariable String orderNo) {
+        log.info("5004 根據 OrderNo 查詢訂單資料,操作 id:{},參數:{}", currentEmp.getId(), orderNo);
+        OrderDetailVO orderDetailVO = orderService.getByOrderNo(orderNo);
+        return Result.success(orderDetailVO);
+    }
+
 }

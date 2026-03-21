@@ -6,7 +6,7 @@
 
     <!--新增訂單主表-->
     <insert id="insert" parameterType="com.qqriceball.model.entity.order.Order" useGeneratedKeys="true" keyProperty="id">
-        insert into orders(order_no,pickup_time, total, status, create_id, create_time, update_id, update_time)
+        insert into orders(order_no, pickup_time, total, status, create_id, create_time, update_id, update_time)
         values (#{orderNo},#{pickupTime},#{total},#{status},#{createId}, #{createTime}, #{updateId}, #{updateTime})
     </insert>
 

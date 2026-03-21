@@ -513,4 +513,38 @@ public class OrderControllerTest {
         verify(orderService).updateByOrderNo(any(OrderEditDTO.class));
     }
 
+    @Test
+    @DisplayName("[Unit] OrderController.getByOrderNo - 查詢訂單資料成功，應回傳 200 及資料")
+    void testGetOrderByOrderNoSuccess() throws Exception {
+        String expectedOrderNo = SeedOrderData.orderMaking.orderNo();
+
+        OrderDetailVO mockOrderDetail = OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+
+        when(orderService.getByOrderNo(anyString())).thenReturn(mockOrderDetail);
+
+        mockMvc.perform(
+                        get("/orders/{orderNo}", expectedOrderNo)
+                                .contentType(MediaType.APPLICATION_JSON)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data").exists());
+        verify(orderService).getByOrderNo(anyString());
+    }
+
+    @Test
+    @DisplayName("[Unit] OrderController.getByOrderNo - 查詢訂單資料，查無訂單應回傳 404 及指定訊息")
+    void testGetOrderByOrderNoNotExist() throws Exception {
+        String expectedOrderNo = SeedOrderData.orderMaking.orderNo();
+
+        doThrow(new ResourceNotFoundException(MessageEnum.ORDER_NOT_EXIST))
+                .when(orderService).getByOrderNo(anyString());
+
+        mockMvc.perform(
+                        get("/orders/{orderNo}", expectedOrderNo)
+                                .contentType(MediaType.APPLICATION_JSON)
+                ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_NOT_EXIST.getCode()));
+    }
+
 }

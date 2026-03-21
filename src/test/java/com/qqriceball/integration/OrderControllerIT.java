@@ -377,6 +377,39 @@ public class OrderControllerIT extends BaseIntegrationTest {
                 .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_CAN_NOT_BE_MODIFIED.getCode()));
     }
 
+    @Test
+    @DisplayName("[IT] 5004 getOrderByOrderNo - 根據 OrderNo 查詢訂單資料成功，回傳 200 及資料")
+    void testGetOrderByOrderNoSuccess() throws Exception {
+        String orderNo = SeedOrderData.orderReady.orderNo();
 
+        LocalDateTime expectedPickupTime = SeedOrderData.orderReady.pickupTime();
+        Integer expectedTotal = SeedOrderData.orderReady.total();
+        Integer expectedStatus = SeedOrderData.orderReady.status();
 
+        mockMvc.perform(
+                        get("/orders/{orderNo}", orderNo)
+                                .header("Authorization", "Bearer " + tokenManager)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.orderNo").value(orderNo))
+                .andExpect(jsonPath("$.data.pickupTime").value(expectedPickupTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                .andExpect(jsonPath("$.data.total").value(expectedTotal))
+                .andExpect(jsonPath("$.data.status").value(expectedStatus))
+                .andExpect(jsonPath("$.data.items").isArray())
+                .andExpect(jsonPath("$.data.items").isNotEmpty())
+                .andExpect(jsonPath("$.data.items[*].options").isArray())
+                .andExpect(jsonPath("$.data.items[*].options").isNotEmpty());
+    }
+
+    @Test
+    @DisplayName("[IT] 5004 getOrderByOrderNo - 根據 OrderNo 查詢訂單資料，查無訂單，應回傳 404")
+    void testGetOrderByOrderNoNotFound() throws Exception {
+        String orderNo = "NotExistOrderNo";
+
+        mockMvc.perform(
+                        get("/orders/{orderNo}", orderNo)
+                                .header("Authorization", "Bearer " + tokenManager)
+                ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_NOT_EXIST.getCode()));
+    }
 }

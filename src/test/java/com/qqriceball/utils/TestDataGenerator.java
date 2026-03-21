@@ -9,4 +9,8 @@ public class TestDataGenerator {
     public static String getUnique(String prefix) {
         return prefix + counter.getAndIncrement();
     }
+
+    public static Integer getUniqueInt() {
+        return counter.getAndIncrement();
+    }
 }

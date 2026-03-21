@@ -10,6 +10,7 @@ import com.qqriceball.testData.option.SeedOptionData;
 import com.qqriceball.testData.option.TestOption;
 import com.qqriceball.testData.order.TestOrder;
 import com.qqriceball.testData.product.TestProduct;
+import com.qqriceball.utils.TestDataGenerator;
 import org.springframework.beans.BeanUtils;
 
 import java.time.LocalDate;
@@ -100,9 +101,10 @@ public class OrderTestDataFactory {
     public static OrderDetailVO getOrderDetailVO(TestOrder testOrder, TestProduct testProduct, List<TestOption> testOptions) {
         OrderDetailVO orderDetailVO = new OrderDetailVO();
         BeanUtils.copyProperties(testOrder, orderDetailVO);
-        orderDetailVO.setId(2);
+        orderDetailVO.setId(TestDataGenerator.getUniqueInt());
 
         OrderItemVO itemVO = new OrderItemVO();
+        itemVO.setId(TestDataGenerator.getUniqueInt());
         itemVO.setOrderId(orderDetailVO.getId());
         itemVO.setProductId(testProduct.id());
         itemVO.setProductTitle(testProduct.title());
@@ -114,6 +116,7 @@ public class OrderTestDataFactory {
         List<OrderItemOptionVO> optionVOList = new ArrayList<>();
         for (TestOption option : testOptions) {
             OrderItemOptionVO optionVO = new OrderItemOptionVO();
+            optionVO.setId(TestDataGenerator.getUniqueInt());
             optionVO.setOrderItemId(itemVO.getId());
             optionVO.setId(option.id());
             optionVO.setOptionId(option.id());
