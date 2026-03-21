@@ -6,6 +6,7 @@ import com.qqriceball.common.result.Result;
 import com.qqriceball.model.dto.order.OrderCreateDTO;
 import com.qqriceball.model.dto.order.OrderEditDTO;
 import com.qqriceball.model.dto.order.OrderPageQueryDTO;
+import com.qqriceball.model.dto.order.OrderStatusDTO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.order.OrderDetailVO;
 import com.qqriceball.model.vo.order.OrderSummaryVO;
@@ -29,7 +30,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @Autowired
-    public OrderController(OrderService orderService){
+    public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
 
@@ -40,8 +41,8 @@ public class OrderController {
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
     public Result<OrderSummaryVO> createOrder(@AuthenticationPrincipal EmpVO currentEmp,
-                                         @Valid @RequestBody OrderCreateDTO orderCreateDTO){
-        log.info("5001 新增訂單,操作 id:{},參數:{}",currentEmp.getId(), orderCreateDTO);
+                                              @Valid @RequestBody OrderCreateDTO orderCreateDTO) {
+        log.info("5001 新增訂單,操作 id:{},參數:{}", currentEmp.getId(), orderCreateDTO);
         OrderSummaryVO orderSummaryVO = orderService.create(orderCreateDTO);
         return Result.success(orderSummaryVO);
     }
@@ -53,8 +54,8 @@ public class OrderController {
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
     public Result<PageResult> pageQueryOrder(@AuthenticationPrincipal EmpVO currentEmp,
-                                             @Valid OrderPageQueryDTO orderPageQueryDTO){
-        log.info("5002 訂單分頁查詢,操作 id:{},參數:{}",currentEmp.getId(),orderPageQueryDTO);
+                                             @Valid OrderPageQueryDTO orderPageQueryDTO) {
+        log.info("5002 訂單分頁查詢,操作 id:{},參數:{}", currentEmp.getId(), orderPageQueryDTO);
         PageResult pageResult = orderService.pageQuery(orderPageQueryDTO);
         return Result.success(pageResult);
     }
@@ -67,7 +68,7 @@ public class OrderController {
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
     public Result<OrderSummaryVO> updateOrderByOrderNo(@AuthenticationPrincipal EmpVO currentEmp,
-                                           @Valid @RequestBody OrderEditDTO orderEditDTO) {
+                                                       @Valid @RequestBody OrderEditDTO orderEditDTO) {
         log.info("5003 修改訂單,操作 id:{},參數:{}", currentEmp.getId(), orderEditDTO);
         OrderSummaryVO orderSummaryVO = orderService.updateByOrderNo(orderEditDTO);
         return Result.success(orderSummaryVO);
@@ -87,4 +88,18 @@ public class OrderController {
         return Result.success(orderDetailVO);
     }
 
+    @Operation(summary = "5005 根據 OrderNo 更新訂單狀態")
+    @PatchMapping("/{orderNo}/status")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "訂單狀態更新成功"),
+            @ApiResponse(responseCode = "404", description = "訂單不存在"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<Void> updateOrderStatusByOrderNo(@AuthenticationPrincipal EmpVO currentEmp,
+                                                   @PathVariable String orderNo,
+                                                   @Valid @RequestBody OrderStatusDTO orderStatusDTO) {
+        log.info("5005 根據 OrderNo 更新訂單狀態,操作 id:{},訂單編號:{},狀態:{}", currentEmp.getId(), orderNo, orderStatusDTO);
+        orderService.updateStatusByOrderNo(orderNo, orderStatusDTO);
+        return Result.success();
+    }
 }

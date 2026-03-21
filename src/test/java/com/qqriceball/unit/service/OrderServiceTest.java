@@ -560,7 +560,7 @@ public class OrderServiceTest {
         ResourceUnavailableException exception = assertThrows(ResourceUnavailableException.class,
                 () -> orderService.updateByOrderNo(orderEditDTO));
 
-        assertEquals(MessageEnum.ORDER_CAN_NOT_BE_MODIFIED.getMessage(), exception.getMessage(), "異常訊息應與預期相同");
+        assertEquals(MessageEnum.ORDER_NOT_EDITABLE.getMessage(), exception.getMessage(), "異常訊息應與預期相同");
     }
 
     @Test
@@ -619,4 +619,134 @@ public class OrderServiceTest {
         verify(orderItemOptionMapper, never()).getOptionsByItemId(any(Integer.class));
     }
 
+    @Test
+    @DisplayName("[Unit] OrderService.updateStatusByOrderNo() - 更改訂單狀態，應呼叫 orderMapper.updateStatusByOrderNo 傳入參數")
+    void testUpdateStatusByOrderNoSuccess() {
+        String orderNo = SeedOrderData.orderMaking.orderNo();
+        Integer newStatus = OrderStatusEnum.READY.getCode();
+        OrderStatusDTO orderStatusDTO = new OrderStatusDTO();
+        orderStatusDTO.setStatus(newStatus);
+
+        OrderDetailVO mockExistingOrder = OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+
+        when(orderMapper.getByOrderNo(any(String.class))).thenReturn(mockExistingOrder);
+
+        orderService.updateStatusByOrderNo(orderNo, orderStatusDTO);
+
+        ArgumentCaptor<String> orderNoCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Integer> statusCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(orderMapper).updateStatusByOrderNo(orderNoCaptor.capture(), statusCaptor.capture());
+
+        String capturedOrderNo = orderNoCaptor.getValue();
+        Integer capturedStatus = statusCaptor.getValue();
+
+        assertAll(
+                () -> assertEquals(orderNo, capturedOrderNo, "應依據 orderNo 更新訂單狀態"),
+                () -> assertEquals(newStatus, capturedStatus, "更新的狀態應與傳入參數相同")
+        );
+    }
+
+    @Test
+    @DisplayName("[Unit] OrderService.updateStatusByOrderNo() - 更改訂單狀態，查無訂單編號，應拋出 ResourceNotFoundException")
+    void testUpdateStatusByOrderNoNotExist() {
+        String orderNo = SeedOrderData.orderMaking.orderNo();
+        Integer newStatus = OrderStatusEnum.READY.getCode();
+        OrderStatusDTO orderStatusDTO = new OrderStatusDTO();
+        orderStatusDTO.setStatus(newStatus);
+
+        when(orderMapper.getByOrderNo(any(String.class))).thenReturn(null);
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> orderService.updateStatusByOrderNo(orderNo, orderStatusDTO));
+
+        assertEquals(MessageEnum.ORDER_NOT_EXIST.getMessage(), exception.getMessage(), "異常訊息應與預期相同");
+        verify(orderMapper).getByOrderNo(any(String.class));
+        verify(orderMapper, never()).updateStatusByOrderNo(any(String.class), any(Integer.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OrderService.updateStatusByOrderNo() - 更改訂單狀態，Ready 無法轉換為 Making，應拋出 BadRequestArgsException")
+    void testUpdateStatusByOrderNoReadyCanNotTransitionToMaking() {
+        String orderNo = SeedOrderData.orderReady.orderNo();
+        Integer newStatus = OrderStatusEnum.MAKING.getCode();
+        OrderStatusDTO orderStatusDTO = new OrderStatusDTO();
+        orderStatusDTO.setStatus(newStatus);
+
+        OrderDetailVO mockExistingOrder = OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+
+        when(orderMapper.getByOrderNo(any(String.class))).thenReturn(mockExistingOrder);
+
+        BadRequestArgsException exception = assertThrows(BadRequestArgsException.class,
+                () -> orderService.updateStatusByOrderNo(orderNo, orderStatusDTO));
+
+        assertEquals(MessageEnum.ORDER_STATUS_TRANSITION_NOT_ALLOWED.getMessage(), exception.getMessage(), "異常訊息應與預期相同");
+        verify(orderMapper).getByOrderNo(any(String.class));
+        verify(orderMapper, never()).updateStatusByOrderNo(any(String.class), any(Integer.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OrderService.updateStatusByOrderNo() - 更改訂單狀態，Ready 無法轉換為 Cancel，應拋出 BadRequestArgsException")
+    void testUpdateStatusByOrderNoReadyCanNotTransitionToCancel() {
+        String orderNo = SeedOrderData.orderReady.orderNo();
+        Integer newStatus = OrderStatusEnum.CANCELLED.getCode();
+        OrderStatusDTO orderStatusDTO = new OrderStatusDTO();
+        orderStatusDTO.setStatus(newStatus);
+
+        OrderDetailVO mockExistingOrder = OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderReady,
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+
+        when(orderMapper.getByOrderNo(any(String.class))).thenReturn(mockExistingOrder);
+
+        BadRequestArgsException exception = assertThrows(BadRequestArgsException.class,
+                () -> orderService.updateStatusByOrderNo(orderNo, orderStatusDTO));
+
+        assertEquals(MessageEnum.ORDER_STATUS_TRANSITION_NOT_ALLOWED.getMessage(), exception.getMessage(), "異常訊息應與預期相同");
+        verify(orderMapper).getByOrderNo(any(String.class));
+        verify(orderMapper, never()).updateStatusByOrderNo(any(String.class), any(Integer.class));
+    }
+
+
+    @Test
+    @DisplayName("[Unit] OrderService.updateStatusByOrderNo() - 更改訂單狀態， PickedUp 無法轉換為其他狀態，應拋出 BadRequestArgsException")
+    void testUpdateStatusByOrderNoPickedUpCanNotTransitionToOtherStatus(){
+        String orderNo = SeedOrderData.orderPickedUp.orderNo();
+        Integer newStatus = OrderStatusEnum.CANCELLED.getCode();
+        OrderStatusDTO orderStatusDTO = new OrderStatusDTO();
+        orderStatusDTO.setStatus(newStatus);
+
+        OrderDetailVO mockExistingOrder = OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderPickedUp,
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+
+        when(orderMapper.getByOrderNo(any(String.class))).thenReturn(mockExistingOrder);
+
+        BadRequestArgsException exception = assertThrows(BadRequestArgsException.class,
+                () -> orderService.updateStatusByOrderNo(orderNo, orderStatusDTO));
+
+        assertEquals(MessageEnum.ORDER_STATUS_TRANSITION_NOT_ALLOWED.getMessage(), exception.getMessage(), "異常訊息應與預期相同");
+        verify(orderMapper).getByOrderNo(any(String.class));
+        verify(orderMapper, never()).updateStatusByOrderNo(any(String.class), any(Integer.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OrderService.updateStatusByOrderNo() - 更改訂單狀態，Cancel 無法轉換為其他狀態，應拋出 BadRequestArgsException")
+    void testUpdateStatusByOrderNoCancelCanNotTransitionToOtherStatus() {
+        String orderNo = SeedOrderData.orderCancel.orderNo();
+        Integer newStatus = OrderStatusEnum.READY.getCode();
+        OrderStatusDTO orderStatusDTO = new OrderStatusDTO();
+        orderStatusDTO.setStatus(newStatus);
+
+        OrderDetailVO mockExistingOrder = OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderCancel,
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+
+        when(orderMapper.getByOrderNo(any(String.class))).thenReturn(mockExistingOrder);
+
+        BadRequestArgsException exception = assertThrows(BadRequestArgsException.class,
+                () -> orderService.updateStatusByOrderNo(orderNo, orderStatusDTO));
+
+        assertEquals(MessageEnum.ORDER_STATUS_TRANSITION_NOT_ALLOWED.getMessage(), exception.getMessage(), "異常訊息應與預期相同");
+        verify(orderMapper).getByOrderNo(any(String.class));
+        verify(orderMapper, never()).updateStatusByOrderNo(any(String.class), any(Integer.class));
+    }
 }

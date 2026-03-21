@@ -17,4 +17,22 @@ public enum OrderStatusEnum {
         this.code = code;
         this.desc = desc;
     }
+
+    public static OrderStatusEnum getByCode(Integer code){
+        if(code == null) return null;
+        for(OrderStatusEnum type : OrderStatusEnum.values()){
+            if(type.getCode() == code){
+                return type;
+            }
+        }
+        return null;
+    }
+
+    public Boolean canTransitionTo(OrderStatusEnum targetStatus) {
+        return switch (this){
+            case MAKING -> targetStatus == READY || targetStatus == PICKED_UP || targetStatus == CANCELLED;
+            case READY -> targetStatus == PICKED_UP;
+            case PICKED_UP, CANCELLED -> false; // 已領取和已取消狀態不可再轉換
+        };
+    }
 }

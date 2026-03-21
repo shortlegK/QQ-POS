@@ -5,10 +5,7 @@ package com.qqriceball.integration;
 import com.jayway.jsonpath.JsonPath;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.OrderStatusEnum;
-import com.qqriceball.model.dto.order.OrderCreateDTO;
-import com.qqriceball.model.dto.order.OrderEditDTO;
-import com.qqriceball.model.dto.order.OrderItemDTO;
-import com.qqriceball.model.dto.order.OrderItemOptionDTO;
+import com.qqriceball.model.dto.order.*;
 import com.qqriceball.testData.order.SeedOrderData;
 import com.qqriceball.testData.product.SeedProductData;
 import com.qqriceball.utils.order.OrderTestDataFactory;
@@ -374,7 +371,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_CAN_NOT_BE_MODIFIED.getCode()));
+                .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_NOT_EDITABLE.getCode()));
     }
 
     @Test
@@ -407,9 +404,67 @@ public class OrderControllerIT extends BaseIntegrationTest {
         String orderNo = "NotExistOrderNo";
 
         mockMvc.perform(
-                        get("/orders/{orderNo}", orderNo)
-                                .header("Authorization", "Bearer " + tokenManager)
+                get("/orders/{orderNo}", orderNo)
+                        .header("Authorization", "Bearer " + tokenManager)
                 ).andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_NOT_EXIST.getCode()));
+    }
+
+    @Test
+    @DisplayName("[IT] 5005 updateOrderStatusByOrderNo - 根據 OrderNo 更新訂單狀態成功，回傳 200")
+    void testUpdateOrderStatusByOrderNoSuccess() throws Exception {
+        String orderNo = SeedOrderData.orderReady.orderNo();
+        OrderStatusDTO orderStatusDTO = new OrderStatusDTO();
+        orderStatusDTO.setStatus(OrderStatusEnum.PICKED_UP.getCode());
+
+        String jsonBody = objectMapper.writeValueAsString(orderStatusDTO);
+        mockMvc.perform(
+                        patch("/orders/{orderNo}/status",orderNo)
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()));
+
+        // 驗證訂單狀態已更新
+        mockMvc.perform(
+                        get("/orders/{orderNo}", orderNo)
+                                .header("Authorization", "Bearer " + tokenManager)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.status").value(orderStatusDTO.getStatus()));
+    }
+
+    @Test
+    @DisplayName("[IT] 5005 updateOrderStatusByOrderNo - 根據 OrderNo 更新訂單狀態，查無訂單，應回傳 404")
+    void testUpdateOrderStatusByOrderNoNotFound() throws Exception {
+        String orderNo = "NotExistOrderNo";
+        OrderStatusDTO orderStatusDTO = new OrderStatusDTO();
+        orderStatusDTO.setStatus(OrderStatusEnum.READY.getCode());
+
+        String jsonBody = objectMapper.writeValueAsString(orderStatusDTO);
+        mockMvc.perform(
+                patch("/orders/{orderNo}/status",orderNo)
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_NOT_EXIST.getCode()));
+    }
+
+    @Test
+    @DisplayName("[IT] 5005 updateOrderStatusByOrderNo - 根據 OrderNo 更新訂單狀態，狀態轉換不合法，應回傳 400")
+    void testUpdateOrderStatusByOrderNoInvalidTransition() throws Exception {
+        String orderNo = SeedOrderData.orderReady.orderNo();
+        OrderStatusDTO orderStatusDTO = new OrderStatusDTO();
+        orderStatusDTO.setStatus(OrderStatusEnum.CANCELLED.getCode());
+
+        String jsonBody = objectMapper.writeValueAsString(orderStatusDTO);
+        mockMvc.perform(
+                        patch("/orders/{orderNo}/status",orderNo)
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_STATUS_TRANSITION_NOT_ALLOWED.getCode()));
     }
 }

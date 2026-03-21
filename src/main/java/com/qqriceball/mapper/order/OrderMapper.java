@@ -7,6 +7,7 @@ import com.qqriceball.model.entity.order.Order;
 import com.qqriceball.model.vo.order.OrderDetailVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -28,5 +29,9 @@ public interface OrderMapper {
 
     @AutoFill(value = OperationType.UPDATE)
     void updateByOrderNo(Order order);
+
+    @AutoFill(value = OperationType.UPDATE)
+    @Update("UPDATE orders SET status = #{status} WHERE order_no = #{orderNo}")
+    void updateStatusByOrderNo(String orderNo, Integer status);
 
 }

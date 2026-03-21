@@ -9,6 +9,7 @@ import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.controller.OrderController;
 import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.enumeration.OrderStatusEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
 import com.qqriceball.model.dto.order.*;
 import com.qqriceball.model.vo.EmpVO;
@@ -19,10 +20,7 @@ import com.qqriceball.service.OrderService;
 import com.qqriceball.testData.order.SeedOrderData;
 import com.qqriceball.testData.product.SeedProductData;
 import com.qqriceball.utils.order.OrderTestDataFactory;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -64,7 +62,7 @@ public class OrderControllerTest {
     EmpService empService;
 
     @Autowired
-    private  ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUpAuth() {
@@ -90,14 +88,14 @@ public class OrderControllerTest {
         orderCreateDTO.setItems(List.of(orderItemDTO));
 
         OrderSummaryVO orderSummaryVO = new OrderSummaryVO();
-        BeanUtils.copyProperties(SeedOrderData.orderMaking,orderSummaryVO);
+        BeanUtils.copyProperties(SeedOrderData.orderMaking, orderSummaryVO);
         when(orderService.create(any(OrderCreateDTO.class))).thenReturn(orderSummaryVO);
 
         String jsonBody = objectMapper.writeValueAsString(orderCreateDTO);
         mockMvc.perform(
-                post("/orders/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonBody)
+                        post("/orders/create")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data").exists());
@@ -117,7 +115,7 @@ public class OrderControllerTest {
                 post("/orders/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-                ).andExpect(status().isBadRequest());
+        ).andExpect(status().isBadRequest());
 
         verify(orderService, never()).create(any(OrderCreateDTO.class));
     }
@@ -348,7 +346,7 @@ public class OrderControllerTest {
         OrderPageQueryDTO orderPageQueryDTO = OrderTestDataFactory.getOrderPageQueryDTO(page, pageSize,
                 null, null, startDate, endDate);
 
-        List <OrderDetailVO> mockData = new ArrayList<>();
+        List<OrderDetailVO> mockData = new ArrayList<>();
         mockData.add(OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
                 SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON));
 
@@ -358,16 +356,16 @@ public class OrderControllerTest {
 
         when(orderService.pageQuery(any(OrderPageQueryDTO.class))).thenReturn(mockResult);
 
-       mockMvc.perform(
-                get("/orders/page")
-                        .param("page", orderPageQueryDTO.getPage().toString())
-                        .param("pageSize", orderPageQueryDTO.getPageSize().toString())
-                        .param("startDate", orderPageQueryDTO.getStartDate().toString())
-                        .param("endDate", orderPageQueryDTO.getEndDate().toString())
+        mockMvc.perform(
+                        get("/orders/page")
+                                .param("page", orderPageQueryDTO.getPage().toString())
+                                .param("pageSize", orderPageQueryDTO.getPageSize().toString())
+                                .param("startDate", orderPageQueryDTO.getStartDate().toString())
+                                .param("endDate", orderPageQueryDTO.getEndDate().toString())
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data").exists());
-       verify(orderService).pageQuery(any(OrderPageQueryDTO.class));
+        verify(orderService).pageQuery(any(OrderPageQueryDTO.class));
     }
 
     @Test
@@ -384,13 +382,13 @@ public class OrderControllerTest {
                 null, invalidStatus, startDate, endDate);
 
         mockMvc.perform(
-                        get("/orders/page")
-                                .param("page", orderPageQueryDTO.getPage().toString())
-                                .param("pageSize", orderPageQueryDTO.getPageSize().toString())
-                                .param("status", orderPageQueryDTO.getStatus().toString())
-                                .param("startDate", orderPageQueryDTO.getStartDate().toString())
-                                .param("endDate", orderPageQueryDTO.getEndDate().toString())
-                ).andExpect(status().isBadRequest());
+                get("/orders/page")
+                        .param("page", orderPageQueryDTO.getPage().toString())
+                        .param("pageSize", orderPageQueryDTO.getPageSize().toString())
+                        .param("status", orderPageQueryDTO.getStatus().toString())
+                        .param("startDate", orderPageQueryDTO.getStartDate().toString())
+                        .param("endDate", orderPageQueryDTO.getEndDate().toString())
+        ).andExpect(status().isBadRequest());
 
         verify(orderService, never()).pageQuery(any(OrderPageQueryDTO.class));
     }
@@ -408,17 +406,17 @@ public class OrderControllerTest {
                 null, null, startDate, null);
 
         mockMvc.perform(
-                        get("/orders/page")
-                                .param("page", orderPageQueryDTO.getPage().toString())
-                                .param("pageSize", orderPageQueryDTO.getPageSize().toString())
-                                .param("startDate", orderPageQueryDTO.getStartDate().toString())
-                ).andExpect(status().isBadRequest());
+                get("/orders/page")
+                        .param("page", orderPageQueryDTO.getPage().toString())
+                        .param("pageSize", orderPageQueryDTO.getPageSize().toString())
+                        .param("startDate", orderPageQueryDTO.getStartDate().toString())
+        ).andExpect(status().isBadRequest());
 
         verify(orderService, never()).pageQuery(any(OrderPageQueryDTO.class));
     }
 
     @Test
-    @DisplayName("[Unit] OrderController.updateByOrderNo - 更新訂單資料成功，應回傳 200 及資料")
+    @DisplayName("[Unit] OrderController.updateByOrderNo() - 更新訂單資料成功，應回傳 200 及資料")
     void testUpdateOrderByOrderNoSuccess() throws Exception {
 
         List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
@@ -429,7 +427,7 @@ public class OrderControllerTest {
         orderEditDTO.setOrderNo(SeedOrderData.orderMaking.orderNo());
 
         OrderSummaryVO orderSummaryVO = new OrderSummaryVO();
-        BeanUtils.copyProperties(SeedOrderData.orderMaking,orderSummaryVO);
+        BeanUtils.copyProperties(SeedOrderData.orderMaking, orderSummaryVO);
         when(orderService.updateByOrderNo(any(OrderEditDTO.class))).thenReturn(orderSummaryVO);
 
         String jsonBody = objectMapper.writeValueAsString(orderEditDTO);
@@ -444,8 +442,8 @@ public class OrderControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OrderController.updateByOrderNo - 更新訂單資料缺少訂單編號，應回傳 400 及指定訊息")
-    void testUpdateOrderByOrderNoWithOutOrderNo() throws Exception{
+    @DisplayName("[Unit] OrderController.updateByOrderNo() - 更新訂單資料缺少訂單編號，應回傳 400 及指定訊息")
+    void testUpdateOrderByOrderNoWithOutOrderNo() throws Exception {
 
         List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
         OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
@@ -465,7 +463,7 @@ public class OrderControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OrderController.updateByOrderNo - 更新訂單資料，查無訂單應回傳 404 及指定訊息")
+    @DisplayName("[Unit] OrderController.updateByOrderNo() - 更新訂單資料，查無訂單應回傳 404 及指定訊息")
     void testUpdateOrderByOrderNoNotExist() throws Exception {
 
         List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
@@ -490,7 +488,7 @@ public class OrderControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OrderController.updateByOrderNo - 更新訂單資料，訂單狀態非製作中應回傳 409 及指定訊息")
+    @DisplayName("[Unit] OrderController.updateByOrderNo() - 更新訂單資料，訂單狀態非製作中應回傳 409 及指定訊息")
     void testUpdateOrderByOrderNoStatusError() throws Exception {
         List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
         OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
@@ -499,7 +497,7 @@ public class OrderControllerTest {
         orderEditDTO.setItems(List.of(orderItemDTO));
         orderEditDTO.setOrderNo(SeedOrderData.orderCancel.orderNo());
 
-        doThrow(new ResourceUnavailableException(MessageEnum.ORDER_CAN_NOT_BE_MODIFIED))
+        doThrow(new ResourceUnavailableException(MessageEnum.ORDER_NOT_EDITABLE))
                 .when(orderService).updateByOrderNo(any(OrderEditDTO.class));
 
         String jsonBody = objectMapper.writeValueAsString(orderEditDTO);
@@ -508,13 +506,13 @@ public class OrderControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_CAN_NOT_BE_MODIFIED.getCode()));
+                .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_NOT_EDITABLE.getCode()));
 
         verify(orderService).updateByOrderNo(any(OrderEditDTO.class));
     }
 
     @Test
-    @DisplayName("[Unit] OrderController.getByOrderNo - 查詢訂單資料成功，應回傳 200 及資料")
+    @DisplayName("[Unit] OrderController.getByOrderNo() - 查詢訂單資料成功，應回傳 200 及資料")
     void testGetOrderByOrderNoSuccess() throws Exception {
         String expectedOrderNo = SeedOrderData.orderMaking.orderNo();
 
@@ -533,7 +531,7 @@ public class OrderControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OrderController.getByOrderNo - 查詢訂單資料，查無訂單應回傳 404 及指定訊息")
+    @DisplayName("[Unit] OrderController.getByOrderNo() - 查詢訂單資料，查無訂單應回傳 404 及指定訊息")
     void testGetOrderByOrderNoNotExist() throws Exception {
         String expectedOrderNo = SeedOrderData.orderMaking.orderNo();
 
@@ -547,4 +545,81 @@ public class OrderControllerTest {
                 .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_NOT_EXIST.getCode()));
     }
 
+    @Test
+    @DisplayName("[Unit] OrderController.updateStatusByOrderNo() - 更新訂單狀態成功，應回傳 200")
+    void testUpdateOrderStatusByOrderNoSuccess() throws Exception {
+        String expectedOrderNo = SeedOrderData.orderMaking.orderNo();
+        OrderStatusDTO orderStatusDTO = new OrderStatusDTO();
+        orderStatusDTO.setStatus(OrderStatusEnum.PICKED_UP.getCode());
+
+        String jsonBody = objectMapper.writeValueAsString(orderStatusDTO);
+        mockMvc.perform(
+                        patch("/orders/{orderNo}/status", expectedOrderNo)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()));
+
+        verify(orderService).updateStatusByOrderNo(anyString(), any(OrderStatusDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OrderController.updateStatusByOrderNo() - 更新訂單狀態，查無訂單應回傳 404 及指定訊息")
+    void testUpdateOrderStatusByOrderNoNotExist() throws Exception {
+        String expectedOrderNo = SeedOrderData.orderMaking.orderNo();
+        OrderStatusDTO orderStatusDTO = new OrderStatusDTO();
+        orderStatusDTO.setStatus(OrderStatusEnum.PICKED_UP.getCode());
+
+        doThrow(new ResourceNotFoundException(MessageEnum.ORDER_NOT_EXIST))
+                .when(orderService).updateStatusByOrderNo(anyString(), any(OrderStatusDTO.class));
+
+        String jsonBody = objectMapper.writeValueAsString(orderStatusDTO);
+        mockMvc.perform(
+                        patch("/orders/{orderNo}/status", expectedOrderNo)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_NOT_EXIST.getCode()));
+
+        verify(orderService).updateStatusByOrderNo(anyString(), any(OrderStatusDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OrderController.updateStatusByOrderNo() - 更新訂單狀態，訂單狀態不可更新應回傳 400 及指定訊息")
+    void testUpdateOrderStatusByOrderNoStatusError() throws Exception {
+        String expectedOrderNo = SeedOrderData.orderMaking.orderNo();
+        OrderStatusDTO orderStatusDTO = new OrderStatusDTO();
+        orderStatusDTO.setStatus(OrderStatusEnum.CANCELLED.getCode());
+
+        doThrow(new BadRequestArgsException(MessageEnum.ORDER_STATUS_TRANSITION_NOT_ALLOWED))
+                .when(orderService).updateStatusByOrderNo(anyString(), any(OrderStatusDTO.class));
+
+        String jsonBody = objectMapper.writeValueAsString(orderStatusDTO);
+        mockMvc.perform(
+                        patch("/orders/{orderNo}/status", expectedOrderNo)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_STATUS_TRANSITION_NOT_ALLOWED.getCode()));
+
+        verify(orderService).updateStatusByOrderNo(anyString(), any(OrderStatusDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OrderController.updateStatusByOrderNo() - 更新訂單狀態，狀態參數超出範圍應回傳 400 及指定訊息")
+    void testUpdateOrderStatusByOrderNoInvalidStatus() throws Exception {
+        String expectedOrderNo = SeedOrderData.orderMaking.orderNo();
+        OrderStatusDTO orderStatusDTO = new OrderStatusDTO();
+        orderStatusDTO.setStatus(5);
+
+        String jsonBody = objectMapper.writeValueAsString(orderStatusDTO);
+        mockMvc.perform(
+                        patch("/orders/{orderNo}/status", expectedOrderNo)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(MessageEnum.BAD_REQUEST.getCode()));
+
+        verify(orderService, never()).updateStatusByOrderNo(anyString(), any(OrderStatusDTO.class));
+    }
 }

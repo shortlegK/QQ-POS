@@ -138,7 +138,7 @@ public class OrderService {
         // 2. 確認訂單狀態為製作中
         if (existingOrder.getStatus() != OrderStatusEnum.MAKING.getCode()) {
             log.error("無法修改訂單資料,訂單編號: {},訂單狀態: {}", orderEditDTO.getOrderNo(), existingOrder.getStatus());
-            throw new ResourceUnavailableException(MessageEnum.ORDER_CAN_NOT_BE_MODIFIED);
+            throw new ResourceUnavailableException(MessageEnum.ORDER_NOT_EDITABLE);
         }
 
         // 3. 準備訂單草稿（驗證資料、計算金額、組裝草稿）
@@ -164,6 +164,30 @@ public class OrderService {
 
     public OrderDetailVO getByOrderNo(String orderNo){
         return this.getExistingOrderByOrderNo(orderNo);
+    }
+
+    public void updateStatusByOrderNo(String orderNo, OrderStatusDTO orderStatusDTO) {
+        OrderDetailVO existingOrder = orderMapper.getByOrderNo(orderNo);
+        if (existingOrder == null) {
+            log.error("查無訂單資料,訂單編號: {}", orderNo);
+            throw new ResourceNotFoundException(MessageEnum.ORDER_NOT_EXIST);
+        }
+
+        OrderStatusEnum currentStatus = OrderStatusEnum.getByCode(existingOrder.getStatus());
+        OrderStatusEnum targetStatus = OrderStatusEnum.getByCode(orderStatusDTO.getStatus());
+
+        if (targetStatus == null) {
+            log.error("欲修改訂單狀態錯誤: {}", orderStatusDTO.getStatus());
+            throw new BadRequestArgsException(MessageEnum.ORDER_STATUS_CODE_INVALID);
+        }
+
+        if (currentStatus.canTransitionTo(targetStatus)) {
+            orderMapper.updateStatusByOrderNo(orderNo, targetStatus.getCode());
+        } else {
+            log.error("訂單狀態無法轉換,訂單編號: {},當前狀態: {},目標狀態: {}",
+                    orderNo, currentStatus, targetStatus);
+            throw new BadRequestArgsException(MessageEnum.ORDER_STATUS_TRANSITION_NOT_ALLOWED);
+        }
     }
 
     private PreparedOrder prepareOrderDraft(List<OrderItemDTO> itemDTOList) {

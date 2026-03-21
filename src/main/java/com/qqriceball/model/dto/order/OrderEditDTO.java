@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-@Schema(description = "訂單建立資料")
+@Schema(description = "訂單編輯資料")
 public class OrderEditDTO {
 
     @Schema(description = "訂單編號(yyyyMMdd+流水號)")
