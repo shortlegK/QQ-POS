@@ -15,7 +15,7 @@ spring:
     username: ${DB_USERNAME_PROD}
     password: ${DB_PASSWORD_PROD}
 
-# 初始化管理員帳號設定（加上這段）
+# 初始化管理員帳號設定
 app:
   init-admin: ${APP_INIT_ADMIN:false}
   init-admin-username: ${APP_INIT_ADMIN_USERNAME:}
