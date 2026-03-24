@@ -20,3 +20,6 @@ app:
   init-admin: ${APP_INIT_ADMIN:false}
   init-admin-username: ${APP_INIT_ADMIN_USERNAME:}
   init-admin-password: ${APP_INIT_ADMIN_PASSWORD:}
+
+server:
+  forward-headers-strategy: framework
