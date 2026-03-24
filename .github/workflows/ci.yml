@@ -146,5 +146,5 @@ jobs:
       # 3. 部署到 Railway
       - name: Deploy to Railway
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
         run: railway up --service QQ-POS --project ${{ secrets.RAILWAY_PROJECT_ID }} --environment production --ci
