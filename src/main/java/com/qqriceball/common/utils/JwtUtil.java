@@ -19,13 +19,13 @@ public class JwtUtil {
 
         return Jwts.builder()
                 // 使用者 ID
-                .setSubject(String.valueOf(userId))
+                .subject(String.valueOf(userId))
                 // 使用者名稱
                 .claim("username", username)
                 // 簽發時間
-                .setIssuedAt(now)
+                .issuedAt(now)
                 // 過期時間
-                .setExpiration(new Date(nowMillis + ttlMillis))
+                .expiration(new Date(nowMillis + ttlMillis))
                 // HS256 by default
                 .signWith(key)
                 .compact();
@@ -35,10 +35,10 @@ public class JwtUtil {
     public static Claims parseToken(String secretKey, String token) {
         SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
+        return Jwts.parser()
+                .verifyWith(key)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }
