@@ -6,12 +6,10 @@ import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.ProductTypeEnum;
-import com.qqriceball.model.dto.product.ProductActiveQueryDTO;
+import com.qqriceball.enumeration.StatusEnum;
+import com.qqriceball.model.dto.product.*;
 import com.qqriceball.testData.product.SeedProductData;
 import com.qqriceball.mapper.ProductMapper;
-import com.qqriceball.model.dto.product.ProductCreateDTO;
-import com.qqriceball.model.dto.product.ProductEditDTO;
-import com.qqriceball.model.dto.product.ProductPageQueryDTO;
 import com.qqriceball.model.entity.Product;
 import com.qqriceball.model.vo.ProductVO;
 import com.qqriceball.service.ProductService;
@@ -213,4 +211,42 @@ public class ProductServiceTest {
         verify(productMapper).getActiveProductByType(any(ProductActiveQueryDTO.class));
     }
 
+    @Test
+    @DisplayName("[Unit] ProductService.updateStatus() - 更新產品上架狀態，應呼叫 ProductMapper.updateById 傳入參數")
+    void testUpdateStatusSuccess(){
+        Integer id = SeedProductData.DRINK_PRODUCT.id();
+        ProductStatusDTO productStatusDTO = new ProductStatusDTO();
+        productStatusDTO.setStatus(StatusEnum.ACTIVE.getCode());
+
+        ProductVO mockProduct = ProductTestDataFactory.getProductVO(SeedProductData.DRINK_PRODUCT);
+
+        when(productMapper.getById(anyInt())).thenReturn(mockProduct);
+
+        productService.updateStatus(id,productStatusDTO);
+
+        ArgumentCaptor<Product> productCaptor = ArgumentCaptor.forClass(Product.class);
+        verify(productMapper).updateById(productCaptor.capture());
+
+        Product updateProduct = productCaptor.getValue();
+
+        assertAll(
+                () -> assertEquals(id,updateProduct.getId(),"id 應與傳入參數相同"),
+                () -> assertEquals(productStatusDTO.getStatus(),updateProduct.getStatus(),"status 應與傳入參數相同")
+        );
+    }
+
+    @Test
+    @DisplayName("[Unit] ProductService.updateStatus() - 更新產品上架狀態，id 不存在，應拋出 ResourceNotFoundException")
+    void testUpdateStatusProductNotExist(){
+        Integer id = Integer.MAX_VALUE;
+        ProductStatusDTO productStatusDTO = new ProductStatusDTO();
+        productStatusDTO.setStatus(StatusEnum.ACTIVE.getCode());
+
+        when(productMapper.getById(anyInt())).thenReturn(null);
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> productService.updateStatus(id,productStatusDTO));
+
+        verify(productMapper,never()).updateById(any(Product.class));
+    }
 }

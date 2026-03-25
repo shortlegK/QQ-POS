@@ -7,12 +7,10 @@ import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.controller.ProductController;
 import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
-import com.qqriceball.model.dto.product.ProductActiveQueryDTO;
+import com.qqriceball.model.dto.product.*;
 import com.qqriceball.testData.product.SeedProductData;
-import com.qqriceball.model.dto.product.ProductCreateDTO;
-import com.qqriceball.model.dto.product.ProductEditDTO;
-import com.qqriceball.model.dto.product.ProductPageQueryDTO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.ProductVO;
 import com.qqriceball.service.EmpService;
@@ -341,4 +339,64 @@ public class ProductControllerTest {
 
         verify(productService, never()).getActiveProductByType(any(ProductActiveQueryDTO.class));
     }
+
+
+    @Test
+    @DisplayName("[Unit] ProductController.updateProductStatus() - 更新成功，應回傳 200")
+    void testUpdateProductStatusSuccess() throws Exception{
+        Integer id = SeedProductData.DRINK_PRODUCT.id();
+        ProductStatusDTO productStatusDTO = new ProductStatusDTO();
+        productStatusDTO.setStatus(StatusEnum.ACTIVE.getCode());
+
+        ProductVO mockProduct = ProductTestDataFactory.getProductVO(SeedProductData.DRINK_PRODUCT);
+        when(productService.getById(any(Integer.class))).thenReturn(mockProduct);
+
+        String jsonBody = objectMapper.writeValueAsString(productStatusDTO);
+        mockMvc.perform(
+                patch("/products/{id}/status",id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        ).andExpect(status().isOk());
+
+        verify(productService).updateStatus(anyInt(),any(ProductStatusDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] ProductController.updateProductStatus() - id 不存在，應回傳 404 及指定訊息")
+    void testUpdateProductStatusProductNotExist() throws Exception{
+        Integer id = SeedProductData.DRINK_PRODUCT.id();
+        ProductStatusDTO productStatusDTO = new ProductStatusDTO();
+        productStatusDTO.setStatus(StatusEnum.ACTIVE.getCode());
+
+        doThrow(new ResourceNotFoundException(MessageEnum.PRODUCT_NOT_EXIST))
+                .when(productService).updateStatus(anyInt(),any(ProductStatusDTO.class));
+
+        String jsonBody = objectMapper.writeValueAsString(productStatusDTO);
+        mockMvc.perform(
+                patch("/products/{id}/status",id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.PRODUCT_NOT_EXIST.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.PRODUCT_NOT_EXIST.getMessage()));
+    }
+
+    @Test
+    @DisplayName("[Unit] ProductController.updateProductStatus() - 狀態參數超出範圍，應回傳 400")
+    void testUpdateProductStatusInvalidStatus() throws Exception{
+
+        Integer id = SeedProductData.DRINK_PRODUCT.id();
+        ProductStatusDTO productStatusDTO = new ProductStatusDTO();
+        productStatusDTO.setStatus(3);
+
+        String jsonBody = objectMapper.writeValueAsString(productStatusDTO);
+        mockMvc.perform(
+                patch("/products/{id}/status",id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        ).andExpect(status().isBadRequest());
+
+        verify(productService,never()).updateStatus(anyInt(),any(ProductStatusDTO.class));
+    }
+
 }

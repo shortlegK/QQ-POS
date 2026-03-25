@@ -6,13 +6,13 @@ import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.model.dto.product.ProductCreateDTO;
 import com.qqriceball.model.dto.product.ProductEditDTO;
 import com.qqriceball.model.dto.product.ProductPageQueryDTO;
+import com.qqriceball.model.dto.product.ProductStatusDTO;
 import com.qqriceball.testData.product.SeedProductData;
 import com.qqriceball.utils.TestDataGenerator;
 import com.qqriceball.utils.product.ProductTestDataFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.ResultActions;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -82,16 +82,13 @@ public class ProductControllerIT extends BaseIntegrationTest{
         queryDTO.setPageSize(5);
         queryDTO.setTitle(SeedProductData.MEAT_PRODUCT.title());
 
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 get("/products/page")
                         .header("Authorization", "Bearer " + tokenManager)
                         .param("page", queryDTO.getPage().toString())
                         .param("pageSize", queryDTO.getPageSize().toString())
                         .param("title", queryDTO.getTitle())
-        );
-
-        resultActions
-                .andExpect(status().isOk())
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.total").isNumber())
                 .andExpect(jsonPath("$.data.page").value(queryDTO.getPage()))
@@ -200,6 +197,50 @@ public class ProductControllerIT extends BaseIntegrationTest{
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data[*].productType").value(everyItem(equalTo(productType.getCode()))))
                 .andExpect(jsonPath("$.data[*].status").value(everyItem(equalTo(StatusEnum.ACTIVE.getCode()))));
+    }
+
+    @Test
+    @DisplayName("[IT] 3006 updateProductStatus - 更新成功，應回傳 200")
+    void testUpdateProductStatusSuccess() throws Exception{
+        Integer id = SeedProductData.DRINK_PRODUCT.id();
+        ProductStatusDTO productStatusDTO = new ProductStatusDTO();
+        productStatusDTO.setStatus(StatusEnum.ACTIVE.getCode());
+
+        String jsonBody = objectMapper.writeValueAsString(productStatusDTO);
+        mockMvc.perform(
+                patch("/products/{id}/status",id)
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        ).andExpect(status().isOk());
+
+        mockMvc.perform(
+                get("/products/{id}", id)
+                        .header("Authorization", "Bearer " + tokenManager))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.id").value(id))
+                .andExpect(jsonPath("$.data.status").value(productStatusDTO.getStatus())
+        );
+    }
+
+    @Test
+    @DisplayName("[IT] 3006 updateProductStatus - 更新品項 id 不存在，應回傳 404")
+    void testUpdateProductStatusNotExist() throws Exception{
+        Integer id = Integer.MAX_VALUE;
+        ProductStatusDTO productStatusDTO = new ProductStatusDTO();
+        productStatusDTO.setStatus(StatusEnum.ACTIVE.getCode());
+
+        String jsonBody = objectMapper.writeValueAsString(productStatusDTO);
+        mockMvc.perform(
+                        patch("/products/{id}/status",id)
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.PRODUCT_NOT_EXIST.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.PRODUCT_NOT_EXIST.getMessage()))
+                .andExpect(jsonPath("$.data").isEmpty());
     }
 
 }

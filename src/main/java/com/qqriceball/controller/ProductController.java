@@ -2,10 +2,7 @@ package com.qqriceball.controller;
 
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.common.result.Result;
-import com.qqriceball.model.dto.product.ProductActiveQueryDTO;
-import com.qqriceball.model.dto.product.ProductCreateDTO;
-import com.qqriceball.model.dto.product.ProductEditDTO;
-import com.qqriceball.model.dto.product.ProductPageQueryDTO;
+import com.qqriceball.model.dto.product.*;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.ProductVO;
 import com.qqriceball.service.ProductService;
@@ -24,7 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/products")
 @Slf4j
-@Tag(name = "產品品項")
+@Tag(name = "產品管理")
 public class ProductController {
 
     private final ProductService productService;
@@ -35,7 +32,7 @@ public class ProductController {
     }
 
 
-    @Operation(summary = "3001 新增產品品項")
+    @Operation(summary = "3001 新增產品資料")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "產品品項新增成功"),
             @ApiResponse(responseCode = "409", description = "產品品項名稱重複"),
@@ -49,7 +46,7 @@ public class ProductController {
         return Result.success(productVO);
     }
 
-    @Operation(summary = "3002 產品品項分頁查詢")
+    @Operation(summary = "3002 產品分頁查詢")
     @GetMapping("/page")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "查詢成功"),
@@ -63,7 +60,7 @@ public class ProductController {
         return Result.success(pageResult);
     }
 
-    @Operation(summary = "3003 修改產品品項")
+    @Operation(summary = "3003 修改產品資料")
     @PutMapping
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "執行成功"),
@@ -78,7 +75,7 @@ public class ProductController {
     }
 
 
-    @Operation(summary = "3004 根據 ID 查詢產品品項")
+    @Operation(summary = "3004 根據 ID 查詢產品")
     @GetMapping("/{id}")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "查詢成功"),
@@ -87,12 +84,12 @@ public class ProductController {
     })
     public Result<ProductVO> getProductById(@AuthenticationPrincipal EmpVO currentEmp,
                                      @PathVariable Integer id){
-        log.info("3004 查詢產品品項,操作 id:{},id:{}",currentEmp.getId(),id);
+        log.info("3004 查詢產品,操作 id:{},id:{}",currentEmp.getId(),id);
         ProductVO productVO = productService.getById(id);
         return Result.success(productVO);
     }
 
-    @Operation(summary = "3005 根據 ProductType 查詢上架狀態的產品")
+    @Operation(summary = "3005 根據類型查詢上架狀態的產品")
     @GetMapping("/active")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "查詢成功"),
@@ -103,6 +100,21 @@ public class ProductController {
         log.info("3005 根據 ProductType 查詢上架狀態的產品,操作 id:{},參數:{}",currentEmp.getId(),productActiveQueryDTO);
         List<ProductVO> productVOList = productService.getActiveProductByType(productActiveQueryDTO);
         return Result.success(productVOList);
+    }
+
+    @Operation(summary = "3006 調整產品上架狀態")
+    @PatchMapping("{id}/status")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "執行成功"),
+            @ApiResponse(responseCode = "404", description = "產品品項不存在"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<Void> updateProductStatus(@AuthenticationPrincipal EmpVO currentEmp,
+                                            @PathVariable Integer id,
+                                            @Valid @RequestBody ProductStatusDTO productStatusDTO){
+        log.info("3006 修改產品上架狀態,操作 id:{},id:{},active:{}",currentEmp.getId(),id,productStatusDTO);
+        productService.updateStatus(id, productStatusDTO);
+        return Result.success();
     }
 
 }

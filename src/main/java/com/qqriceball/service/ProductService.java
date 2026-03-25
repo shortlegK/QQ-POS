@@ -4,13 +4,9 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.exception.AlreadyExistsException;
-import com.qqriceball.common.exception.BadRequestArgsException;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
-import com.qqriceball.model.dto.product.ProductActiveQueryDTO;
-import com.qqriceball.model.dto.product.ProductCreateDTO;
-import com.qqriceball.model.dto.product.ProductEditDTO;
-import com.qqriceball.model.dto.product.ProductPageQueryDTO;
+import com.qqriceball.model.dto.product.*;
 import com.qqriceball.model.entity.Product;
 import com.qqriceball.mapper.ProductMapper;
 import com.qqriceball.model.vo.ProductVO;
@@ -43,7 +39,7 @@ public class ProductService {
             productMapper.insert(product);
             return productMapper.getById(product.getId());
 
-        } catch (
+        } catch(
                 DuplicateKeyException e) {
             log.error("新增產品品項名稱已存在,title: {}", product.getTitle(), e);
             throw new AlreadyExistsException(MessageEnum.PRODUCT_ALREADY_EXISTS);
@@ -52,23 +48,15 @@ public class ProductService {
     }
 
     public PageResult pageQuery(ProductPageQueryDTO productPageQueryDTO) {
+        PageHelper.startPage(productPageQueryDTO.getPage(),
+                productPageQueryDTO.getPageSize());
 
+        List<ProductVO> list = productMapper.pageQuery(productPageQueryDTO);
 
-        try{
-            PageHelper.startPage(productPageQueryDTO.getPage(),
-                    productPageQueryDTO.getPageSize());
+        Page<ProductVO> page = (Page<ProductVO>) list;
 
-            List<ProductVO> list = productMapper.pageQuery(productPageQueryDTO);
-
-            Page<ProductVO> page = (Page<ProductVO>) list;
-
-            return new PageResult(page.getTotal(), productPageQueryDTO.getPage(),
-                    productPageQueryDTO.getPageSize(), page.getResult());
-
-        }catch (Exception e) {
-            log.error("查詢異常：{}", productPageQueryDTO, e);
-            throw new BadRequestArgsException(MessageEnum.BAD_REQUEST);
-        }
+        return new PageResult(page.getTotal(), productPageQueryDTO.getPage(),
+                productPageQueryDTO.getPageSize(), page.getResult());
     }
 
     public ProductVO updateById(ProductEditDTO productEditDTO) {
@@ -102,12 +90,15 @@ public class ProductService {
     }
 
     public List<ProductVO> getActiveProductByType(ProductActiveQueryDTO productActiveQueryDTO){
-        try {
-            return productMapper.getActiveProductByType(productActiveQueryDTO);
-        }catch (Exception e) {
-            log.error("查詢異常：{}", productActiveQueryDTO, e);
-            throw new BadRequestArgsException(MessageEnum.BAD_REQUEST);
-        }
+        return productMapper.getActiveProductByType(productActiveQueryDTO);
     }
 
+    public void updateStatus(Integer id, ProductStatusDTO productStatusDTO){
+        this.getById(id);
+
+        Product product = new Product();
+        product.setId(id);
+        product.setStatus(productStatusDTO.getStatus());
+        productMapper.updateById(product);
+    }
 }
