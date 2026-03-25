@@ -1,4 +1,4 @@
-package com.qqriceball.service;
+package com.qqriceball;
 
 import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.enumeration.StatusEnum;
