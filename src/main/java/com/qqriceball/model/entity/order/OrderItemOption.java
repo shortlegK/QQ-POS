@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,13 +12,13 @@ import java.time.LocalDateTime;
 
 public class OrderItemOption {
 
-    @Schema(description = "訂單商品選項設定 id")
+    @Schema(description = "訂單商品選項設定 ID")
     private Integer id;
 
-    @Schema(description = "訂單商品 id")
+    @Schema(description = "訂單商品 ID")
     private Integer orderItemId;
 
-    @Schema(description = "選項 id")
+    @Schema(description = "選項 ID")
     private Integer optionId;
 
     @Schema(description = "選項類型(0: 米飯種類, 1: 飯量, 2: 辣度, 3: 加料種類, 4:飲品溫度)")

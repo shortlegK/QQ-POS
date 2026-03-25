@@ -15,13 +15,14 @@ import java.util.List;
 public class OrderEditDTO {
 
     @Schema(description = "訂單編號(yyyyMMdd+流水號)")
-    @NotBlank(message = "訂單編號為必填")
+    @NotBlank(message = "請輸入訂單編號")
     private String orderNo;
 
     @Schema(description = "預計取餐時間 yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime pickupTime;
 
-    @NotEmpty(message = "訂單明細資料為必填")
+    @Schema(description = "訂單商品列表")
+    @NotEmpty(message = "請輸入訂單商品")
     private List<@Valid OrderItemDTO> items;
 }

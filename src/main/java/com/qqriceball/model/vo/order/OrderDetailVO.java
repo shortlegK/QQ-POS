@@ -14,7 +14,7 @@ import java.util.List;
 @Schema(description = "訂單詳細資料")
 public class OrderDetailVO {
 
-    @Schema(description = "訂單 id")
+    @Schema(description = "訂單 ID")
     private Integer id;
 
     @Schema(description = "訂單編號")

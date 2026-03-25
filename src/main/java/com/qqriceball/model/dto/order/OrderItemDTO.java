@@ -13,14 +13,16 @@ import java.util.List;
 @Schema(description = "訂單商品明細資料")
 public class OrderItemDTO {
 
-    @NotNull(message = "商品 id 為必填")
-    @Min(value = 1 ,message = "商品 id 設定錯誤")
+    @Schema(description = "商品 ID")
+    @NotNull(message = "請輸入商品 ID")
     private Integer productId;
 
-    @NotNull(message = "數量為必填")
+    @Schema(description = "商品訂購數量")
+    @NotNull(message = "請輸入商品訂購數量")
     @Min(value = 1, message = "數量至少為 1")
     private Integer quantity;
 
-    @NotEmpty(message = "細節選項資料為必填")
+    @Schema(description = "商品選項列表")
+    @NotEmpty(message = "請輸入商品選項")
     private List<@Valid OrderItemOptionDTO> options;
 }

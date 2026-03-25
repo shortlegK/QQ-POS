@@ -377,7 +377,7 @@ public class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] OrderService.create() - 建立訂單，缺少必填選項 BadRequestArgsException")
+    @DisplayName("[Unit] OrderService.create() - 建立訂單，缺少必填選項，應拋出 BadRequestArgsException")
     void testCreateRequiredOptionMissing() {
         List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITHOUT_SPICE, 1);
         OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 2, optionDTOList);
@@ -408,7 +408,7 @@ public class OrderServiceTest {
 
 
     @Test
-    @DisplayName("[Unit] OrderService.create() - 建立訂單，飲品設定必填項目以外的選項，應回傳 BadRequestArgsException")
+    @DisplayName("[Unit] OrderService.create() - 建立訂單，飲品設定必填項目以外的選項，應拋出 BadRequestArgsException")
     void testCreateDrinkWithExtraOptions() {
 
         Integer optionQuantity = 1;
@@ -620,7 +620,7 @@ public class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] OrderService.updateStatusByOrderNo() - 更改訂單狀態，應呼叫 orderMapper.updateStatusByOrderNo 傳入參數")
+    @DisplayName("[Unit] OrderService.updateStatusByOrderNo() - 更改訂單狀態，應呼叫 orderMapper.updateByOrderNo 傳入參數")
     void testUpdateStatusByOrderNoSuccess() {
         String orderNo = SeedOrderData.orderMaking.orderNo();
         Integer newStatus = OrderStatusEnum.READY.getCode();
@@ -634,16 +634,14 @@ public class OrderServiceTest {
 
         orderService.updateStatusByOrderNo(orderNo, orderStatusDTO);
 
-        ArgumentCaptor<String> orderNoCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<Integer> statusCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(orderMapper).updateStatusByOrderNo(orderNoCaptor.capture(), statusCaptor.capture());
+        ArgumentCaptor<Order> updateOrderCaptor = ArgumentCaptor.forClass(Order.class);
+        verify(orderMapper).updateByOrderNo(updateOrderCaptor.capture());
 
-        String capturedOrderNo = orderNoCaptor.getValue();
-        Integer capturedStatus = statusCaptor.getValue();
+        Order capturedOrder = updateOrderCaptor.getValue();
 
         assertAll(
-                () -> assertEquals(orderNo, capturedOrderNo, "應依據 orderNo 更新訂單狀態"),
-                () -> assertEquals(newStatus, capturedStatus, "更新的狀態應與傳入參數相同")
+                () -> assertEquals(orderNo, capturedOrder.getOrderNo(), "應依據 orderNo 更新訂單狀態"),
+                () -> assertEquals(newStatus, capturedOrder.getStatus(), "更新的狀態應與傳入參數相同")
         );
     }
 
@@ -662,7 +660,7 @@ public class OrderServiceTest {
 
         assertEquals(MessageEnum.ORDER_NOT_EXIST.getMessage(), exception.getMessage(), "異常訊息應與預期相同");
         verify(orderMapper).getByOrderNo(any(String.class));
-        verify(orderMapper, never()).updateStatusByOrderNo(any(String.class), any(Integer.class));
+        verify(orderMapper, never()).updateByOrderNo(any(Order.class));
     }
 
     @Test
@@ -683,7 +681,7 @@ public class OrderServiceTest {
 
         assertEquals(MessageEnum.ORDER_STATUS_TRANSITION_NOT_ALLOWED.getMessage(), exception.getMessage(), "異常訊息應與預期相同");
         verify(orderMapper).getByOrderNo(any(String.class));
-        verify(orderMapper, never()).updateStatusByOrderNo(any(String.class), any(Integer.class));
+        verify(orderMapper, never()).updateByOrderNo(any(Order.class));
     }
 
     @Test
@@ -704,7 +702,7 @@ public class OrderServiceTest {
 
         assertEquals(MessageEnum.ORDER_STATUS_TRANSITION_NOT_ALLOWED.getMessage(), exception.getMessage(), "異常訊息應與預期相同");
         verify(orderMapper).getByOrderNo(any(String.class));
-        verify(orderMapper, never()).updateStatusByOrderNo(any(String.class), any(Integer.class));
+        verify(orderMapper, never()).updateByOrderNo(any(Order.class));
     }
 
 
@@ -726,7 +724,7 @@ public class OrderServiceTest {
 
         assertEquals(MessageEnum.ORDER_STATUS_TRANSITION_NOT_ALLOWED.getMessage(), exception.getMessage(), "異常訊息應與預期相同");
         verify(orderMapper).getByOrderNo(any(String.class));
-        verify(orderMapper, never()).updateStatusByOrderNo(any(String.class), any(Integer.class));
+        verify(orderMapper, never()).updateByOrderNo(any(Order.class));
     }
 
     @Test
@@ -747,6 +745,6 @@ public class OrderServiceTest {
 
         assertEquals(MessageEnum.ORDER_STATUS_TRANSITION_NOT_ALLOWED.getMessage(), exception.getMessage(), "異常訊息應與預期相同");
         verify(orderMapper).getByOrderNo(any(String.class));
-        verify(orderMapper, never()).updateStatusByOrderNo(any(String.class), any(Integer.class));
+        verify(orderMapper, never()).updateByOrderNo(any(Order.class));
     }
 }

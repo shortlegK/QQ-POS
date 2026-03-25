@@ -30,7 +30,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
 
 
     @Test
-    @DisplayName("[IT] 5001 createOrder - 使用管理權限帳號，建立產品細節選項成功，回傳 200 及資料")
+    @DisplayName("[IT] 5001 createOrder - 使用管理權限帳號，建立訂單成功，回傳 200 及資料")
     void testCreateOrderWithManagerSuccess() throws Exception {
 
         Integer optionQuantity = 1;
@@ -72,7 +72,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
     }
 
     @Test
-    @DisplayName("[IT] 5001 createOrder - 使用一般權限帳號，建立產品細節選項成功，回傳 200 及資料")
+    @DisplayName("[IT] 5001 createOrder - 使用一般權限帳號，建立訂單成功，回傳 200 及資料")
     void testCreateOrderWithStaffSuccess() throws Exception {
 
         Integer optionQuantity = 1;

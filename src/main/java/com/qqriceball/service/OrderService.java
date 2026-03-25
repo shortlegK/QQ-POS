@@ -104,29 +104,25 @@ public class OrderService {
     }
 
     public PageResult pageQuery(OrderPageQueryDTO orderPageQueryDTO){
-        try{
-            PageHelper.startPage(orderPageQueryDTO.getPage(),
-                    orderPageQueryDTO.getPageSize());
+        PageHelper.startPage(orderPageQueryDTO.getPage(),
+                orderPageQueryDTO.getPageSize());
 
-            List<OrderDetailVO> orderList = orderMapper.pageQuery(orderPageQueryDTO);
+        List<OrderDetailVO> orderList = orderMapper.pageQuery(orderPageQueryDTO);
 
-            for(OrderDetailVO order: orderList){
-                List<OrderItemVO> items = orderItemMapper.getItemsByOrderId(order.getId());
-                for(OrderItemVO item: items){
-                    List<OrderItemOptionVO> options = orderItemOptionMapper.getOptionsByItemId(item.getId());
-                    item.setOptions(options);
-                }
-                order.setItems(items);
+        for(OrderDetailVO order: orderList){
+            List<OrderItemVO> items = orderItemMapper.getItemsByOrderId(order.getId());
+
+            for(OrderItemVO item: items){
+                List<OrderItemOptionVO> options = orderItemOptionMapper.getOptionsByItemId(item.getId());
+                item.setOptions(options);
             }
 
-            Page<OrderDetailVO> page = (Page<OrderDetailVO>) orderList;
-            return new PageResult(page.getTotal(), orderPageQueryDTO.getPage(),
-                    orderPageQueryDTO.getPageSize(), page.getResult());
-
-        }catch (Exception e) {
-            log.error("查詢訂單異常：{}", orderPageQueryDTO, e);
-            throw new BadRequestArgsException(MessageEnum.BAD_REQUEST);
+            order.setItems(items);
         }
+
+        Page<OrderDetailVO> page = (Page<OrderDetailVO>) orderList;
+        return new PageResult(page.getTotal(), orderPageQueryDTO.getPage(),
+                orderPageQueryDTO.getPageSize(), page.getResult());
     }
 
     @Transactional
@@ -182,7 +178,10 @@ public class OrderService {
         }
 
         if (currentStatus.canTransitionTo(targetStatus)) {
-            orderMapper.updateStatusByOrderNo(orderNo, targetStatus.getCode());
+            Order order = new Order();
+            order.setOrderNo(orderNo);
+            order.setStatus(targetStatus.getCode());
+            orderMapper.updateByOrderNo(order);
         } else {
             log.error("訂單狀態無法轉換,訂單編號: {},當前狀態: {},目標狀態: {}",
                     orderNo, currentStatus, targetStatus);

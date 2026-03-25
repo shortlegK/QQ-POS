@@ -45,11 +45,13 @@
     <!-- 更新訂單主表資料 -->
     <update id="updateByOrderNo" parameterType="com.qqriceball.model.entity.order.Order">
         update orders
-        set
-        pickup_time = #{pickupTime},
-        total = #{total},
-        update_id = #{updateId},
-        update_time = #{updateTime}
+        <set>
+            <if test = "pickupTime != null"> pickup_time = #{pickupTime}, </if>
+            <if test = "status != null"> status = #{status}, </if>
+            <if test = "total != null"> total = #{total}, </if>
+            <if test = "updateId != null"> update_id = #{updateId},</if>
+            <if test = "updateTime != null"> update_time = #{updateTime} </if>
+        </set>
         where order_no = #{orderNo}
     </update>
 

@@ -13,13 +13,13 @@ import java.util.List;
 @Schema(description = "訂單商品明細資料")
 public class OrderItemVO {
 
-    @Schema(description = "訂單商品 id")
+    @Schema(description = "訂單商品 ID")
     private Integer id;
 
-    @Schema(description = "訂單 id")
+    @Schema(description = "訂單 ID")
     private Integer orderId;
 
-    @Schema(description = "產品資料 id")
+    @Schema(description = "產品 ID")
     private Integer productId;
     
     @Schema(description = "商品名稱")
