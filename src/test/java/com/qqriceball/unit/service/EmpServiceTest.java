@@ -2,10 +2,7 @@ package com.qqriceball.unit.service;
 
 
 import com.github.pagehelper.Page;
-import com.qqriceball.common.exception.AccountInactiveException;
-import com.qqriceball.common.exception.ResourceNotFoundException;
-import com.qqriceball.common.exception.AlreadyExistsException;
-import com.qqriceball.common.exception.PasswordErrorException;
+import com.qqriceball.common.exception.*;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.RoleEnum;
@@ -325,6 +322,56 @@ class EmpServiceTest {
         );
 
         verify(empMapper).pageQuery(any(EmpPageQueryDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] EmpService.updatePassword() - 更新密碼，舊密碼錯誤，應拋出 PasswordErrorException")
+    void testUpdatePasswordOldPasswordError() {
+        String currentUserName = SeedUserData.TESTER.username();
+        String oldPassword = "wrongOldPassword";
+        String newPassword = "newPassword";
+
+        EmpUpdatePasswordDTO empUpdatePasswordDTO = EmpTestDataFactory.getEmpUpdatePasswordDTO(oldPassword, newPassword);
+        Emp emp = EmpTestDataFactory.getEmp(SeedUserData.TESTER);
+
+        when(empMapper.getByUsername(currentUserName)).thenReturn(emp);
+        when(passwordEncoder.matches(oldPassword, emp.getPassword())).thenReturn(false);
+
+        BadRequestArgsException ex = assertThrows(BadRequestArgsException.class,
+                () -> empService.updatePassword(currentUserName, empUpdatePasswordDTO));
+        assertEquals(MessageEnum.OLD_PASSWORD_ERROR.getMessage(), ex.getMessage());
+
+        verify(empMapper).getByUsername(currentUserName);
+        verify(passwordEncoder).matches(oldPassword, emp.getPassword());
+    }
+
+    @Test
+    @DisplayName("[Unit] EmpService.updatePassword() - 更新密碼成功，應加密新密碼並呼叫 empMapper.updateById")
+    void testUpdatePasswordSuccess() {
+        String currentUserName = SeedUserData.TESTER.username();
+        String oldPassword = SeedUserData.TESTER.password();
+        String newPassword = "newPassword";
+
+        EmpUpdatePasswordDTO empUpdatePasswordDTO = EmpTestDataFactory.getEmpUpdatePasswordDTO(oldPassword, newPassword);
+        Emp emp = EmpTestDataFactory.getEmp(SeedUserData.TESTER);
+
+        when(empMapper.getByUsername(currentUserName)).thenReturn(emp);
+        when(passwordEncoder.matches(oldPassword, SeedUserData.TESTER.password())).thenReturn(true);
+        when(passwordEncoder.encode(newPassword)).thenReturn("encodedNewPassword");
+
+        empService.updatePassword(currentUserName, empUpdatePasswordDTO);
+
+        ArgumentCaptor<Emp> empArgumentCaptor = ArgumentCaptor.forClass(Emp.class);
+        verify(empMapper).updateById(empArgumentCaptor.capture());
+        verify(empMapper).getByUsername(currentUserName);
+        verify(passwordEncoder).matches(oldPassword, SeedUserData.TESTER.password());
+        verify(passwordEncoder).encode(newPassword);
+
+        Emp capturedEmp = empArgumentCaptor.getValue();
+        assertAll(
+                () -> assertEquals(emp.getId(), capturedEmp.getId(), "id 應與當前使用者相同"),
+                () -> assertEquals("encodedNewPassword", capturedEmp.getPassword(), "password 應為加密後的新密碼")
+        );
     }
 
 }

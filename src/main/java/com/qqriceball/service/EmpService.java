@@ -122,7 +122,6 @@ public class EmpService {
         return empMapper.getById(emp.getId());
     }
 
-    // 確認 Emp 啟用狀態
     public EmpVO checkActiveEmpById(Integer id){
         EmpVO empVO = this.getById(id);
 
@@ -131,6 +130,18 @@ public class EmpService {
             throw new AccountInactiveException(MessageEnum.ACCOUNT_INACTIVE);
         }
         return empVO;
+    }
+
+    public void updatePassword(String currentUserName, EmpUpdatePasswordDTO empUpdatePasswordDTO) {
+        Emp emp = empMapper.getByUsername(currentUserName);
+
+        if (!passwordEncoder.matches(empUpdatePasswordDTO.getOldPassword(), emp.getPassword())) {
+            log.error("舊密碼錯誤,UserName: {}", currentUserName);
+            throw new BadRequestArgsException(MessageEnum.OLD_PASSWORD_ERROR);
+        }
+
+        emp.setPassword(passwordEncoder.encode(empUpdatePasswordDTO.getNewPassword()));
+        empMapper.updateById(emp);
     }
 
 }

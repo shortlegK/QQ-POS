@@ -69,4 +69,11 @@ public class EmpTestDataFactory {
         return empStatusDTO;
     }
 
+    public static EmpUpdatePasswordDTO getEmpUpdatePasswordDTO(String oldPassword, String newPassword) {
+        EmpUpdatePasswordDTO empUpdatePasswordDTO = new EmpUpdatePasswordDTO();
+        empUpdatePasswordDTO.setOldPassword(oldPassword);
+        empUpdatePasswordDTO.setNewPassword(newPassword);
+        return empUpdatePasswordDTO;
+    }
+
 }

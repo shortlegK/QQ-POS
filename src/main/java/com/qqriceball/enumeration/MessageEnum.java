@@ -16,6 +16,7 @@ public enum MessageEnum {
     TOKEN_INVALID(10006, "Token 無效"),
     ACCESS_DENIED(10007, "權限不足"),
     USERNAME_ALREADY_EXISTS(10008,"使用者帳號已存在"),
+    OLD_PASSWORD_ERROR(10009,"舊密碼錯誤"),
 
     // 通用錯誤
     UNKNOWN_ERROR(20001, "未知的錯誤"),
