@@ -18,10 +18,10 @@
         from emps
         <where>
             <if test="name != null and name !=''">
-                name like concat('%',#{name},'%')
+                AND name like concat('%',#{name},'%')
             </if>
             <if test="status != null">
-                status = #{status}
+                AND status = #{status}
             </if>
         </where>
         order by create_time desc

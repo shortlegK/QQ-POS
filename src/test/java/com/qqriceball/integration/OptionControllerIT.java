@@ -212,6 +212,33 @@ public class OptionControllerIT extends BaseIntegrationTest{
     }
 
     @Test
+    @DisplayName("[IT] 4002 pageQueryOption - 分頁查詢指定名稱及狀態，應回傳 200 及資料")
+    void testPageQueryOptionByTitleAndStatus() throws Exception{
+
+        String keyword = SeedOptionData.HOT_SPICY.title().substring(0, 1);
+
+        OptionPageQueryDTO optionPageQueryDTO = OptionTestDataFactory.getOptionPageQueryDTO(1,5,
+                keyword, OptionTypeEnum.SPICE_LEVEL.getCode(), StatusEnum.ACTIVE.getCode());
+
+        mockMvc.perform(
+                get("/options/page")
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .param("page", optionPageQueryDTO.getPage().toString())
+                        .param("pageSize",optionPageQueryDTO.getPageSize().toString())
+                        .param("status", String.valueOf(optionPageQueryDTO.getStatus()))
+                        .param("optionType",String.valueOf(optionPageQueryDTO.getOptionType()))
+                        .param("title", optionPageQueryDTO.getTitle())
+        ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.total").isNumber())
+                .andExpect(jsonPath("$.data.page").value(optionPageQueryDTO.getPage()))
+                .andExpect(jsonPath("$.data.pageSize").value(optionPageQueryDTO.getPageSize()))
+                .andExpect(jsonPath("$.data.records").isArray())
+                .andExpect(jsonPath("$.data.records[*].title").value(everyItem(containsString(keyword))))
+                .andExpect(jsonPath("$.data.records[*].status").value(everyItem(equalTo(optionPageQueryDTO.getStatus()))));
+    }
+
+    @Test
     @DisplayName("[IT] 4003 updateOptionById - 修改成功，回傳 200 及資料")
     void testUpdateOptionByIdSuccess() throws Exception{
 

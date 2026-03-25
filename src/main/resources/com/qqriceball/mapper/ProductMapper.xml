@@ -16,13 +16,13 @@
         from products
         <where>
             <if test="title != null and title !=''">
-                title like concat('%',#{title},'%')
+                AND title like concat('%',#{title},'%')
             </if>
             <if test="productType != null">
-                product_type = #{productType}
+                AND product_type = #{productType}
             </if>
             <if test="status != null">
-                status = #{status}
+                AND status = #{status}
             </if>
         </where>
         order by create_time desc
