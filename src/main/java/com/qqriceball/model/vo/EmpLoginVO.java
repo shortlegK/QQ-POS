@@ -19,6 +19,9 @@ public class EmpLoginVO {
     @Schema(description = "帳號")
     private String username;
 
+    @Schema(description = "職位(0:管理職, 1:一般員工)")
+    private Integer role;
+
     @Schema(description = "姓名")
     private String name;
 

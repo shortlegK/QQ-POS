@@ -60,6 +60,7 @@ public class LoginController {
                 .id(emp.getId())
                 .username(emp.getUsername())
                 .name(emp.getName())
+                .role(emp.getRole())
                 .token(token)
                 .build();
         return Result.success(empLoginVO);
