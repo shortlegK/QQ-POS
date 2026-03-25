@@ -3,10 +3,7 @@ package com.qqriceball.controller;
 
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.common.result.Result;
-import com.qqriceball.model.dto.option.OptionActiveQueryDTO;
-import com.qqriceball.model.dto.option.OptionCreateDTO;
-import com.qqriceball.model.dto.option.OptionEditDTO;
-import com.qqriceball.model.dto.option.OptionPageQueryDTO;
+import com.qqriceball.model.dto.option.*;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.OptionVO;
 import com.qqriceball.service.OptionService;
@@ -103,6 +100,21 @@ public class OptionController {
         log.info("4005 根據 OptionType 查詢選項,操作id:{},參數:{}", currentEmp.getId(), optionActiveQueryDTO);
         List<OptionVO> optionVOList = optionService.getActiveOptionsByType(optionActiveQueryDTO);
         return Result.success(optionVOList);
+    }
+
+    @Operation(summary = "4006 調整產品細節選項上架狀態")
+    @PatchMapping("{id}/status")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "執行成功"),
+            @ApiResponse(responseCode = "404", description = "產品細節選項不存在"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<Void> updateOptionStatus(@AuthenticationPrincipal EmpVO currentEmp,
+                                            @PathVariable Integer id,
+                                            @Valid @RequestBody OptionStatusDTO optionStatusDTO){
+        log.info("3006 修改產品細節選項上架狀態,操作 id:{},id:{},active:{}",currentEmp.getId(),id,optionStatusDTO);
+        optionService.updateStatus(id, optionStatusDTO);
+        return Result.success();
     }
 
 }

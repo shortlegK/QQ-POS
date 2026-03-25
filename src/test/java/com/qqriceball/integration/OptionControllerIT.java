@@ -10,6 +10,7 @@ import com.qqriceball.mapper.OptionMapper;
 import com.qqriceball.model.dto.option.OptionCreateDTO;
 import com.qqriceball.model.dto.option.OptionEditDTO;
 import com.qqriceball.model.dto.option.OptionPageQueryDTO;
+import com.qqriceball.model.dto.option.OptionStatusDTO;
 import com.qqriceball.model.vo.OptionVO;
 import com.qqriceball.testData.option.SeedOptionData;
 import com.qqriceball.utils.TestDataGenerator;
@@ -229,10 +230,10 @@ public class OptionControllerIT extends BaseIntegrationTest{
     }
 
     @Test
-    @DisplayName("[IT] 4003 updateOptionById - 非 AddOn 類型選項修改並為「預設」，且未修改 optionType,應將該類型原有預設選項調整為非預設，回傳 200 及資料")
+    @DisplayName("[IT] 4003 updateOptionById - 將非 AddOn 類型的 Option 修改預設為「是」，此 OptionType 原有預設選項應調整為非預設，修改成功回傳 200 及資料")
     void testUpdateOptionByIdDefaultSettingSuccess() throws Exception{
 
-        // 建立預設選項設定為「是」的 Option 資料
+        // 1. 建立 RiceType 預設為「是」的 Option 資料
         OptionCreateDTO firstDefaultOption = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.PURPLE_RICE);
         firstDefaultOption.setTitle(TestDataGenerator.getUnique(SeedOptionData.PURPLE_RICE.title()));
         firstDefaultOption.setIsDefault(DefaultEnum.YES.getCode());
@@ -248,7 +249,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
 
         Integer firstOptionId = JsonPath.read(result.getResponse().getContentAsString(), "$.data.id");
 
-        // 建立預設選項為「否」的 Option 資料
+        // 2. 建立 RiceType 預設為「否」的 Option 資料
         OptionCreateDTO secondDefaultOption = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.PURPLE_RICE);
         secondDefaultOption.setTitle(TestDataGenerator.getUnique(SeedOptionData.PURPLE_RICE.title()));
         secondDefaultOption.setIsDefault(DefaultEnum.NO.getCode());
@@ -264,8 +265,9 @@ public class OptionControllerIT extends BaseIntegrationTest{
 
         Integer secondOptionId = JsonPath.read(result2.getResponse().getContentAsString(), "$.data.id");
 
-        // 修改 secondOption 預設設定為「是」
+        // 3. 將原預設為「否」的 Option 修改預設設定為「是」
         OptionEditDTO optionEditDTO = new OptionEditDTO();
+        BeanUtils.copyProperties(secondDefaultOption, optionEditDTO);
         optionEditDTO.setId(secondOptionId);
         optionEditDTO.setIsDefault(DefaultEnum.YES.getCode());
 
@@ -282,7 +284,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
                 .andExpect(jsonPath("$.data.optionType").value(secondDefaultOption.getOptionType()))
                 .andExpect(jsonPath("$.data.isDefault").value(optionEditDTO.getIsDefault()));
 
-        // 驗證 firstOption 已被更新為非預設
+        // 4. 驗證 firstOption 已被更新為非預設
         OptionVO firstOptionAfterEdit = optionMapper.getById(firstOptionId);
         assertAll(
                 () -> assertEquals(DefaultEnum.NO.getCode(), firstOptionAfterEdit.getIsDefault(), "第一個選項應被更新為非預設"),
@@ -293,9 +295,9 @@ public class OptionControllerIT extends BaseIntegrationTest{
     }
 
     @Test
-    @DisplayName("[IT] 4003 updateOptionById - 非 AddOn 類型選項修改並為「預設」，且同時修改 optionType,應將修改後類型的原有預設選項調整為非預設，回傳 200 及資料")
+    @DisplayName("[IT] 4003 updateOptionById - 非 AddOn 類型的 Option 修改預設為「是」，且同時修改 optionType,應將修改後 Type 的原有預設選項調整為「非預設」，修改成功回傳 200 及資料")
     void testUpdateOptionByIdDefaultSettingWithOptionTypeChangeSuccess() throws Exception{
-        // 建立 Rice Size 類型的預設選項設定為「是」的 Option 資料
+        // 1. 建立 Rice Size 類型的預設選項設定為「是」的 Option 資料
         OptionCreateDTO firstDefaultOption = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.LARGE_SIZE);
         firstDefaultOption.setTitle(TestDataGenerator.getUnique(SeedOptionData.LARGE_SIZE.title()));
         firstDefaultOption.setOptionType(OptionTypeEnum.RICE_SIZE.getCode());
@@ -312,7 +314,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
 
         Integer firstOptionId = JsonPath.read(result.getResponse().getContentAsString(), "$.data.id");
 
-        // 建立 AddOn 類型的預設選項為「否」的 Option 資料
+        // 2. 建立 AddOn 類型的預設選項為「否」的 Option 資料
         OptionCreateDTO secondOption = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.EGG);
         secondOption.setTitle(TestDataGenerator.getUnique(SeedOptionData.EGG.title()));
         secondOption.setOptionType(OptionTypeEnum.ADD_ON.getCode());
@@ -329,8 +331,9 @@ public class OptionControllerIT extends BaseIntegrationTest{
 
         Integer secondOptionId = JsonPath.read(result2.getResponse().getContentAsString(), "$.data.id");
 
-        // 修改 secondOption 預設設定為「是」並修改 optionType 為 Rice Size
+        // 3. 修改 secondOption 預設設定為「是」並修改 optionType 為 Rice Size
         OptionEditDTO optionEditDTO = new OptionEditDTO();
+        BeanUtils.copyProperties(secondOption, optionEditDTO);
         optionEditDTO.setId(secondOptionId);
         optionEditDTO.setIsDefault(DefaultEnum.YES.getCode());
         optionEditDTO.setOptionType(OptionTypeEnum.RICE_SIZE.getCode());
@@ -348,7 +351,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
                 .andExpect(jsonPath("$.data.optionType").value(optionEditDTO.getOptionType()))
                 .andExpect(jsonPath("$.data.isDefault").value(optionEditDTO.getIsDefault()));
 
-        // 驗證 firstOption 已被更新為非預設
+        // 4. 驗證 firstOption 已被更新為非預設
         OptionVO firstOptionAfterEdit = optionMapper.getById(firstOptionId);
         assertAll(
                 () -> assertEquals(DefaultEnum.NO.getCode(), firstOptionAfterEdit.getIsDefault(), "第一個選項應被更新為非預設"),
@@ -411,6 +414,43 @@ public class OptionControllerIT extends BaseIntegrationTest{
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data[*].optionType").value(everyItem(equalTo(optionType.getCode()))))
                 .andExpect(jsonPath("$.data[*].status").value(everyItem(equalTo(StatusEnum.ACTIVE.getCode()))));
+    }
+
+    @Test
+    @DisplayName("[IT] 4006 updateOptionStatus - 修改成功，回傳 200")
+    void testUpdateOptionStatusSuccess() throws Exception{
+        OptionVO optionVO = optionMapper.getById(SeedOptionData.HOT_SPICY.id());
+        OptionStatusDTO optionStatusDTO = new OptionStatusDTO();
+        optionStatusDTO.setStatus(StatusEnum.INACTIVE.getCode());
+
+        String jsonBody = objectMapper.writeValueAsString(optionStatusDTO);
+        mockMvc.perform(
+                patch("/options/{id}/status", optionVO.getId())
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        ).andExpect(status().isOk());
+
+        OptionVO updatedOption = optionMapper.getById(optionVO.getId());
+        assertEquals(optionStatusDTO.getStatus(), updatedOption.getStatus(), "選項狀態應被更新為 Inactive");
+    }
+
+    @Test
+    @DisplayName("[IT] 4006 updateOptionStatus - 修改選項狀態時 id 不存在，回傳 404")
+    void testUpdateOptionStatusNoExist() throws Exception {
+        OptionStatusDTO optionStatusDTO = new OptionStatusDTO();
+        optionStatusDTO.setStatus(StatusEnum.INACTIVE.getCode());
+
+        String jsonBody = objectMapper.writeValueAsString(optionStatusDTO);
+        mockMvc.perform(
+                        patch("/options/{id}/status", Integer.MAX_VALUE)
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.OPTION_NOT_EXIST.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.OPTION_NOT_EXIST.getMessage()))
+                .andExpect(jsonPath("$.data").isEmpty());
     }
 
 }

@@ -9,12 +9,10 @@ import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.DefaultEnum;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.OptionTypeEnum;
+import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.mapper.OptionMapper;
-import com.qqriceball.model.dto.option.OptionActiveQueryDTO;
-import com.qqriceball.model.dto.option.OptionCreateDTO;
+import com.qqriceball.model.dto.option.*;
 
-import com.qqriceball.model.dto.option.OptionEditDTO;
-import com.qqriceball.model.dto.option.OptionPageQueryDTO;
 import com.qqriceball.model.entity.Option;
 
 import com.qqriceball.model.vo.OptionVO;
@@ -47,7 +45,7 @@ public class OptionServiceTest {
     private OptionService optionService;
 
     @Test
-    @DisplayName("Unit] OptionService.create() - 建立選項為「非預設選項」時不應清除同類型預設設定")
+    @DisplayName("[Unit] OptionService.create() - 建立選項，其預設設定為「否」，不應清除同類型的預設選項設定")
     void testCreateOptionIsDefaultNoSuccess() {
 
         OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.PURPLE_RICE);
@@ -70,7 +68,7 @@ public class OptionServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionService.create() - 建立選項為「預設選項」時應清除同類型其他選項的預設設定")
+    @DisplayName("[Unit] OptionService.create() - 建立選項，其預設設定為「是」，應同時設定同類型原預設選項的預設設定為「否」")
     void testCreateOptionIsDefaultYesSuccess() {
 
         OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.PURPLE_RICE);
@@ -107,7 +105,6 @@ public class OptionServiceTest {
 
         verify(optionMapper, never()).cleanDefaultByOptionType(any(Integer.class));
         verify(optionMapper, never()).insert(any(Option.class));
-
     }
 
     @Test
@@ -126,7 +123,6 @@ public class OptionServiceTest {
 
         verify(optionMapper).insert(any(Option.class));
     }
-
 
     @Test
     @DisplayName("[Unit] OptionService.pageQuery() - 分頁查詢成功，應呼叫 OptionMapper.pageQuery() 並回傳分頁結果")
@@ -156,13 +152,11 @@ public class OptionServiceTest {
                 () -> assertEquals(2L, result.getTotal()),
                 () -> assertEquals(mockPage.getResult(), result.getRecords())
         );
-
         verify(optionMapper).pageQuery(any(OptionPageQueryDTO.class));
     }
 
-
     @Test
-    @DisplayName("[Unit] OptionService.updateById() - 更新選項為「非預設選項」時不應清除同類型預設設定")
+    @DisplayName("[Unit] OptionService.updateById() - 更新選項，預設設定為「否」，不應清除同類型原預設選項設定")
     void testUpdateByIdIsDefaultNoSuccess() {
 
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.LARGE_SIZE);
@@ -184,11 +178,10 @@ public class OptionServiceTest {
                 () -> assertEquals(optionEditDTO.getId(), captoredProduct.getId(), "id 應與傳入參數相同"),
                 () -> assertEquals(optionEditDTO.getTitle(), captoredProduct.getTitle(), "title 應與傳入參數相同")
         );
-
     }
 
     @Test
-    @DisplayName("[Unit] OptionService.updateById() - 更新選項為「預設選項」時應清除同類型預設設定")
+    @DisplayName("[Unit] OptionService.updateById() - 更新選項，設定預設設定為「是」，應清除同類型原預設選項設定為「否」")
     void testUpdateByIdIsDefaultYesSuccess() {
 
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.LARGE_SIZE);
@@ -210,9 +203,7 @@ public class OptionServiceTest {
                 () -> assertEquals(optionEditDTO.getId(), captoredProduct.getId(), "id 應與傳入參數相同"),
                 () -> assertEquals(optionEditDTO.getTitle(), captoredProduct.getTitle(), "title 應與傳入參數相同")
         );
-
     }
-
 
     @Test
     @DisplayName("[Unit] OptionService.updateById() - 修改選項 OptionType 為 AddOn 預設設定錯誤，應拋出 BadRequestArgsException")
@@ -269,7 +260,7 @@ public class OptionServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionService.updateById() - 修改為「預設選項」時同時修改 OptionType，應以修改後的 OptionType 進行預設設定檢查")
+    @DisplayName("[Unit] OptionService.updateById() - 修改預設設定為「是」，同時修改 OptionType，應以修改後的 OptionType 進行預設設定檢查")
     void testUpdateByIdIsDefaultYesWithOptionTypeChangeSuccess() {
         OptionEditDTO optionEditDTO = new OptionEditDTO();
         optionEditDTO.setId(SeedOptionData.LARGE_SIZE.id());
@@ -288,7 +279,7 @@ public class OptionServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionService.updateById() - 修改為「預設選項」時未修改 OptionType，應以原 OptionType 進行預設設定檢查")
+    @DisplayName("[Unit] OptionService.updateById() - 修改預設設定為「是」，未修改 OptionType，應以原 OptionType 進行預設設定檢查")
     void testUpdateByIdIsDefaultYesWithoutOptionTypeChangeSuccess() {
         OptionEditDTO optionEditDTO = new OptionEditDTO();
         optionEditDTO.setId(SeedOptionData.LARGE_SIZE.id());
@@ -319,7 +310,7 @@ public class OptionServiceTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionService.getById() - 產品細節選項 id 存在，應回傳 ProductVO 資料")
+    @DisplayName("[Unit] OptionService.getById() - 產品細節選項 id 存在，應回傳 OptionVO 資料")
     void testGetByIdOptionExist() {
         Integer id = SeedProductData.DRINK_PRODUCT.id();
 
@@ -351,6 +342,43 @@ public class OptionServiceTest {
 
         assertEquals(mockData, result,"回傳資料應與 mock 資料相同");
         verify(optionMapper).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OptionService.updateStatus - 修改產品細節選項上架狀態成功，應呼叫 OptionMapper.updateById() 傳入參數")
+    void testUpdateOptionStatusSuccess() {
+        Integer id = SeedOptionData.HOT_SPICY.id();
+        OptionStatusDTO optionStatusDTO = new OptionStatusDTO();
+        optionStatusDTO.setStatus(StatusEnum.ACTIVE.getCode());
+
+        OptionVO mockOption = OptionTestDataFactory.getOptionVO(SeedOptionData.HOT_SPICY);
+        when(optionMapper.getById(id)).thenReturn(mockOption);
+
+        optionService.updateStatus(id, optionStatusDTO);
+        ArgumentCaptor<Option> optionCaptor = ArgumentCaptor.forClass(Option.class);
+        verify(optionMapper).updateById(optionCaptor.capture());
+
+        Option updatedOption = optionCaptor.getValue();
+
+        assertAll(
+                () -> assertEquals(id, updatedOption.getId(), "傳入的 id 應與呼叫 updateStatus 時的 id 相同"),
+                () -> assertEquals(optionStatusDTO.getStatus(), updatedOption.getStatus(), "傳入的 status 應與呼叫 updateStatus 時的 status 相同")
+        );
+    }
+
+    @Test
+    @DisplayName("[Unit] OptionService.updateStatus - 修改產品細節選項 id 不存在，應拋出 ResourceNotFoundException")
+    void testUpdateOptionStatusOptionNotExist() {
+        Integer id = Integer.MAX_VALUE;
+        OptionStatusDTO optionStatusDTO = new OptionStatusDTO();
+        optionStatusDTO.setStatus(StatusEnum.ACTIVE.getCode());
+
+        when(optionMapper.getById(id)).thenReturn(null);
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> optionService.updateStatus(id, optionStatusDTO));
+
+        verify(optionMapper).getById(id);
     }
 
 }

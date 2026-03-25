@@ -5,7 +5,6 @@ import lombok.Getter;
 @Getter
 public enum OptionTypeEnum {
 
-    //選項類型(0 - 米飯種類, 1 - 飯量, 2 - 辣度, 3 - 加料, 4-飲品溫度)
     RICE_TYPE(0,"米飯種類",true,1),
     RICE_SIZE(1,"飯量",true,1),
     SPICE_LEVEL(2,"辣度",true,1),

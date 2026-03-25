@@ -11,10 +11,7 @@ import com.qqriceball.enumeration.DefaultEnum;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.OptionTypeEnum;
 import com.qqriceball.mapper.OptionMapper;
-import com.qqriceball.model.dto.option.OptionActiveQueryDTO;
-import com.qqriceball.model.dto.option.OptionCreateDTO;
-import com.qqriceball.model.dto.option.OptionEditDTO;
-import com.qqriceball.model.dto.option.OptionPageQueryDTO;
+import com.qqriceball.model.dto.option.*;
 import com.qqriceball.model.entity.Option;
 import com.qqriceball.model.vo.OptionVO;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +43,6 @@ public class OptionService {
         BeanUtils.copyProperties(optionCreateDTO, option);
 
         try {
-
             // 如果預設設定為是，則清除同類型的其他選項的預設設定
             if (option.getIsDefault() == DefaultEnum.YES.getCode()) {
                 optionMapper.cleanDefaultByOptionType(option.getOptionType());
@@ -63,7 +59,6 @@ public class OptionService {
     }
 
     public PageResult pageQuery(OptionPageQueryDTO optionPageQueryDTO) {
-        try{
             PageHelper.startPage(optionPageQueryDTO.getPage(),
                     optionPageQueryDTO.getPageSize());
 
@@ -73,11 +68,6 @@ public class OptionService {
 
             return new PageResult(page.getTotal(), optionPageQueryDTO.getPage(),
                     optionPageQueryDTO.getPageSize(), page.getResult());
-
-        }catch (Exception e) {
-            log.error("查詢產品細節選項異常：{}", optionPageQueryDTO, e);
-            throw new BadRequestArgsException(MessageEnum.BAD_REQUEST);
-        }
     }
 
     @Transactional
@@ -110,8 +100,6 @@ public class OptionService {
             log.error("編輯產品細節選項名稱已存在,title: {}", option.getTitle(), e);
             throw new AlreadyExistsException(MessageEnum.OPTION_ALREADY_EXISTS);
         }
-
-
     }
 
     public OptionVO getById(Integer id) {
@@ -126,12 +114,16 @@ public class OptionService {
     }
 
     public List<OptionVO> getActiveOptionsByType(OptionActiveQueryDTO optionActiveQueryDTO){
-        try{
-            return optionMapper.getActiveOptionsByType(optionActiveQueryDTO);
-        }catch (Exception e) {
-            log.error("查詢異常：{}", optionActiveQueryDTO, e);
-            throw new BadRequestArgsException(MessageEnum.BAD_REQUEST);
-        }
+        return optionMapper.getActiveOptionsByType(optionActiveQueryDTO);
+    }
+
+    public void updateStatus(Integer id, OptionStatusDTO optionStatusDTO){
+        this.getById(id);
+
+        Option option = new Option();
+        option.setId(id);
+        option.setStatus(optionStatusDTO.getStatus());
+        optionMapper.updateById(option);
     }
 
     private void checkDefaultSetting(Integer optionType, Integer defaultSetting) {

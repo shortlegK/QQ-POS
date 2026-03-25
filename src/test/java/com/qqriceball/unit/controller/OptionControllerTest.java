@@ -11,11 +11,9 @@ import com.qqriceball.controller.OptionController;
 import com.qqriceball.enumeration.DefaultEnum;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.OptionTypeEnum;
+import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
-import com.qqriceball.model.dto.option.OptionActiveQueryDTO;
-import com.qqriceball.model.dto.option.OptionCreateDTO;
-import com.qqriceball.model.dto.option.OptionEditDTO;
-import com.qqriceball.model.dto.option.OptionPageQueryDTO;
+import com.qqriceball.model.dto.option.*;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.OptionVO;
 import com.qqriceball.service.EmpService;
@@ -34,7 +32,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -190,15 +187,13 @@ public class OptionControllerTest {
 
         when(optionService.pageQuery(any(OptionPageQueryDTO.class))).thenReturn(mockResult);
 
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 get("/options/page")
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("page", optionPageQueryDTO.getPage().toString())
                         .param("pageSize",optionPageQueryDTO.getPageSize().toString())
                         .param("optionType",String.valueOf(optionPageQueryDTO.getOptionType()))
-        );
-
-        resultActions.andExpect(status().isOk())
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data").exists());
 
@@ -206,7 +201,39 @@ public class OptionControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionController.updateByOrderNo() - 更新產品細節選項成功，應回傳 200 及資料")
+    @DisplayName("[Unit] OptionController.pageQueryOption() - 分頁查詢缺少選項類型，應回傳 400")
+    void testPageQueryOptionMissingOptionType() throws Exception {
+        OptionPageQueryDTO optionPageQueryDTO = OptionTestDataFactory.getOptionPageQueryDTO(1,10,null, null, null);
+
+        mockMvc.perform(
+                get("/options/page")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("page", optionPageQueryDTO.getPage().toString())
+                        .param("pageSize",optionPageQueryDTO.getPageSize().toString())
+                ).andExpect(status().isBadRequest());
+
+        verify(optionService, never()).pageQuery(any(OptionPageQueryDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OptionController.pageQueryOption() - 分頁查詢選項類型超出範圍，應回傳 400")
+    void testPageQueryOptionInvalidOptionType() throws Exception {
+        OptionPageQueryDTO optionPageQueryDTO = OptionTestDataFactory.getOptionPageQueryDTO(1,10,null, 5, null);
+
+        mockMvc.perform(
+                get("/options/page")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("page", optionPageQueryDTO.getPage().toString())
+                        .param("pageSize",optionPageQueryDTO.getPageSize().toString())
+                        .param("optionType",String.valueOf(optionPageQueryDTO.getOptionType()))
+                ).andExpect(status().isBadRequest());
+
+        verify(optionService, never()).pageQuery(any(OptionPageQueryDTO.class));
+    }
+
+
+    @Test
+    @DisplayName("[Unit] OptionController.updateOptionById() - 更新產品細節選項成功，應回傳 200 及資料")
     void testUpdateByIdSuccess() throws Exception {
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.HOT_SPICY);
 
@@ -226,7 +253,7 @@ public class OptionControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionController.updateByOrderNo() - 更新產品細節選項缺少必要參數，應回傳 400")
+    @DisplayName("[Unit] OptionController.updateOptionById() - 更新產品細節選項缺少必要參數，應回傳 400")
     void testUpdateByIdMissingRequiredParameter() throws Exception {
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.HOT_SPICY);
         optionEditDTO.setId(null);
@@ -242,7 +269,7 @@ public class OptionControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionController.updateByOrderNo() - 更新產品細節選項 OptionType 超過範圍，應回傳 400")
+    @DisplayName("[Unit] OptionController.updateOptionById() - 更新產品細節選項 OptionType 超過範圍，應回傳 400")
     void testUpdateByIdInvalidOptionType() throws Exception {
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.HOT_SPICY);
         optionEditDTO.setOptionType(5);
@@ -259,7 +286,7 @@ public class OptionControllerTest {
 
 
     @Test
-    @DisplayName("[Unit] OptionController.updateByOrderNo() - 更新選項 OptionType 為 AddOn 預設設定錯誤，應回傳 400 及指定訊息")
+    @DisplayName("[Unit] OptionController.updateOptionById() - 更新選項 OptionType 為 AddOn 預設設定錯誤，應回傳 400 及指定訊息")
     void testUpdateByIdDefaultSettingError() throws Exception {
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.EGG);
         optionEditDTO.setOptionType(OptionTypeEnum.ADD_ON.getCode());
@@ -281,7 +308,7 @@ public class OptionControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionController.updateByOrderNo() - 更新 id 不存在，應回傳 404 及指定訊息")
+    @DisplayName("[Unit] OptionController.updateOptionById() - 更新 id 不存在，應回傳 404 及指定訊息")
     void testUpdateByIdNotExist() throws Exception {
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.MILD_SPICY);
 
@@ -300,7 +327,7 @@ public class OptionControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OptionController.updateByOrderNo() - 更新產品細節選項名稱重複，應回傳 409 及指定訊息")
+    @DisplayName("[Unit] OptionController.updateOptionById() - 更新產品細節選項名稱重複，應回傳 409 及指定訊息")
     void testUpdateByIdOptionTitleDuplicate() throws Exception {
 
         OptionEditDTO optionEditDTO = OptionTestDataFactory.getOptionEditDTO(SeedOptionData.MILD_SPICY);
@@ -373,18 +400,83 @@ public class OptionControllerTest {
         verify(optionService).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
     }
 
-     @Test
-     @DisplayName("[Unit] OptionController.getActiveOptionsByType() - 查詢參數超出範圍，應回傳 400")
-     void testGetActiveOptionsByTypeBadRequest() throws Exception {
-         Integer optionType = 5;
-
-         mockMvc.perform(
+    @Test
+    @DisplayName("[Unit] OptionController.getActiveOptionsByType() - 查詢選項類型參數超出範圍，應回傳 400")
+    void testGetActiveOptionsByTypeBadRequest() throws Exception {
+        Integer optionType = 5;
+        mockMvc.perform(
                  get("/options/active")
                          .contentType(MediaType.APPLICATION_JSON)
                          .param("optionType", String.valueOf(optionType))
-         ).andExpect(status().isBadRequest());
+        ).andExpect(status().isBadRequest());
 
-         verify(optionService,never()).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
-     }
+        verify(optionService,never()).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OptionController.getActiveOptionsByType() - 查詢缺少選項類型參數，應回傳 400")
+    void testGetActiveOptionsByTypeMissingOptionType() throws Exception {
+        mockMvc.perform(
+                get("/options/active")
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isBadRequest());
+
+        verify(optionService,never()).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OptionController.updateOptionStatus() - 更新產品細節選項上架狀態成功，應回傳 200")
+    void testUpdateOptionStatusSuccess() throws Exception {
+        Integer id = SeedOptionData.EGG.id();
+        OptionStatusDTO optionStatusDTO = new OptionStatusDTO();
+        optionStatusDTO.setStatus(StatusEnum.ACTIVE.getCode());
+        String jsonBody = objectMapper.writeValueAsString(optionStatusDTO);
+
+        doNothing().when(optionService).updateStatus(any(Integer.class), any());
+
+        mockMvc.perform(
+                patch("/options/{id}/status", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()));
+
+        verify(optionService).updateStatus(any(Integer.class), any(OptionStatusDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OptionController.updateOptionStatus() - 更新產品細節選項上架狀態 id 不存在，應回傳 404 及指定訊息")
+    void testUpdateOptionStatusNotExist() throws Exception {
+        Integer id = Integer.MAX_VALUE;
+        OptionStatusDTO optionStatusDTO = new OptionStatusDTO();
+        optionStatusDTO.setStatus(StatusEnum.ACTIVE.getCode());
+        String jsonBody = objectMapper.writeValueAsString(optionStatusDTO);
+
+        doThrow(new ResourceNotFoundException(MessageEnum.OPTION_NOT_EXIST))
+                .when(optionService).updateStatus(any(Integer.class), any(OptionStatusDTO.class));
+
+        mockMvc.perform(
+                patch("/options/{id}/status", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(MessageEnum.OPTION_NOT_EXIST.getCode()));
+    }
+
+    @Test
+    @DisplayName("[Unit] OptionController.updateOptionStatus() - 更新產品細節選項狀態，缺少狀態參數，應回傳 400")
+    void testUpdateOptionStatusMissingStatus() throws Exception {
+        Integer id = SeedOptionData.EGG.id();
+        OptionStatusDTO optionStatusDTO = new OptionStatusDTO();
+        String jsonBody = objectMapper.writeValueAsString(optionStatusDTO);
+
+        mockMvc.perform(
+                patch("/options/{id}/status", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        ).andExpect(status().isBadRequest());
+
+        verify(optionService, never()).updateStatus(any(Integer.class), any(OptionStatusDTO.class));
+    }
 
 }
