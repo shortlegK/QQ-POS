@@ -9,6 +9,7 @@ import com.qqriceball.testData.emp.SeedUserData;
 import com.qqriceball.utils.TestDataGenerator;
 import com.qqriceball.utils.emp.EmpTestDataFactory;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -28,9 +29,10 @@ public class EmpControllerIT extends BaseIntegrationTest{
     void testCreateEmpUsernameDuplicate() throws Exception{
 
         String username = TestDataGenerator.getUnique("duplicate");
+        String password = "testPassword1";
 
         EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(username,
-                username, RoleEnum.STAFF.getCode());
+                password, RoleEnum.STAFF.getCode());
 
         // 建立帳號
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
@@ -73,13 +75,29 @@ public class EmpControllerIT extends BaseIntegrationTest{
 
     }
 
+    @Test
+    @DisplayName("[IT] 2001 createEmp - 密碼格式不符規範，應回傳 400")
+    void testCreateEmpPasswordFormatError() throws Exception{
+        EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO("u", "testpassword1", RoleEnum.STAFF.getCode());
+
+        String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
+        mockMvc.perform(
+                        post("/emps")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody))
+                .andExpect(status().isBadRequest());
+
+    }
+
 
     @Test
     @DisplayName("[IT] 2001 createEmp - 建立帳號成功，應回傳 200 且可使用新帳號進行登入")
     void testCreateEmpUsernameSuccess() throws Exception{
 
         String username = TestDataGenerator.getUnique("create");
-        EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(username, username, RoleEnum.MANAGER.getCode());
+        String password = "testPassword1";
+        EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(username, password, RoleEnum.MANAGER.getCode());
 
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
         ResultActions resultActions = mockMvc.perform(
@@ -219,7 +237,8 @@ public class EmpControllerIT extends BaseIntegrationTest{
         // 建立測試帳號,取得 id
 
         String statusName = TestDataGenerator.getUnique("status");
-        EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(statusName, statusName, RoleEnum.MANAGER.getCode());
+        String password = "testPassword1";
+        EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(statusName, password, RoleEnum.MANAGER.getCode());
 
         String createJsonBody = objectMapper.writeValueAsString(empCreateDTO);
         mockMvc.perform(
@@ -324,6 +343,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
     void testUpdateByIdNoExist() throws Exception {
 
         EmpEditDTO empEditDTO = new EmpEditDTO();
+        BeanUtils.copyProperties(SeedUserData.TESTER, empEditDTO);
         empEditDTO.setId(Integer.MAX_VALUE);
         empEditDTO.setEntryDate(LocalDate.now());
 
@@ -343,7 +363,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
     void testUpdateByIdSuccess() throws Exception {
 
         EmpEditDTO empEditDTO = new EmpEditDTO();
-        empEditDTO.setId(SeedUserData.TESTER.id());
+        BeanUtils.copyProperties(SeedUserData.TESTER, empEditDTO);
         empEditDTO.setEntryDate(LocalDate.now());
 
         String jsonBody = objectMapper.writeValueAsString(empEditDTO);

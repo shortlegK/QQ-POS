@@ -32,7 +32,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.security.core.Authentication;
 
 
@@ -87,14 +86,11 @@ public class EmpControllerTest {
                 .create(any(EmpCreateDTO.class));
 
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                         post("/emps")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
-                );
-
-        resultActions
-                .andExpect(status().isConflict())
+                ).andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value(MessageEnum.USERNAME_ALREADY_EXISTS.getCode()));
     }
 
@@ -105,19 +101,33 @@ public class EmpControllerTest {
         EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(SeedUserData.TESTER);
 
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 post("/emps")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-        );
-
-        resultActions
-                .andExpect(status().isOk())
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()));
     }
 
     @Test
-    @DisplayName("[Unit] EmpController.updateEmpStatus() - 變更員工啟用狀態，帳號不存在應回傳 401 及指定訊息")
+    @DisplayName("[Unit] EmpController.createEmp() - 建立員工缺少帳號，應回傳 400")
+    void testCreateEmpMissingUsername() throws Exception {
+
+        EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(SeedUserData.TESTER);
+        empCreateDTO.setUsername(null);
+
+        String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
+        mockMvc.perform(
+                post("/emps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+        ).andExpect(status().isBadRequest());
+
+        verify(empService, never()).create(any(EmpCreateDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] EmpController.updateEmpStatus() - 變更員工啟用狀態，帳號不存在應回傳 404 及指定訊息")
     void testUpdateEmpStatusAccountNotExist() throws Exception {
 
         Integer id = 666;
@@ -129,13 +139,11 @@ public class EmpControllerTest {
                 );
 
         String jsonBody = objectMapper.writeValueAsString(empStatusDTO);
-        ResultActions resultActions = mockMvc.perform(
-                            patch("/emps/{id}/status", id)
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content(jsonBody)
-                    );
-        resultActions
-                .andExpect(status().isNotFound())
+        mockMvc.perform(
+                patch("/emps/{id}/status", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXISTS.getCode()));
     }
 
@@ -147,17 +155,33 @@ public class EmpControllerTest {
         EmpStatusDTO empStatusDTO = EmpTestDataFactory.getEmpStatusDTO(StatusEnum.INACTIVE);
 
         String jsonBody = objectMapper.writeValueAsString(empStatusDTO);
-        ResultActions resultActions = mockMvc.perform(
-                        patch("/emps/{id}/status", id)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(jsonBody)
-                );
-        resultActions
-                .andExpect(status().isOk())
+        mockMvc.perform(
+                patch("/emps/{id}/status", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()));
 
         verify(empService).updateStatus(any(EmpStatusDTO.class), eq(id));
 
+    }
+
+    @Test
+    @DisplayName("[Unit] EmpController.updateEmpStatus() - 更新狀態參數超出範圍，應回傳 400")
+    void testUpdateEmpStatusInvalidStatus() throws Exception {
+
+        Integer id = 666;
+        EmpStatusDTO empStatusDTO = new EmpStatusDTO();
+        empStatusDTO.setStatus(2);
+
+        String jsonBody = objectMapper.writeValueAsString(empStatusDTO);
+        mockMvc.perform(
+                patch("/emps/{id}/status", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isBadRequest());
+
+        verify(empService,never()).updateStatus(any(EmpStatusDTO.class), anyInt());
     }
 
     @Test
@@ -169,13 +193,10 @@ public class EmpControllerTest {
                 .when(empService)
                 .getById(anyInt());
 
-        ResultActions resultActions = mockMvc.perform(
-                get("/emps/{id}", id)
-        );
-
-        resultActions
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXISTS.getCode()));
+       mockMvc.perform(
+               get("/emps/{id}", id)
+               ).andExpect(status().isNotFound())
+               .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXISTS.getCode()));
 
         verify(empService).getById(anyInt());
     }
@@ -189,12 +210,9 @@ public class EmpControllerTest {
         BeanUtils.copyProperties(SeedUserData.MANAGER,empVO);
         when(empService.getById(anyInt())).thenReturn(empVO);
 
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 get("/emps/{id}", id)
-        );
-
-        resultActions
-                .andExpect(status().isOk())
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data").exists());
 
@@ -214,20 +232,15 @@ public class EmpControllerTest {
                 );
 
         String jsonBody = objectMapper.writeValueAsString(empEditDTO);
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 put("/emps")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-        );
-
-        resultActions
-                .andExpect(status().isNotFound())
+                ).andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXISTS.getCode()));
 
         verify(empService).updateById(any(EmpEditDTO.class));
     }
-
-
 
     @Test
     @DisplayName("[Unit] EmpController.updateEmpById() - 修改成功應回傳 200")
@@ -236,17 +249,31 @@ public class EmpControllerTest {
         EmpEditDTO empEditDTO = EmpTestDataFactory.getEmpEditDTO(SeedUserData.TESTER);
 
         String jsonBody = objectMapper.writeValueAsString(empEditDTO);
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 put("/emps")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-        );
-
-        resultActions
-                .andExpect(status().isOk())
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()));
 
         verify(empService).updateById(any(EmpEditDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] EmpController.updateEmpById() - 修改員工缺少姓名，應回傳 400")
+    void testUpdateEmpByIdMissingName() throws Exception {
+
+        EmpEditDTO empEditDTO = EmpTestDataFactory.getEmpEditDTO(SeedUserData.TESTER);
+        empEditDTO.setName(null);
+
+        String jsonBody = objectMapper.writeValueAsString(empEditDTO);
+        mockMvc.perform(
+                put("/emps")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isBadRequest());
+
+        verify(empService, never()).updateById(any(EmpEditDTO.class));
     }
 
     @Test
@@ -267,20 +294,36 @@ public class EmpControllerTest {
 
         when(empService.pageQuery(any(EmpPageQueryDTO.class))).thenReturn(mockResult);
 
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 get("/emps/page")
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("page", queryDTO.getPage().toString())
                         .param("pageSize", queryDTO.getPageSize().toString())
                         .param("name", SeedUserData.MANAGER.name())
-        );
-
-        resultActions
-                .andExpect(status().isOk())
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data").exists());
 
         verify(empService).pageQuery(any(EmpPageQueryDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] EmpController.pageQueryEmp() - 分頁查詢狀態參數設定超出範圍，應回傳 400")
+    void testPageQueryEmpInvalidStatus() throws Exception {
+        EmpPageQueryDTO queryDTO = new EmpPageQueryDTO();
+        queryDTO.setPage(1);
+        queryDTO.setPageSize(5);
+        queryDTO.setStatus(2);
+
+        mockMvc.perform(
+                get("/emps/page")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("page", queryDTO.getPage().toString())
+                        .param("pageSize", queryDTO.getPageSize().toString())
+                        .param("status", queryDTO.getStatus().toString())
+        ).andExpect(status().isBadRequest());
+
+        verify(empService, never()).pageQuery(any(EmpPageQueryDTO.class));
     }
 
 }

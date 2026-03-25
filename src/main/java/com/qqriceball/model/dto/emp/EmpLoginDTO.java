@@ -12,7 +12,7 @@ import java.io.Serializable;
 public class EmpLoginDTO implements Serializable {
 
     @Schema(description = "帳號")
-    @NotBlank(message = "請輸入帳號")
+    @NotBlank(message = "請輸入帳號，長度為 6~20")
     @Size(min = 6, max = 20, message = "帳號長度為 6~20")
     private String username;
 

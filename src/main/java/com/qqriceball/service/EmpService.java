@@ -60,7 +60,7 @@ public class EmpService {
     public EmpVO create(EmpCreateDTO empCreateDTO) {
         Emp emp = new Emp();
 
-        // 將 empDTO 內容 copy 至 emp
+        // 將 empCreateDTO 內容 copy 至 emp
         BeanUtils.copyProperties(empCreateDTO, emp);
 
         emp.setPassword(passwordEncoder.encode(emp.getPassword()));
@@ -78,7 +78,7 @@ public class EmpService {
     }
 
     public PageResult pageQuery(EmpPageQueryDTO empPageQueryDTO) {
-        try{
+
             PageHelper.startPage(empPageQueryDTO.getPage(), empPageQueryDTO.getPageSize());
 
             List<EmpVO> list = empMapper.pageQuery(empPageQueryDTO);
@@ -88,10 +88,6 @@ public class EmpService {
             return new PageResult(page.getTotal(), empPageQueryDTO.getPage(),
                     empPageQueryDTO.getPageSize(), page.getResult());
 
-        }catch (Exception e) {
-            log.error("查詢異常：{}", empPageQueryDTO, e);
-            throw new BadRequestArgsException(MessageEnum.BAD_REQUEST);
-        }
     }
 
     public void updateStatus(EmpStatusDTO empStatusDTO, Integer id) {
@@ -101,7 +97,6 @@ public class EmpService {
         Emp emp = new Emp();
         emp.setId(id);
         emp.setStatus(empStatusDTO.getStatus());
-
         empMapper.updateById(emp);
     }
 

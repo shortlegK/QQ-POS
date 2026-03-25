@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Schema(description = "員工登入結果資料")
 public class EmpLoginVO implements Serializable {
 
-    @Schema(description = "員工 id")
+    @Schema(description = "員工 ID")
     private Integer id;
 
     @Schema(description = "帳號")
