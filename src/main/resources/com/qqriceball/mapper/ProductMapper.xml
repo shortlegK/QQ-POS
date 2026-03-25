@@ -18,10 +18,10 @@
             <if test="title != null and title !=''">
                 title like concat('%',#{title},'%')
             </if>
-            <if test="productType != null and productType !=''">
+            <if test="productType != null">
                 product_type = #{productType}
             </if>
-            <if test="status != null and status !=''">
+            <if test="status != null">
                 status = #{status}
             </if>
         </where>

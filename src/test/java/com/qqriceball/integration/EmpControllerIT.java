@@ -16,6 +16,8 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.everyItem;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -406,6 +408,32 @@ public class EmpControllerIT extends BaseIntegrationTest{
                 .andExpect(jsonPath("$.data.records[0].username").value(SeedUserData.TESTER.username()));
     }
 
+    @Test
+    @DisplayName("[IT] 2002 pageQueryEmp - 分頁查詢指定狀態，應回傳 200 及資料")
+    void testPageQueryEmpByStatus() throws Exception {
+
+        EmpPageQueryDTO queryDTO = new EmpPageQueryDTO();
+        queryDTO.setPage(1);
+        queryDTO.setPageSize(5);
+        queryDTO.setStatus(StatusEnum.INACTIVE.getCode());
+
+        ResultActions resultActions = mockMvc.perform(
+                get("/emps/page")
+                        .header("Authorization", "Bearer " + tokenManager)
+                        .param("page", queryDTO.getPage().toString())
+                        .param("pageSize", queryDTO.getPageSize().toString())
+                        .param("status", queryDTO.getStatus().toString())
+        );
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.total").isNumber())
+                .andExpect(jsonPath("$.data.page").value(queryDTO.getPage()))
+                .andExpect(jsonPath("$.data.pageSize").value(queryDTO.getPageSize()))
+                .andExpect(jsonPath("$.data.records").isArray())
+                .andExpect(jsonPath("$.data.records[*].status").value(everyItem(equalTo(queryDTO.getStatus()))));
+    }
 
 }
 

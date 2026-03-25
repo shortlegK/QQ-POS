@@ -100,6 +100,23 @@ public class ProductControllerIT extends BaseIntegrationTest{
     }
 
     @Test
+    @DisplayName("[IT] 3002 pageQueryProduct - 分頁查詢指定狀態資料，應回傳 200 及資料")
+    void testPageQueryProductByStatus() throws Exception {
+        ProductPageQueryDTO queryDTO = new ProductPageQueryDTO();
+        queryDTO.setStatus(StatusEnum.INACTIVE.getCode());
+
+        mockMvc.perform(
+                        get("/products/page")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .param("status", queryDTO.getStatus().toString())
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.records").isArray())
+                .andExpect(jsonPath("$.data.records").isNotEmpty())
+                .andExpect(jsonPath("$.data.records[*].status").value(everyItem(equalTo(queryDTO.getStatus()))));
+    }
+
+    @Test
     @DisplayName("[IT] 3003 updateProductById - 修改成功應回傳 200 及資料")
     void testUpdateProductByIdSuccess() throws Exception {
 
