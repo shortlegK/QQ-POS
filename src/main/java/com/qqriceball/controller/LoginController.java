@@ -6,6 +6,8 @@ import com.qqriceball.common.utils.JwtUtil;
 import com.qqriceball.model.dto.emp.EmpLoginDTO;
 import com.qqriceball.model.entity.Emp;
 import com.qqriceball.model.vo.EmpLoginVO;
+import com.qqriceball.model.vo.EmpVO;
+import com.qqriceball.model.vo.TokenVO;
 import com.qqriceball.service.EmpService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -71,4 +74,25 @@ public class LoginController {
     public Result<String> logout() {
         return Result.success();
     }
+
+    @Operation(summary = "1003 刷新 Token")
+    @PostMapping("/token/refresh")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "執行成功"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<TokenVO> refreshToken(@AuthenticationPrincipal EmpVO currentEmp) {
+        log.info("1003 刷新 Token,操作id:{}", currentEmp.getId());
+            String token = JwtUtil.generateToken(
+                    jwtProperties.getSecretKey(),
+                    currentEmp.getId(),
+                    currentEmp.getUsername(),
+                    jwtProperties.getTtlMillis());
+
+            TokenVO tokenVO = TokenVO.builder()
+                    .token(token)
+                    .build();
+        return Result.success(tokenVO);
+    }
+
 }

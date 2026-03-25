@@ -1,5 +1,6 @@
 package com.qqriceball.integration;
 
+import com.jayway.jsonpath.JsonPath;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.testData.emp.SeedUserData;
 import com.qqriceball.model.dto.emp.EmpLoginDTO;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.http.MediaType;
 
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -133,6 +135,47 @@ public class LoginControllerIT extends BaseIntegrationTest{
 
         resultActions.andExpect(status().isOk());
 
+    }
+
+    @Test
+    @DisplayName("[IT] 1003 refreshToken - 刷新 Token 成功，應回傳 200 及新 token")
+    void testRefreshTokenSuccess() throws Exception {
+
+        EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(
+                SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
+
+        String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
+        MvcResult resultLogin = mockMvc.perform(
+                post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isOk())
+                .andReturn();
+
+        String loginResponse = resultLogin.getResponse().getContentAsString();
+        String token = JsonPath.read(loginResponse, "$.data.token");
+
+        mockMvc.perform(
+                post("/token/refresh")
+                        .header("Authorization", "Bearer " + token)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.token").isNotEmpty());
+    }
+
+    @Test
+    @DisplayName("[IT] 1003 refreshToken - token 無效，應回傳 401 及指定訊息")
+    void testRefreshTokenInvalidToken() throws Exception {
+        ResultActions resultActions = mockMvc.perform(
+                post("/token/refresh")
+                        .header("Authorization", "Bearer invalidToken")
+        );
+
+        resultActions
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value(MessageEnum.TOKEN_INVALID.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.TOKEN_INVALID.getMessage()))
+                .andExpect(jsonPath("$.data").isEmpty());
     }
 
 

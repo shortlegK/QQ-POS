@@ -9,6 +9,7 @@ import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.model.dto.emp.EmpLoginDTO;
 import com.qqriceball.model.entity.Emp;
 import com.qqriceball.controller.LoginController;
+import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.service.EmpService;
 import com.qqriceball.testData.emp.SeedUserData;
 import com.qqriceball.utils.emp.EmpTestDataFactory;
@@ -19,6 +20,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -165,5 +169,32 @@ class LoginControllerTest {
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()));
 
     }
+
+    @Test
+    @DisplayName("[Unit] LoginController.refreshToken() - 刷新 Token 成功應回傳 200")
+    void refreshToken() throws Exception {
+
+        EmpVO emp = new EmpVO();
+        emp.setId(99);
+        emp.setUsername(SeedUserData.TESTER.username());
+        Authentication auth =  new UsernamePasswordAuthenticationToken(emp, null, java.util.Collections.emptyList());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        String secretKey = "test-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secrettest-secret";
+
+        when(jwtProperties.getSecretKey()).thenReturn(secretKey);
+        when(jwtProperties.getTtlMillis()).thenReturn(3600000L);
+
+        mockMvc.perform(
+                post("/token/refresh")
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.token").isNotEmpty())
+                .andExpect(jsonPath("$.data.token").isString());
+
+        SecurityContextHolder.clearContext();
+    }
+
+
 
 }
