@@ -5,12 +5,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
 @Schema(description = "員工新增資料")
-public class EmpCreateDTO implements Serializable {
+public class EmpCreateDTO {
 
 
     @Schema(description = "帳號")

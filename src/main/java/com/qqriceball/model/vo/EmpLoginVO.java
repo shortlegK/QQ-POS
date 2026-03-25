@@ -6,14 +6,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "員工登入結果資料")
-public class EmpLoginVO implements Serializable {
+public class EmpLoginVO {
 
     @Schema(description = "員工 ID")
     private Integer id;

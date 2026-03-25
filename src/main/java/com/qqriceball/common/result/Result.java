@@ -3,10 +3,8 @@ package com.qqriceball.common.result;
 import com.qqriceball.enumeration.MessageEnum;
 import lombok.Data;
 
-import java.io.Serializable;
-
 @Data
-public class Result<T> implements Serializable {
+public class Result<T> {
 
     private Integer code; //200成功，其他數字為失敗
     private String msg;

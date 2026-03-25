@@ -5,11 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.io.Serializable;
-
 @Data
 @Schema(description = "員工登入資料")
-public class EmpLoginDTO implements Serializable {
+public class EmpLoginDTO {
 
     @Schema(description = "帳號")
     @NotBlank(message = "請輸入帳號，長度為 6~20")

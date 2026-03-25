@@ -6,11 +6,9 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.io.Serializable;
-
 @Data
 @Schema(description = "員工分頁查詢資料")
-public class EmpPageQueryDTO implements Serializable {
+public class EmpPageQueryDTO {
 
     @Schema(description = "員工姓名")
     @Size(max = 20, message = "姓名最大長度為20")

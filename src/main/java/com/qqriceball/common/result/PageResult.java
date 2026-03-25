@@ -5,13 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PageResult implements Serializable {
+public class PageResult {
 
     @Schema(description = "總紀錄數")
     private Long total;
@@ -23,5 +22,5 @@ public class PageResult implements Serializable {
     private Integer pageSize;
 
     @Schema(description = "分頁查詢資料")
-    private List records;
+    private List<?> records;
 }

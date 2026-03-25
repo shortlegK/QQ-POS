@@ -7,11 +7,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.io.Serializable;
-
 @Data
 @Schema(description = "產品細節選項分頁查詢資料")
-public class OptionPageQueryDTO implements Serializable {
+public class OptionPageQueryDTO {
 
     @Schema(description = "名稱")
     @Size(max = 20, message = "名稱最大長度為 20")

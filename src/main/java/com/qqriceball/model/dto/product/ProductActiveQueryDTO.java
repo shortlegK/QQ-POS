@@ -5,11 +5,9 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
 
-import java.io.Serializable;
-
 @Data
 @Schema(description = "產品分頁查詢資料")
-public class ProductActiveQueryDTO implements Serializable {
+public class ProductActiveQueryDTO {
 
     @Schema(description = "產品類型(0:葷食, 1:素食, 2:飲料)")
     @Min(value = 0, message = "產品類型設定錯誤(0:葷食, 1:素食, 2:飲料)")

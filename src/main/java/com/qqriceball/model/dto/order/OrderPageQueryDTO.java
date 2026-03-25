@@ -5,12 +5,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
 @Schema(description = "產品細節選項分頁查詢資料")
-public class OrderPageQueryDTO implements Serializable {
+public class OrderPageQueryDTO {
 
     @Schema(description = "訂單編號")
     private String orderNo;
