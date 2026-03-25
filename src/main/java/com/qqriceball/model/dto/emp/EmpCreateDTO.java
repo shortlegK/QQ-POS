@@ -13,8 +13,8 @@ public class EmpCreateDTO {
 
 
     @Schema(description = "帳號")
-    @NotBlank(message = "請輸入帳號，長度為 6~20")
-    @Size(min = 6, max = 20, message = "帳號長度為 6~20")
+    @NotBlank(message = "請輸入帳號，長度為 6~20，只能由小寫字母與數字組成")
+    @Size(min = 6, max = 20, message = "帳號長度為 6~20，只能由小寫字母與數字組成")
     @Pattern(
             regexp = "^(?=.*[a-z])[a-z!\\d]+$",
             message = "帳號只能由小寫字母與數字組成"
