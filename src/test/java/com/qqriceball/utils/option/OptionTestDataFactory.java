@@ -1,6 +1,5 @@
 package com.qqriceball.utils.option;
 
-import com.qqriceball.model.dto.option.OptionActiveQueryDTO;
 import com.qqriceball.model.dto.option.OptionCreateDTO;
 import com.qqriceball.model.dto.option.OptionEditDTO;
 import com.qqriceball.model.dto.option.OptionPageQueryDTO;
@@ -38,10 +37,5 @@ public class OptionTestDataFactory {
         return optionVO;
     }
 
-    public static OptionActiveQueryDTO getOptionActiveQueryDTO(Integer optionType){
-        OptionActiveQueryDTO optionActiveQueryDTO = new OptionActiveQueryDTO();
-        optionActiveQueryDTO.setOptionType(optionType);
-        return optionActiveQueryDTO;
-    }
 
 }
