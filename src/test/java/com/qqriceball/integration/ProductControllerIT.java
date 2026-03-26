@@ -80,14 +80,13 @@ public class ProductControllerIT extends BaseIntegrationTest{
         ProductPageQueryDTO queryDTO = new ProductPageQueryDTO();
         queryDTO.setPage(1);
         queryDTO.setPageSize(5);
-        queryDTO.setTitle(SeedProductData.MEAT_PRODUCT.title());
-
+        queryDTO.setProductType(SeedProductData.VEG_PRODUCT.productType());
         mockMvc.perform(
                 get("/products/page")
                         .header("Authorization", "Bearer " + tokenManager)
                         .param("page", queryDTO.getPage().toString())
                         .param("pageSize", queryDTO.getPageSize().toString())
-                        .param("title", queryDTO.getTitle())
+                        .param("productType", queryDTO.getProductType().toString())
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.total").isNumber())
@@ -95,8 +94,7 @@ public class ProductControllerIT extends BaseIntegrationTest{
                 .andExpect(jsonPath("$.data.pageSize").value(queryDTO.getPageSize()))
                 .andExpect(jsonPath("$.data.records").isArray())
                 .andExpect(jsonPath("$.data.records").isNotEmpty())
-                .andExpect(jsonPath("$.data.records[0].id").value(SeedProductData.MEAT_PRODUCT.id()))
-                .andExpect(jsonPath("$.data.records[0].title").value(SeedProductData.MEAT_PRODUCT.title()));
+                .andExpect(jsonPath("$.data.records[*].productType").value(everyItem(equalTo(queryDTO.getProductType()))));
     }
 
     @Test
@@ -104,16 +102,19 @@ public class ProductControllerIT extends BaseIntegrationTest{
     void testPageQueryProductByStatus() throws Exception {
         ProductPageQueryDTO queryDTO = new ProductPageQueryDTO();
         queryDTO.setStatus(StatusEnum.INACTIVE.getCode());
+        queryDTO.setProductType(SeedProductData.MEAT_PRODUCT.productType());
 
         mockMvc.perform(
                         get("/products/page")
                                 .header("Authorization", "Bearer " + tokenManager)
                                 .param("status", queryDTO.getStatus().toString())
+                                .param("productType", queryDTO.getProductType().toString())
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.records").isArray())
                 .andExpect(jsonPath("$.data.records").isNotEmpty())
-                .andExpect(jsonPath("$.data.records[*].status").value(everyItem(equalTo(queryDTO.getStatus()))));
+                .andExpect(jsonPath("$.data.records[*].status").value(everyItem(equalTo(queryDTO.getStatus()))))
+                .andExpect(jsonPath("$.data.records[*].productType").value(everyItem(equalTo(queryDTO.getProductType()))));
     }
 
     @Test
@@ -123,18 +124,21 @@ public class ProductControllerIT extends BaseIntegrationTest{
         ProductPageQueryDTO queryDTO = new ProductPageQueryDTO();
         queryDTO.setTitle(keyword);
         queryDTO.setStatus(StatusEnum.INACTIVE.getCode());
+        queryDTO.setProductType(SeedProductData.MEAT_PRODUCT.productType());
 
         mockMvc.perform(
                         get("/products/page")
                                 .header("Authorization", "Bearer " + tokenManager)
                                 .param("title", queryDTO.getTitle())
                                 .param("status", queryDTO.getStatus().toString())
+                                .param("productType", queryDTO.getProductType().toString())
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.records").isArray())
                 .andExpect(jsonPath("$.data.records").isNotEmpty())
                 .andExpect(jsonPath("$.data.records[*].title").value(everyItem(containsString(keyword))))
-                .andExpect(jsonPath("$.data.records[*].status").value(everyItem(equalTo(queryDTO.getStatus()))));
+                .andExpect(jsonPath("$.data.records[*].status").value(everyItem(equalTo(queryDTO.getStatus()))))
+                .andExpect(jsonPath("$.data.records[*].productType").value(everyItem(equalTo(queryDTO.getProductType()))));
     }
 
     @Test

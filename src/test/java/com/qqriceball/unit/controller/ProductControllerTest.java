@@ -7,6 +7,7 @@ import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.controller.ProductController;
 import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.enumeration.ProductTypeEnum;
 import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
 import com.qqriceball.model.dto.product.*;
@@ -155,6 +156,7 @@ public class ProductControllerTest {
                         .param("page", queryDTO.getPage().toString())
                         .param("pageSize", queryDTO.getPageSize().toString())
                         .param("title", SeedProductData.MEAT_PRODUCT.title())
+                        .param("productType", String.valueOf(SeedProductData.MEAT_PRODUCT.productType()))
         );
 
         resultActions
