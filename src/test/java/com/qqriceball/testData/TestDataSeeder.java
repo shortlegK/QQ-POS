@@ -181,7 +181,6 @@ public class TestDataSeeder implements ApplicationRunner {
             orderItemOption.setOptionType(option.optionType());
             orderItemOption.setOptionTitle(option.title());
             orderItemOption.setOptionPrice(option.price());
-            orderItemOption.setQuantity(2);
             orderItemOptionMapper.insert(orderItemOption);
         }
     }

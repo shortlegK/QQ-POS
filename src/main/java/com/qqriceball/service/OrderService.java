@@ -240,19 +240,19 @@ public class OrderService {
             List<OptionTypeEnum> dtoOptionTypes = new ArrayList<>();
             int optionTotal = 0;
 
-            for (OrderItemOptionDTO itemOptionDTO : itemDTO.getOptions()) {
+            for (Integer itemOptionId : itemDTO.getOptionIds()) {
                 // 2. 確認 option 是否存在且為 active 狀態
-                OptionVO option = this.getAndValidateOptionStatus(itemOptionDTO.getOptionId());
+                OptionVO option = this.getAndValidateOptionStatus(itemOptionId);
 
                 OptionTypeEnum optionType = OptionTypeEnum.getByCode(option.getOptionType());
                 // 3. 確認 optionType 是否為符合 ProductType 設定規則及單選限制
-                this.validateAllowedOptionTypeAndSingleSelect(productType, optionType, seenSingleOptionTypes, itemOptionDTO.getQuantity());
+                this.validateAllowedOptionTypeAndSingleSelect(productType, optionType, seenSingleOptionTypes);
                 dtoOptionTypes.add(optionType);
 
                 // 4. 建立 OrderItemOption 資料，計算 option 金額
-                OrderItemOption orderItemOption = this.buildOrderItemOption(option, itemOptionDTO.getQuantity());
+                OrderItemOption orderItemOption = this.buildOrderItemOption(option);
                 optionsDraftList.add(orderItemOption);
-                optionTotal += option.getPrice() * itemOptionDTO.getQuantity();
+                optionTotal += option.getPrice();
             }
 
             // 5. 依據 productType 確認必填 option 是否皆已設定完成
@@ -304,7 +304,7 @@ public class OrderService {
     }
 
     private void validateAllowedOptionTypeAndSingleSelect(ProductTypeEnum productType, OptionTypeEnum optionType,
-                                                          Set<OptionTypeEnum> seenSingleOptionSet, Integer quantity) {
+                                                          Set<OptionTypeEnum> seenSingleOptionSet) {
         // 檢查 ProductType 是否允許使用此 OptionType
         if (!ALLOWED_OPTIONS.get(productType).contains(optionType)) {
             log.error("商品類型: {} 不允許設定選項類型: {}", productType, optionType);
@@ -316,13 +316,6 @@ public class OrderService {
             log.error("單選項目重複設定: {}", optionType);
             throw new BadRequestArgsException(MessageEnum.DUPLICATE_OPTION);
         }
-
-        // 檢查單選選項訂購數量是否超過限制
-        if(optionType.isSingleSelect() && quantity > optionType.getLimit()){
-            log.error("單選項目數量錯誤: {} 數量: {}", optionType, quantity);
-            throw new BadRequestArgsException(MessageEnum.SINGLE_SELECT_OPTION_QUANTITY_EXCEED);
-        }
-
     }
 
     private void validateRequiredOptionsByProductType(ProductTypeEnum productType, List<OptionTypeEnum> dtoOptionTypeList) {
@@ -360,13 +353,12 @@ public class OrderService {
         return start + String.format("%04d", sequence);
     }
 
-    private OrderItemOption buildOrderItemOption(OptionVO option, Integer quantity) {
+    private OrderItemOption buildOrderItemOption(OptionVO option) {
         OrderItemOption orderItemOption = new OrderItemOption();
         orderItemOption.setOptionId(option.getId());
         orderItemOption.setOptionType(option.getOptionType());
         orderItemOption.setOptionTitle(option.getTitle());
         orderItemOption.setOptionPrice(option.getPrice());
-        orderItemOption.setQuantity(quantity);
         return orderItemOption;
     }
 

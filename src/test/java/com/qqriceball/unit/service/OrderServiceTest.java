@@ -75,21 +75,19 @@ public class OrderServiceTest {
     @Test
     @DisplayName("[Unit] OrderService.create() - 建立訂單，應呼叫 orderMapper.insert 傳入參數")
     void testCreateSuccess() {
-
-        Integer optionQuantity = 1;
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, optionQuantity);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
 
         Integer productQuantity = 2;
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, productQuantity, optionDTOList);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, productQuantity, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now().plusMinutes(15).truncatedTo(ChronoUnit.MINUTES));
         orderCreateDTO.setItems(List.of(orderItemDTO));
 
         Integer expectedTotal = OrderTestDataFactory.calculateTotalPrice(SeedProductData.DRINK_PRODUCT, productQuantity,
-                OrderTestDataFactory.DRINK_OPTIONS, optionQuantity);
+                OrderTestDataFactory.DRINK_OPTIONS);
         int itemNum = orderCreateDTO.getItems().size();
-        int optionNum = optionDTOList.size();
+        int optionNum = optionIdsList.size();
 
         ProductVO product = ProductTestDataFactory.getProductVO(SeedProductData.DRINK_PRODUCT);
         OptionVO option = OptionTestDataFactory.getOptionVO(SeedOptionData.COLD);
@@ -119,17 +117,42 @@ public class OrderServiceTest {
                 () -> assertEquals(itemNum, itemCaptoredRusults.size(), "orderItem 新增次數應與傳入 DTO 數量相同"),
                 () -> assertEquals(orderItemDTO.getProductId(), itemCaptoredRusults.get(0).getProductId(), "productId 應與傳入參數相同"),
                 () -> assertEquals(orderItemDTO.getQuantity(), itemCaptoredRusults.get(0).getQuantity(), "quantity 應與傳入參數相同"),
-                () -> assertEquals(optionDTOList.get(0).getOptionId(), optionCaptoredRusults.get(0).getOptionId(), "optionId 應與傳入參數相同"),
-                () -> assertEquals(optionDTOList.get(0).getQuantity(), optionCaptoredRusults.get(0).getQuantity(), "quantity 應與傳入參數相同")
-
+                () -> assertEquals(optionIdsList.get(0), optionCaptoredRusults.get(0).getOptionId(), "optionId 應與傳入參數相同")
         );
+    }
+
+    @Test
+    @DisplayName("[Unit] OrderService.create() - 建立訂單，重複設定加料選項，totalPrice 應正確計算，重複的加料選項應計算一次")
+    void testCreateDuplicateAddOnOption() {
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        optionIdsList.add(SeedOptionData.EGG.id());
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 1, optionIdsList);
+
+        OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
+        orderCreateDTO.setItems(List.of(orderItemDTO));
+
+        ProductVO mockProduct = ProductTestDataFactory.getProductVO(SeedProductData.MEAT_PRODUCT);
+
+        Integer expectedTotal = OrderTestDataFactory.calculateTotalPrice(SeedProductData.MEAT_PRODUCT, 1,
+                OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON) + SeedOptionData.EGG.price();
+
+        when(productMapper.getById(any(Integer.class))).thenReturn(mockProduct);
+
+        when(optionMapper.getById(any(Integer.class))).thenReturn(OptionTestDataFactory.getOptionVO(SeedOptionData.LARGE_SIZE))
+                .thenReturn(OptionTestDataFactory.getOptionVO(SeedOptionData.MILD_SPICY))
+                .thenReturn(OptionTestDataFactory.getOptionVO(SeedOptionData.PURPLE_RICE))
+                .thenReturn(OptionTestDataFactory.getOptionVO(SeedOptionData.EGG))
+                .thenReturn(OptionTestDataFactory.getOptionVO(SeedOptionData.EGG));
+
+        OrderSummaryVO summaryVO = orderService.create(orderCreateDTO);
+        assertEquals(expectedTotal, summaryVO.getTotal(), "totalPrice 應為產品價格加上選項價格乘以數量的總和，重複的加料選項應計算一次");
     }
 
     @Test
     @DisplayName("[Unit] OrderService.create() - 建立訂單，product id 不存在，應拋出 ResourceNotFoundException")
     void testCreateProductNotExist() {
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -153,8 +176,8 @@ public class OrderServiceTest {
     @DisplayName("[Unit] OrderService.create() - 建立訂單，option id 不存在，應拋出 ResourceNotFoundException")
     void testCreateOptionNotExist() {
 
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -181,8 +204,8 @@ public class OrderServiceTest {
     @DisplayName("[Unit] OrderService.create() - 建立訂單，productStatus = Inactive，應拋出 ResourceUnavailableException")
     void testCreateProductInactive() {
 
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_INACTIVE, 2, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_INACTIVE, 2, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -207,8 +230,8 @@ public class OrderServiceTest {
     @Test
     @DisplayName("[Unit] OrderService.create() - 建立訂單，optionStatus = Inactive，應拋出 ResourceUnavailableException")
     void testCreateOptionInactive() {
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS_INACTIVE, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS_INACTIVE);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -236,8 +259,8 @@ public class OrderServiceTest {
     @DisplayName("[Unit] OrderService.create() - 建立訂單，飲品含有不允許的 option，應拋出 BadRequestArgsException")
     void testCreateDrinkOptionNotAllow() {
 
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS_WITH_RICE_SIZE, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS_WITH_RICE_SIZE);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -265,8 +288,8 @@ public class OrderServiceTest {
     @DisplayName("[Unit] OrderService.create() - 建立訂單，食物含有不允許的 option，應拋出 BadRequestArgsException")
     void testCreateFoodOptionNotAllow() {
 
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 2, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 2, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -294,8 +317,8 @@ public class OrderServiceTest {
     @DisplayName("[Unit] OrderService.create() - 建立訂單，食物設定重複的單選選項應拋出 BadRequestArgsException")
     void testCreateFoodSingleOptionDuplicate() {
 
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 2, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 2, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -324,8 +347,8 @@ public class OrderServiceTest {
     @Test
     @DisplayName("[Unit] OrderService.create() - 建立訂單，飲品設定重複的單選選項應拋出 BadRequestArgsException")
     void testCreateDrinkSingleOptionDuplicate() {
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -350,41 +373,11 @@ public class OrderServiceTest {
         verify(orderItemOptionMapper, never()).insert(any(OrderItemOption.class));
     }
 
-
-    @Test
-    @DisplayName("[Unit] OrderService.create() - 建立訂單，單選選項訂購數量超過上限應拋出 BadRequestArgsException")
-    void testCreateSingleOptionLimit() {
-
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 2);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
-
-        OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
-        orderCreateDTO.setPickupTime(LocalDateTime.now());
-        orderCreateDTO.setItems(List.of(orderItemDTO));
-
-        ProductVO product = ProductTestDataFactory.getProductVO(SeedProductData.DRINK_PRODUCT);
-        OptionVO option = OptionTestDataFactory.getOptionVO(SeedOptionData.COLD);
-
-        when(productMapper.getById(any(Integer.class))).thenReturn(product);
-        when(optionMapper.getById(any(Integer.class))).thenReturn(option);
-
-        BadRequestArgsException exception = assertThrows(BadRequestArgsException.class,
-                () -> orderService.create(orderCreateDTO));
-
-        assertEquals(MessageEnum.SINGLE_SELECT_OPTION_QUANTITY_EXCEED.getMessage(), exception.getMessage(), "異常訊息應與預期相同");
-
-        verify(productMapper).getById(any(Integer.class));
-        verify(optionMapper).getById(any(Integer.class));
-        verify(orderMapper, never()).insert(any(Order.class));
-        verify(orderItemMapper, never()).insert(any(OrderItem.class));
-        verify(orderItemOptionMapper, never()).insert(any(OrderItemOption.class));
-    }
-
     @Test
     @DisplayName("[Unit] OrderService.create() - 建立訂單，缺少必填選項，應拋出 BadRequestArgsException")
     void testCreateRequiredOptionMissing() {
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITHOUT_SPICE, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 2, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITHOUT_SPICE);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 2, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -415,11 +408,10 @@ public class OrderServiceTest {
     @DisplayName("[Unit] OrderService.create() - 建立訂單，飲品設定必填項目以外的選項，應拋出 BadRequestArgsException")
     void testCreateDrinkWithExtraOptions() {
 
-        Integer optionQuantity = 1;
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS_WITH_RICE_SIZE, optionQuantity);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS_WITH_RICE_SIZE);
 
         Integer productQuantity = 2;
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, productQuantity, optionDTOList);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, productQuantity, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -473,12 +465,10 @@ public class OrderServiceTest {
     @Test
     @DisplayName("[Unit] OrderService.updateByOrderNo() - 更新訂單資料，應呼叫 orderMapper.updateByOrderNo 傳入參數")
     void testUpdateByOrderNoSuccess() {
-
-        Integer optionQuantity = 1;
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, optionQuantity);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
 
         Integer productQuantity = 2;
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, productQuantity, optionDTOList);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, productQuantity, optionIdsList);
 
         OrderEditDTO orderEditDTO = new OrderEditDTO();
         orderEditDTO.setPickupTime(LocalDateTime.now().plusMinutes(15).truncatedTo(ChronoUnit.MINUTES));
@@ -486,7 +476,7 @@ public class OrderServiceTest {
         orderEditDTO.setOrderNo(SeedOrderData.orderMaking.orderNo());
 
         Integer expectedTotal = OrderTestDataFactory.calculateTotalPrice(SeedProductData.DRINK_PRODUCT, productQuantity,
-                OrderTestDataFactory.DRINK_OPTIONS, optionQuantity);
+                OrderTestDataFactory.DRINK_OPTIONS);
 
         ProductVO product = ProductTestDataFactory.getProductVO(SeedProductData.DRINK_PRODUCT);
         OptionVO option = OptionTestDataFactory.getOptionVO(SeedOptionData.COLD);
@@ -530,8 +520,8 @@ public class OrderServiceTest {
     @Test
     @DisplayName("[Unit] OrderService.updateByOrderNo() - 更新訂單，查無訂單資料，應拋出 ResourceNotFoundException")
     void testUpdateByOrderNoStatusNotMaking() {
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionIdsList);
 
         OrderEditDTO orderEditDTO = new OrderEditDTO();
         orderEditDTO.setItems(List.of(orderItemDTO));
@@ -549,8 +539,8 @@ public class OrderServiceTest {
     @DisplayName("[Unit] OrderService.updateByOrderNo() - 更新訂單，訂單狀態非製作中，應拋出 ResourceUnavailableException")
     void testUpdateByOrderNoOrderNotMaking() {
 
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionIdsList);
 
         OrderEditDTO orderEditDTO = new OrderEditDTO();
         orderEditDTO.setItems(List.of(orderItemDTO));

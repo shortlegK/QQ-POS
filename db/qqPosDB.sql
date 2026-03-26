@@ -91,11 +91,7 @@ create table if not exists order_item_options
     option_id     tinyint unsigned not null comment '細節選項 id',
     option_type   tinyint unsigned not null comment '選項類型(0:米飯種類, 1:飯量, 2:辣度, 3:加料種類, 4:飲品溫度)',
     option_title  varchar(20)      not null comment '明細選項名稱',
-    option_price  int unsigned     not null comment '明細選項售價',
-    quantity      int unsigned     not null comment '數量',
-    constraint order_item_option_pk_2
-        unique (option_id,
-                order_item_id)
+    option_price  int unsigned     not null comment '明細選項售價'
 )
     comment '訂單商品設定明細表';
 

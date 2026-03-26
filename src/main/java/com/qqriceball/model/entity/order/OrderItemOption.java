@@ -30,7 +30,4 @@ public class OrderItemOption {
     @Schema(description = "選項售價")
     private Integer optionPrice;
 
-    @Schema(description = "訂購數量")
-    private Integer quantity;
-
 }

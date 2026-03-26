@@ -1,7 +1,6 @@
 package com.qqriceball.utils.order;
 
 import com.qqriceball.model.dto.order.OrderItemDTO;
-import com.qqriceball.model.dto.order.OrderItemOptionDTO;
 import com.qqriceball.model.dto.order.OrderPageQueryDTO;
 import com.qqriceball.model.vo.order.OrderDetailVO;
 import com.qqriceball.model.vo.order.OrderItemOptionVO;
@@ -54,31 +53,28 @@ public class OrderTestDataFactory {
     );
 
 
-    public static List<OrderItemOptionDTO> getOptionDTOList(List<TestOption> options , Integer optionQuantity) {
-        List<OrderItemOptionDTO> optionDTOS = new ArrayList<>();
+    public static List<Integer> getOptionIdsList(List<TestOption> options) {
+        List<Integer> optionDTOS = new ArrayList<>();
         for (TestOption option : options) {
-            OrderItemOptionDTO optionDTO = new OrderItemOptionDTO();
-            optionDTO.setOptionId(option.id());
-            optionDTO.setQuantity(optionQuantity);
-            optionDTOS.add(optionDTO);
+            optionDTOS.add(option.id());
         }
         return optionDTOS;
     }
 
-    public static OrderItemDTO getOrderItemDTO(TestProduct product, Integer productQuantity, List<OrderItemOptionDTO> options) {
+    public static OrderItemDTO getOrderItemDTO(TestProduct product, Integer productQuantity, List<Integer> optionIds) {
         OrderItemDTO orderItemDTO = new OrderItemDTO();
         orderItemDTO.setProductId(product.id());
         orderItemDTO.setQuantity(productQuantity);
-        orderItemDTO.setOptions(options);
+        orderItemDTO.setOptionIds(optionIds);
         return orderItemDTO;
     }
 
     public static Integer calculateTotalPrice(TestProduct product, Integer productQuantity,
-                                              List<TestOption> options, Integer optionQuantity) {
+                                              List<TestOption> options) {
         Integer optionsTotal = 0;
 
         for (TestOption option : options) {
-            optionsTotal += option.price() * optionQuantity;
+            optionsTotal += option.price();
         }
 
         return (product.price()+ optionsTotal) * productQuantity ;
@@ -123,7 +119,6 @@ public class OrderTestDataFactory {
             optionVO.setOptionId(option.id());
             optionVO.setOptionTitle(option.title());
             optionVO.setOptionPrice(option.price());
-            optionVO.setQuantity(1);
             optionVOList.add(optionVO);
         }
         itemVO.setOptions(optionVOList);

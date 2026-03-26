@@ -82,8 +82,8 @@ public class OrderControllerTest {
     @DisplayName("[Unit] OrderController.createOrder() - 建立訂單成功，應回傳 200 及資料")
     void testCreateOrderSuccess() throws Exception {
 
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionIdsList);
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
         orderCreateDTO.setItems(List.of(orderItemDTO));
@@ -125,8 +125,7 @@ public class OrderControllerTest {
     @DisplayName("[Unit] OrderController.createOrder() - 建立訂單缺少 options ，應回傳 400")
     void testCreateOrderMissingOptions() throws Exception {
 
-        List<OrderItemOptionDTO> optionDTOList = new ArrayList<>();
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, List.of());
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -145,8 +144,8 @@ public class OrderControllerTest {
     @Test
     @DisplayName("[Unit] OrderController.createOrder() - 建立訂單，查無產品資料應回傳 404 及指定訊息")
     void testCreateProductNotExist() throws Exception {
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 1, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 1, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -169,8 +168,8 @@ public class OrderControllerTest {
     @Test
     @DisplayName("[Unit] OrderController.createOrder() - 建立訂單，查無選項資料應回傳 404 及指定訊息")
     void testCreateOptionNotExist() throws Exception {
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 1, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 1, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -193,8 +192,8 @@ public class OrderControllerTest {
     @Test
     @DisplayName("[Unit] OrderController.createOrder() - 建立訂單，產品為下架狀態應回傳 409 及指定訊息")
     void testCreateProductInactive() throws Exception {
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 1, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 1, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -217,8 +216,8 @@ public class OrderControllerTest {
     @Test
     @DisplayName("[Unit] OrderController.createOrder() - 建立訂單，選項為下架狀態應回傳 409 及指定訊息")
     void testCreateOptionInactive() throws Exception {
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 1, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 1, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -242,8 +241,8 @@ public class OrderControllerTest {
     @Test
     @DisplayName("[Unit] OrderController.createOrder() - 建立訂單，產品設有無法使用的選項應回傳 400 及指定訊息")
     void testCreateOptionNotAllowed() throws Exception {
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 1, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 1, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -266,8 +265,8 @@ public class OrderControllerTest {
     @Test
     @DisplayName("[Unit] OrderController.createOrder() - 建立訂單，產品重複設定單選選項應回傳 400 及指定訊息")
     void testCreateSingleSelectOptionDuplicate() throws Exception {
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 1, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 1, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -288,34 +287,10 @@ public class OrderControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OrderController.createOrder() - 建立訂單，單選選項設定數量超過上限，應回傳 400 及指定訊息")
-    void testCreateSingleSelectOptionLimit() throws Exception {
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
-
-        OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
-        orderCreateDTO.setPickupTime(LocalDateTime.now());
-        orderCreateDTO.setItems(List.of(orderItemDTO));
-
-        doThrow(new BadRequestArgsException(MessageEnum.SINGLE_SELECT_OPTION_QUANTITY_EXCEED))
-                .when(orderService).create(any(OrderCreateDTO.class));
-
-        String jsonBody = objectMapper.writeValueAsString(orderCreateDTO);
-        mockMvc.perform(
-                        post("/orders/create")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(jsonBody)
-                ).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value(MessageEnum.SINGLE_SELECT_OPTION_QUANTITY_EXCEED.getCode()));
-
-        verify(orderService).create(any(OrderCreateDTO.class));
-    }
-
-    @Test
     @DisplayName("[Unit] OrderController.createOrder() - 建立訂單，缺少必填選項，應回傳 400 及指定訊息")
     void testCreateRequiredOptionMissing() throws Exception {
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 1, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 1, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -420,8 +395,8 @@ public class OrderControllerTest {
     @DisplayName("[Unit] OrderController.updateByOrderNo() - 更新訂單資料成功，應回傳 200 及資料")
     void testUpdateOrderByOrderNoSuccess() throws Exception {
 
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
+        List<Integer> optionIdList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionIdList);
         OrderEditDTO orderEditDTO = new OrderEditDTO();
         orderEditDTO.setPickupTime(LocalDateTime.now());
         orderEditDTO.setItems(List.of(orderItemDTO));
@@ -446,8 +421,8 @@ public class OrderControllerTest {
     @DisplayName("[Unit] OrderController.updateByOrderNo() - 更新訂單資料缺少訂單編號，應回傳 400 及指定訊息")
     void testUpdateOrderByOrderNoWithOutOrderNo() throws Exception {
 
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionIdsList);
         OrderEditDTO orderEditDTO = new OrderEditDTO();
         orderEditDTO.setPickupTime(LocalDateTime.now());
         orderEditDTO.setItems(List.of(orderItemDTO));
@@ -467,8 +442,8 @@ public class OrderControllerTest {
     @DisplayName("[Unit] OrderController.updateByOrderNo() - 更新訂單資料，查無訂單應回傳 404 及指定訊息")
     void testUpdateOrderByOrderNoNotExist() throws Exception {
 
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionIdsList);
         OrderEditDTO orderEditDTO = new OrderEditDTO();
         orderEditDTO.setPickupTime(LocalDateTime.now());
         orderEditDTO.setItems(List.of(orderItemDTO));
@@ -491,8 +466,8 @@ public class OrderControllerTest {
     @Test
     @DisplayName("[Unit] OrderController.updateByOrderNo() - 更新訂單資料，訂單狀態非製作中應回傳 409 及指定訊息")
     void testUpdateOrderByOrderNoStatusError() throws Exception {
-        List<OrderItemOptionDTO> optionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionIdsList);
         OrderEditDTO orderEditDTO = new OrderEditDTO();
         orderEditDTO.setPickupTime(LocalDateTime.now());
         orderEditDTO.setItems(List.of(orderItemDTO));

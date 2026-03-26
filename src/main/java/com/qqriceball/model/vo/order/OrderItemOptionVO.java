@@ -29,7 +29,4 @@ public class OrderItemOptionVO {
     @Schema(description = "選項類型(0: 米飯種類, 1: 飯量, 2: 辣度, 3: 加料種類, 4:飲品溫度)")
     private Integer optionType;
 
-    @Schema(description = "選項訂購數量")
-    private Integer quantity;
-
 }

@@ -6,6 +6,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.OrderStatusEnum;
 import com.qqriceball.model.dto.order.*;
+import com.qqriceball.testData.option.SeedOptionData;
 import com.qqriceball.testData.order.SeedOrderData;
 import com.qqriceball.testData.product.SeedProductData;
 import com.qqriceball.utils.order.OrderTestDataFactory;
@@ -33,11 +34,10 @@ public class OrderControllerIT extends BaseIntegrationTest {
     @DisplayName("[IT] 5001 createOrder - 使用管理權限帳號，建立訂單成功，回傳 200 及資料")
     void testCreateOrderWithManagerSuccess() throws Exception {
 
-        Integer optionQuantity = 1;
-        List<OrderItemOptionDTO> itemOptionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
 
         Integer productQuantity = 2;
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, itemOptionDTOList);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         LocalDateTime expectedPickupTime = LocalDateTime.now().plusMinutes(15).truncatedTo(ChronoUnit.MINUTES);
@@ -45,7 +45,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         orderCreateDTO.setItems(List.of(orderItemDTO));
 
         Integer expectedTotal = OrderTestDataFactory.calculateTotalPrice(SeedProductData.MEAT_PRODUCT, productQuantity,
-                OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
+                OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
 
         String jsonBody = objectMapper.writeValueAsString(orderCreateDTO);
         MvcResult result = mockMvc.perform(
@@ -72,16 +72,16 @@ public class OrderControllerIT extends BaseIntegrationTest {
     }
 
     @Test
-    @DisplayName("[IT] 5001 createOrder - 使用一般權限帳號，建立訂單成功，回傳 200 及資料")
+    @DisplayName("[IT] 5001 createOrder - 使用一般權限帳號，建立訂單成功(含有重複的加料選項)，回傳 200 及資料")
     void testCreateOrderWithStaffSuccess() throws Exception {
 
-        Integer optionQuantity = 1;
-        List<OrderItemOptionDTO> itemOptions0 = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
-        List<OrderItemOptionDTO> itemOptions1 = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.DRINK_OPTIONS, optionQuantity);
+        List<Integer> optionIdsList0 = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        optionIdsList0.add(SeedOptionData.EGG.id()); // 重複加料選項
+        List<Integer> optionIdsList2 = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
 
         Integer productQuantity = 2;
-        OrderItemDTO orderItem0 = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, itemOptions0);
-        OrderItemDTO orderItem1 = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, productQuantity, itemOptions1);
+        OrderItemDTO orderItem0 = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, optionIdsList0);
+        OrderItemDTO orderItem1 = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, productQuantity, optionIdsList2);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         LocalDateTime expectedPickupTime = LocalDateTime.now().plusMinutes(15).truncatedTo(ChronoUnit.MINUTES);
@@ -89,10 +89,10 @@ public class OrderControllerIT extends BaseIntegrationTest {
         orderCreateDTO.setItems(List.of(orderItem0, orderItem1));
 
         Integer item0Total = OrderTestDataFactory.calculateTotalPrice(SeedProductData.MEAT_PRODUCT, productQuantity,
-                OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
+                OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON) + SeedOptionData.EGG.price() * productQuantity; // 加上重複加料選項的價格
 
         Integer item1Total = OrderTestDataFactory.calculateTotalPrice(SeedProductData.DRINK_PRODUCT, productQuantity,
-                OrderTestDataFactory.DRINK_OPTIONS, optionQuantity);
+                OrderTestDataFactory.DRINK_OPTIONS);
 
         Integer expectedTotal = item0Total + item1Total;
 
@@ -124,11 +124,10 @@ public class OrderControllerIT extends BaseIntegrationTest {
     @DisplayName("[IT] 5001 createOrder - 建立訂單，查無產品資料，應回傳 404")
     void testCreateOrderProductNotFound() throws Exception {
 
-        Integer optionQuantity = 1;
-        List<OrderItemOptionDTO> itemOptionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
 
         Integer productQuantity = 2;
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, itemOptionDTOList);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, optionIdsList);
         orderItemDTO.setProductId(Integer.MAX_VALUE);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
@@ -150,12 +149,10 @@ public class OrderControllerIT extends BaseIntegrationTest {
     @DisplayName("[IT] 5001 createOrder - 建立訂單，查無選項資料，應回傳 404")
     void testCreateOrderOptionNotFound() throws Exception {
 
-        Integer optionQuantity = 1;
-        List<OrderItemOptionDTO> itemOptionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
-        itemOptionDTOList.get(0).setOptionId(Integer.MAX_VALUE);
+        List<Integer> optionIdsList = List.of(Integer.MAX_VALUE);
 
         Integer productQuantity = 2;
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, itemOptionDTOList);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -176,11 +173,10 @@ public class OrderControllerIT extends BaseIntegrationTest {
     @DisplayName("[IT] 5001 createOrder - 建立訂單，產品已下架，應回傳 409")
     void testCreateOrderProductUnavailable() throws Exception {
 
-        Integer optionQuantity = 1;
-        List<OrderItemOptionDTO> itemOptionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
 
         Integer productQuantity = 2;
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_INACTIVE, productQuantity, itemOptionDTOList);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_INACTIVE, productQuantity, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         LocalDateTime expectedPickupTime = LocalDateTime.now();
@@ -202,11 +198,10 @@ public class OrderControllerIT extends BaseIntegrationTest {
     @DisplayName("[IT] 5001 createOrder - 建立訂單，選項已下架，應回傳 409")
     void testCreateOrderOptionUnavailable() throws Exception {
 
-        Integer optionQuantity = 1;
-        List<OrderItemOptionDTO> itemOptionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_INACTIVE, optionQuantity);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_INACTIVE);
 
         Integer productQuantity = 2;
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, itemOptionDTOList);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setPickupTime(LocalDateTime.now());
@@ -306,14 +301,13 @@ public class OrderControllerIT extends BaseIntegrationTest {
         orderEditDTO.setPickupTime(expectedPickupTime);
         orderEditDTO.setOrderNo(expectedOrderNo);
 
-        Integer optionQuantity = 1;
-        List<OrderItemOptionDTO> itemOptionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
         Integer productQuantity = 4;
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, itemOptionDTOList);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, optionIdsList);
         orderEditDTO.setItems(List.of(orderItemDTO));
 
         Integer expectedTotal = OrderTestDataFactory.calculateTotalPrice(SeedProductData.MEAT_PRODUCT, productQuantity,
-                OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, optionQuantity);
+                OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
 
         String jsonBody = objectMapper.writeValueAsString(orderEditDTO);
         mockMvc.perform(
@@ -337,8 +331,8 @@ public class OrderControllerIT extends BaseIntegrationTest {
         orderEditDTO.setPickupTime(expectedPickupTime);
         orderEditDTO.setOrderNo("NotExistOrderNo");
 
-        List<OrderItemOptionDTO> itemOptionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 1, itemOptionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 1, optionIdsList);
         orderEditDTO.setItems(List.of(orderItemDTO));
 
         String jsonBody = objectMapper.writeValueAsString(orderEditDTO);
@@ -360,8 +354,8 @@ public class OrderControllerIT extends BaseIntegrationTest {
         orderEditDTO.setPickupTime(expectedPickupTime);
         orderEditDTO.setOrderNo(orderNo);
 
-        List<OrderItemOptionDTO> itemOptionDTOList = OrderTestDataFactory.getOptionDTOList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON, 1);
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 1, itemOptionDTOList);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 1, optionIdsList);
         orderEditDTO.setItems(List.of(orderItemDTO));
 
         String jsonBody = objectMapper.writeValueAsString(orderEditDTO);

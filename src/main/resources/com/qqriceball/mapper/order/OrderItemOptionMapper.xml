@@ -7,13 +7,13 @@
 
     <!--新增訂單項目-->
     <insert id="insert" parameterType="com.qqriceball.model.entity.order.OrderItemOption" useGeneratedKeys="true" keyProperty="id">
-        insert into order_item_options(order_item_id, option_id, option_type, option_title, option_price, quantity)
-        values (#{orderItemId},#{optionId},#{optionType},#{optionTitle},#{optionPrice}, #{quantity})
+        insert into order_item_options(order_item_id, option_id, option_type, option_title, option_price)
+        values (#{orderItemId},#{optionId},#{optionType},#{optionTitle},#{optionPrice})
     </insert>
 
     <!-- 根據 itemId 查詢訂單選項列表-->
     <select id="getOptionsByItemId" resultType="com.qqriceball.model.vo.order.OrderItemOptionVO">
-        select id, order_item_id, option_id, option_title, option_price, option_type, quantity
+        select id, order_item_id, option_id, option_title, option_price, option_type
         from order_item_options
         where order_item_id = #{itemId}
     </select>
