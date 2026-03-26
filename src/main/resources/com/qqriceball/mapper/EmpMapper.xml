@@ -24,7 +24,7 @@
                 AND status = #{status}
             </if>
         </where>
-        order by create_time desc
+        order by id
     </select>
 
     <!--更新員工資料-->

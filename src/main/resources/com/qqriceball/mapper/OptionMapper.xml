@@ -23,7 +23,7 @@
                 AND status = #{status}
             </if>
         </where>
-        order by create_time desc
+        order by id
     </select>
 
     <!--更新細節選項資料-->
@@ -55,7 +55,7 @@
         from options
         where option_type = #{optionType}
           AND status = 1
-        order by create_time desc
+        order by id
     </select>
 
 
