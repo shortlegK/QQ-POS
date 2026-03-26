@@ -16,8 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/products")
 @Slf4j
@@ -89,21 +87,8 @@ public class ProductController {
         return Result.success(productVO);
     }
 
-    @Operation(summary = "3005 根據類型查詢上架狀態的產品")
-    @GetMapping("/active")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "查詢成功"),
-            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
-    })
-    public Result<List<ProductVO>> getActiveProductByType(@AuthenticationPrincipal EmpVO currentEmp,
-                                                          @Valid ProductActiveQueryDTO productActiveQueryDTO){
-        log.info("3005 根據 ProductType 查詢上架狀態的產品,操作 id:{},參數:{}",currentEmp.getId(),productActiveQueryDTO);
-        List<ProductVO> productVOList = productService.getActiveProductByType(productActiveQueryDTO);
-        return Result.success(productVOList);
-    }
-
     @Operation(summary = "3006 調整產品上架狀態")
-    @PatchMapping("{id}/status")
+    @PatchMapping("/{id}/status")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "執行成功"),
             @ApiResponse(responseCode = "404", description = "產品品項不存在"),

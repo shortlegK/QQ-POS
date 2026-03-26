@@ -1,11 +1,11 @@
 package com.qqriceball.mapper;
 
 import com.qqriceball.enumeration.OperationType;
-import com.qqriceball.model.dto.product.ProductActiveQueryDTO;
 import com.qqriceball.model.dto.product.ProductPageQueryDTO;
 import com.qqriceball.model.entity.Product;
 import com.qqriceball.annotation.AutoFill;
 import com.qqriceball.model.vo.ProductVO;
+import com.qqriceball.model.vo.order.catalog.OrderableProductVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -25,6 +25,7 @@ public interface ProductMapper {
     @AutoFill(value = OperationType.UPDATE)
     void updateById(Product product);
 
-    List<ProductVO> getActiveProductByType(ProductActiveQueryDTO productActiveQueryDTO);
+    @Select("select id, title, product_type, price from products where status = 1")
+    List<OrderableProductVO> getActiveProducts();
 
 }

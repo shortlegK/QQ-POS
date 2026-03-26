@@ -49,14 +49,14 @@
           AND is_default = 1
     </update>
 
-    <!--依 OptionType 查詢上架狀態的選項資料-->
-    <select id="getActiveOptionsByType" resultType="com.qqriceball.model.vo.OptionVO">
-        select id, title, option_type,is_default, price, status
-        from options
-        where option_type = #{optionType}
-          AND status = 1
-        order by id
-    </select>
+<!--    &lt;!&ndash;依 OptionType 查詢上架狀態的選項資料&ndash;&gt;-->
+<!--    <select id="getActiveOptionsByType" resultType="com.qqriceball.model.vo.OptionVO">-->
+<!--        select id, title, option_type,is_default, price, status-->
+<!--        from options-->
+<!--        where option_type = #{optionType}-->
+<!--          AND status = 1-->
+<!--        order by id-->
+<!--    </select>-->
 
 
 </mapper>

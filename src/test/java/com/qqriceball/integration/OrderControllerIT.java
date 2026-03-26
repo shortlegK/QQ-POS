@@ -467,4 +467,38 @@ public class OrderControllerIT extends BaseIntegrationTest {
                 ).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_STATUS_TRANSITION_NOT_ALLOWED.getCode()));
     }
+
+    @Test
+    @DisplayName("[IT] 5006 getOrderCatalog - 使用管理帳號，取得可訂購商品及選項目錄成功，回傳 200 及資料")
+    void testGetOrderCatalogSuccessWithManager() throws Exception {
+
+        mockMvc.perform(
+                        get("/orders/catalog")
+                                .header("Authorization", "Bearer " + tokenManager)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.products").isArray())
+                .andExpect(jsonPath("$.data.products").isNotEmpty())
+                .andExpect(jsonPath("$.data.optionConfigs").isArray())
+                .andExpect(jsonPath("$.data.optionConfigs").isNotEmpty())
+                .andExpect(jsonPath("$.data.optionConfigs[*].optionGroups").isArray())
+                .andExpect(jsonPath("$.data.optionConfigs[*].optionGroups").isNotEmpty());
+    }
+
+    @Test
+    @DisplayName("[IT] 5006 getOrderCatalog - 使用一般員工帳號，取得可訂購商品及選項目錄成功，回傳 200 及資料")
+    void testGetOrderCatalogSuccessWithStaff() throws Exception {
+
+        mockMvc.perform(
+                        get("/orders/catalog")
+                                .header("Authorization", "Bearer " + tokenStaff)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.products").isArray())
+                .andExpect(jsonPath("$.data.products").isNotEmpty())
+                .andExpect(jsonPath("$.data.optionConfigs").isArray())
+                .andExpect(jsonPath("$.data.optionConfigs").isNotEmpty())
+                .andExpect(jsonPath("$.data.optionConfigs[*].optionGroups").isArray())
+                .andExpect(jsonPath("$.data.optionConfigs[*].optionGroups").isNotEmpty());
+    }
 }

@@ -17,8 +17,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/options")
 @Slf4j
@@ -89,21 +87,8 @@ public class OptionController {
         return Result.success(optionVO);
     }
 
-    @Operation(summary = "4005 根據 OptionType 查詢上架狀態的產品細節選項")
-    @GetMapping("/active")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "查詢成功"),
-            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
-    })
-    public Result<List<OptionVO>> getActiveOptionsByType(@AuthenticationPrincipal EmpVO currentEmp,
-                                                               @Valid OptionActiveQueryDTO optionActiveQueryDTO){
-        log.info("4005 根據 OptionType 查詢選項,操作id:{},參數:{}", currentEmp.getId(), optionActiveQueryDTO);
-        List<OptionVO> optionVOList = optionService.getActiveOptionsByType(optionActiveQueryDTO);
-        return Result.success(optionVOList);
-    }
-
     @Operation(summary = "4006 調整產品細節選項上架狀態")
-    @PatchMapping("{id}/status")
+    @PatchMapping("/{id}/status")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "執行成功"),
             @ApiResponse(responseCode = "404", description = "產品細節選項不存在"),

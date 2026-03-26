@@ -379,50 +379,50 @@ public class OptionControllerTest {
                 .andExpect(jsonPath("$.data").exists());
     }
 
-    @Test
-    @DisplayName("[Unit] OptionController.getActiveOptionsByType() - 查詢成功，應回傳 200 及資料")
-    void testGetActiveOptionsByTypeSuccess() throws Exception {
-        Integer optionType = OptionTypeEnum.ADD_ON.getCode();
+//    @Test
+//    @DisplayName("[Unit] OptionController.getActiveOptionsByType() - 查詢成功，應回傳 200 及資料")
+//    void testGetActiveOptionsByTypeSuccess() throws Exception {
+//        Integer optionType = OptionTypeEnum.ADD_ON.getCode();
+//
+//        List<OptionVO> mockData = new ArrayList<>();
+//        mockData.add(OptionTestDataFactory.getOptionVO(SeedOptionData.EGG));
+//
+//        when(optionService.getActiveOptionsByType(any())).thenReturn(mockData);
+//
+//        mockMvc.perform(
+//                get("/options/active")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .param("optionType", String.valueOf(optionType))
+//        ).andExpect(status().isOk())
+//                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+//                .andExpect(jsonPath("$.data").exists());
+//
+//        verify(optionService).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
+//    }
 
-        List<OptionVO> mockData = new ArrayList<>();
-        mockData.add(OptionTestDataFactory.getOptionVO(SeedOptionData.EGG));
+//    @Test
+//    @DisplayName("[Unit] OptionController.getActiveOptionsByType() - 查詢選項類型參數超出範圍，應回傳 400")
+//    void testGetActiveOptionsByTypeBadRequest() throws Exception {
+//        Integer optionType = 5;
+//        mockMvc.perform(
+//                 get("/options/active")
+//                         .contentType(MediaType.APPLICATION_JSON)
+//                         .param("optionType", String.valueOf(optionType))
+//        ).andExpect(status().isBadRequest());
+//
+//        verify(optionService,never()).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
+//    }
 
-        when(optionService.getActiveOptionsByType(any())).thenReturn(mockData);
-
-        mockMvc.perform(
-                get("/options/active")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("optionType", String.valueOf(optionType))
-        ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
-                .andExpect(jsonPath("$.data").exists());
-
-        verify(optionService).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
-    }
-
-    @Test
-    @DisplayName("[Unit] OptionController.getActiveOptionsByType() - 查詢選項類型參數超出範圍，應回傳 400")
-    void testGetActiveOptionsByTypeBadRequest() throws Exception {
-        Integer optionType = 5;
-        mockMvc.perform(
-                 get("/options/active")
-                         .contentType(MediaType.APPLICATION_JSON)
-                         .param("optionType", String.valueOf(optionType))
-        ).andExpect(status().isBadRequest());
-
-        verify(optionService,never()).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
-    }
-
-    @Test
-    @DisplayName("[Unit] OptionController.getActiveOptionsByType() - 查詢缺少選項類型參數，應回傳 400")
-    void testGetActiveOptionsByTypeMissingOptionType() throws Exception {
-        mockMvc.perform(
-                get("/options/active")
-                        .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().isBadRequest());
-
-        verify(optionService,never()).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
-    }
+//    @Test
+//    @DisplayName("[Unit] OptionController.getActiveOptionsByType() - 查詢缺少選項類型參數，應回傳 400")
+//    void testGetActiveOptionsByTypeMissingOptionType() throws Exception {
+//        mockMvc.perform(
+//                get("/options/active")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//        ).andExpect(status().isBadRequest());
+//
+//        verify(optionService,never()).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
+//    }
 
     @Test
     @DisplayName("[Unit] OptionController.updateOptionStatus() - 更新產品細節選項上架狀態成功，應回傳 200")

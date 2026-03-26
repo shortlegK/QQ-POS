@@ -8,6 +8,7 @@ import com.qqriceball.common.exception.ResourceUnavailableException;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.OrderStatusEnum;
+import com.qqriceball.enumeration.ProductTypeEnum;
 import com.qqriceball.mapper.OptionMapper;
 import com.qqriceball.mapper.ProductMapper;
 import com.qqriceball.mapper.order.OrderItemMapper;
@@ -23,6 +24,9 @@ import com.qqriceball.model.vo.order.OrderDetailVO;
 import com.qqriceball.model.vo.order.OrderItemOptionVO;
 import com.qqriceball.model.vo.order.OrderItemVO;
 import com.qqriceball.model.vo.order.OrderSummaryVO;
+import com.qqriceball.model.vo.order.catalog.OrderCatalogVO;
+import com.qqriceball.model.vo.order.catalog.OrderableOptionVO;
+import com.qqriceball.model.vo.order.catalog.OrderableProductVO;
 import com.qqriceball.service.OrderService;
 import com.qqriceball.testData.option.SeedOptionData;
 import com.qqriceball.testData.order.SeedOrderData;
@@ -746,5 +750,30 @@ public class OrderServiceTest {
         assertEquals(MessageEnum.ORDER_STATUS_TRANSITION_NOT_ALLOWED.getMessage(), exception.getMessage(), "異常訊息應與預期相同");
         verify(orderMapper).getByOrderNo(any(String.class));
         verify(orderMapper, never()).updateByOrderNo(any(Order.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OrderService.getCatalog() - 查詢產品目錄，應回傳已上架產品列表及可用選項資料")
+    void testGetCatalogSuccess() {
+
+        List<OrderableProductVO> mockProductList = OrderTestDataFactory.getOrderableProductList(
+                List.of(SeedProductData.MEAT_PRODUCT, SeedProductData.VEG_PRODUCT));
+
+        List<OrderableOptionVO> mockOptionList = OrderTestDataFactory.getOrderableOptionList(
+                List.of(SeedOptionData.NORMAL_SIZE,SeedOptionData.LARGE_SIZE));
+
+        when(productMapper.getActiveProducts()).thenReturn(mockProductList);
+        when(optionMapper.getActiveOptionsByType(anyInt())).thenReturn(mockOptionList);
+
+        OrderCatalogVO result = orderService.getCatalog();
+
+        verify(productMapper).getActiveProducts();
+        verify(optionMapper, times(9)).getActiveOptionsByType(anyInt());
+
+        assertAll(
+                () -> assertEquals(mockProductList, result.getProducts(), "回傳的產品列表應與 mockProductList 相同"),
+                () -> assertEquals(ProductTypeEnum.values().length, result.getOptionConfigs().size(), "回傳的選項列表應與 mockOptionList 相同"),
+                () -> assertEquals(mockOptionList, result.getOptionConfigs().get(0).getOptionGroups().get(0).getOptions(), "回傳的選項列表應與 mockOptionList 相同")
+        );
     }
 }

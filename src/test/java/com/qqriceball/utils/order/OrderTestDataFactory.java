@@ -6,6 +6,8 @@ import com.qqriceball.model.dto.order.OrderPageQueryDTO;
 import com.qqriceball.model.vo.order.OrderDetailVO;
 import com.qqriceball.model.vo.order.OrderItemOptionVO;
 import com.qqriceball.model.vo.order.OrderItemVO;
+import com.qqriceball.model.vo.order.catalog.OrderableOptionVO;
+import com.qqriceball.model.vo.order.catalog.OrderableProductVO;
 import com.qqriceball.testData.option.SeedOptionData;
 import com.qqriceball.testData.option.TestOption;
 import com.qqriceball.testData.order.TestOrder;
@@ -118,7 +120,6 @@ public class OrderTestDataFactory {
             OrderItemOptionVO optionVO = new OrderItemOptionVO();
             optionVO.setId(TestDataGenerator.getUniqueInt());
             optionVO.setOrderItemId(itemVO.getId());
-            optionVO.setId(option.id());
             optionVO.setOptionId(option.id());
             optionVO.setOptionTitle(option.title());
             optionVO.setOptionPrice(option.price());
@@ -129,6 +130,26 @@ public class OrderTestDataFactory {
         orderDetailVO.setItems(List.of(itemVO));
 
         return orderDetailVO;
+    }
+
+    public static List<OrderableProductVO> getOrderableProductList(List<TestProduct> testProducts) {
+        List<OrderableProductVO> productList = new ArrayList<>();
+        for (TestProduct testProduct : testProducts) {
+            OrderableProductVO productVO = new OrderableProductVO();
+            BeanUtils.copyProperties(testProduct, productVO);
+            productList.add(productVO);
+        }
+        return productList;
+    }
+
+    public static List<OrderableOptionVO> getOrderableOptionList(List<TestOption> testOptions) {
+        List<OrderableOptionVO> optionList = new ArrayList<>();
+        for (TestOption testOption : testOptions) {
+            OrderableOptionVO optionVO = new OrderableOptionVO();
+            BeanUtils.copyProperties(testOption, optionVO);
+            optionList.add(optionVO);
+        }
+        return optionList;
     }
 
 

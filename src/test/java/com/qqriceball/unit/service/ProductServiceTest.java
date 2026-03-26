@@ -5,7 +5,6 @@ import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
-import com.qqriceball.enumeration.ProductTypeEnum;
 import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.model.dto.product.*;
 import com.qqriceball.testData.product.SeedProductData;
@@ -22,9 +21,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -193,23 +189,23 @@ public class ProductServiceTest {
         verify(productMapper).getById(id);
     }
 
-    @Test
-    @DisplayName("[Unit] ProductService.getActiveProductByType() - 查詢成功，應回傳資料")
-    void testGetActiveProductByTypeSuccess() {
-
-        ProductActiveQueryDTO productActiveQueryDTO = ProductTestDataFactory.getProductActiveQueryDTO(ProductTypeEnum.DRINKS.getCode());
-
-        ProductVO data1 = ProductTestDataFactory.getProductVO(SeedProductData.DRINK_PRODUCT);
-        List<ProductVO> mockData = new ArrayList<>();
-        mockData.add(data1);
-
-        when(productMapper.getActiveProductByType(any(ProductActiveQueryDTO.class))).thenReturn(mockData);
-
-        List<ProductVO> result = productService.getActiveProductByType(productActiveQueryDTO);
-
-        assertEquals(mockData, result, "回傳資料應與 mock 資料相同");
-        verify(productMapper).getActiveProductByType(any(ProductActiveQueryDTO.class));
-    }
+//    @Test
+//    @DisplayName("[Unit] ProductService.getActiveProductByType() - 查詢成功，應回傳資料")
+//    void testGetActiveProductByTypeSuccess() {
+//
+//        ProductActiveQueryDTO productActiveQueryDTO = ProductTestDataFactory.getProductActiveQueryDTO(ProductTypeEnum.DRINKS.getCode());
+//
+//        ProductVO data1 = ProductTestDataFactory.getProductVO(SeedProductData.DRINK_PRODUCT);
+//        List<ProductVO> mockData = new ArrayList<>();
+//        mockData.add(data1);
+//
+//        when(productMapper.getActiveProductByType(any(ProductActiveQueryDTO.class))).thenReturn(mockData);
+//
+//        List<ProductVO> result = productService.getActiveProductByType(productActiveQueryDTO);
+//
+//        assertEquals(mockData, result, "回傳資料應與 mock 資料相同");
+//        verify(productMapper).getActiveProductByType(any(ProductActiveQueryDTO.class));
+//    }
 
     @Test
     @DisplayName("[Unit] ProductService.updateStatus() - 更新產品上架狀態，應呼叫 ProductMapper.updateById 傳入參數")

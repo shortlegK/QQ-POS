@@ -113,10 +113,6 @@ public class OptionService {
         }
     }
 
-    public List<OptionVO> getActiveOptionsByType(OptionActiveQueryDTO optionActiveQueryDTO){
-        return optionMapper.getActiveOptionsByType(optionActiveQueryDTO);
-    }
-
     public void updateStatus(Integer id, OptionStatusDTO optionStatusDTO){
         this.getById(id);
 

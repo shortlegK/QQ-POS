@@ -2,10 +2,10 @@ package com.qqriceball.mapper;
 
 import com.qqriceball.annotation.AutoFill;
 import com.qqriceball.enumeration.OperationType;
-import com.qqriceball.model.dto.option.OptionActiveQueryDTO;
 import com.qqriceball.model.dto.option.OptionPageQueryDTO;
 import com.qqriceball.model.entity.Option;
 import com.qqriceball.model.vo.OptionVO;
+import com.qqriceball.model.vo.order.catalog.OrderableOptionVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import java.util.List;
@@ -27,6 +27,7 @@ public interface OptionMapper {
     @AutoFill(value = OperationType.UPDATE)
     void cleanDefaultByOptionType(Integer optionType);
 
-    List<OptionVO> getActiveOptionsByType(OptionActiveQueryDTO optionActiveQueryDTO);
+    @Select("select id, title, option_type, price from options where status = 1 and option_type = #{optionType}")
+    List<OrderableOptionVO> getActiveOptionsByType(Integer optionType);
 
 }

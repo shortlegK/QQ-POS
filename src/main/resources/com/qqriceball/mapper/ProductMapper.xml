@@ -43,13 +43,13 @@
     </update>
 
 
-    <!--依 ProductType 查詢上架狀態的產品資料-->
-    <select id="getActiveProductByType" resultType="com.qqriceball.model.vo.ProductVO">
-        select id, title, product_type, price, status
-        from products
-        where product_type = #{productType}
-          AND status = 1
-        order by id
-    </select>
+<!--    &lt;!&ndash;依 ProductType 查詢上架狀態的產品資料&ndash;&gt;-->
+<!--    <select id="getActiveProductByType" resultType="com.qqriceball.model.vo.ProductVO">-->
+<!--        select id, title, product_type, price, status-->
+<!--        from products-->
+<!--        where product_type = #{productType}-->
+<!--          AND status = 1-->
+<!--        order by id-->
+<!--    </select>-->
 
 </mapper>

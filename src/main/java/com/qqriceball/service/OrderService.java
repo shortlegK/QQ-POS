@@ -21,6 +21,7 @@ import com.qqriceball.model.vo.order.OrderDetailVO;
 import com.qqriceball.model.vo.order.OrderItemOptionVO;
 import com.qqriceball.model.vo.order.OrderItemVO;
 import com.qqriceball.model.vo.order.OrderSummaryVO;
+import com.qqriceball.model.vo.order.catalog.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -187,6 +188,40 @@ public class OrderService {
                     orderNo, currentStatus, targetStatus);
             throw new BadRequestArgsException(MessageEnum.ORDER_STATUS_TRANSITION_NOT_ALLOWED);
         }
+    }
+
+    public OrderCatalogVO getCatalog(){
+
+        // 取得所有上架狀態商品
+        List<OrderableProductVO> orderableProducts = productMapper.getActiveProducts();
+
+        List<ProductOptionConfigVO> optionConfigs = new ArrayList<>();
+
+        for(ProductTypeEnum productType : ProductTypeEnum.values()){
+
+            // 取得此商品類型可使用的選項類型清單
+            Set<OptionTypeEnum> allowedOptionTypes = ALLOWED_OPTIONS.get(productType);
+            List<OptionGroupVO> optionGroups = new ArrayList<>();
+
+            for (OptionTypeEnum optionType : allowedOptionTypes) {
+
+                // 取得此選項類型下所有上架狀態的選項列表
+                List<OrderableOptionVO> orderableOptions = optionMapper.getActiveOptionsByType(optionType.getCode());
+
+                // 確認此選項類型是否為此商品類型的必填選項
+                Boolean required = switch (productType) {
+                    case MEAT, VEGAN -> REQUIRED_FOOD_OPTIONS.contains(optionType);
+                    case DRINKS -> REQUIRED_DRINK_OPTIONS.contains(optionType);
+                };
+
+                optionGroups.add(new OptionGroupVO(optionType.getCode(), required,
+                        optionType.isSingleSelect(), orderableOptions));
+            }
+
+            optionConfigs.add(new ProductOptionConfigVO(productType.getCode(), optionGroups));
+        }
+
+        return new OrderCatalogVO(orderableProducts, optionConfigs);
     }
 
     private PreparedOrder prepareOrderDraft(List<OrderItemDTO> itemDTOList) {

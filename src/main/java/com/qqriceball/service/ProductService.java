@@ -89,10 +89,6 @@ public class ProductService {
         }
     }
 
-    public List<ProductVO> getActiveProductByType(ProductActiveQueryDTO productActiveQueryDTO){
-        return productMapper.getActiveProductByType(productActiveQueryDTO);
-    }
-
     public void updateStatus(Integer id, ProductStatusDTO productStatusDTO){
         this.getById(id);
 

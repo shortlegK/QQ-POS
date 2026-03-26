@@ -449,21 +449,21 @@ public class OptionControllerIT extends BaseIntegrationTest{
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
-    @Test
-    @DisplayName("[IT] 4005 getActiveOptionsByType - 查詢成功，回傳 200 及資料")
-    void testGetActiveOptionsByTypeSuccess() throws Exception{
-        OptionTypeEnum optionType = OptionTypeEnum.RICE_SIZE;
-
-        mockMvc.perform(
-                get("/options/active")
-                        .header("Authorization", "Bearer " + tokenManager)
-                        .param("optionType", String.valueOf(optionType.getCode()))
-        ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
-                .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data[*].optionType").value(everyItem(equalTo(optionType.getCode()))))
-                .andExpect(jsonPath("$.data[*].status").value(everyItem(equalTo(StatusEnum.ACTIVE.getCode()))));
-    }
+//    @Test
+//    @DisplayName("[IT] 4005 getActiveOptionsByType - 查詢成功，回傳 200 及資料")
+//    void testGetActiveOptionsByTypeSuccess() throws Exception{
+//        OptionTypeEnum optionType = OptionTypeEnum.RICE_SIZE;
+//
+//        mockMvc.perform(
+//                get("/options/active")
+//                        .header("Authorization", "Bearer " + tokenManager)
+//                        .param("optionType", String.valueOf(optionType.getCode()))
+//        ).andExpect(status().isOk())
+//                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+//                .andExpect(jsonPath("$.data").isArray())
+//                .andExpect(jsonPath("$.data[*].optionType").value(everyItem(equalTo(optionType.getCode()))))
+//                .andExpect(jsonPath("$.data[*].status").value(everyItem(equalTo(StatusEnum.ACTIVE.getCode()))));
+//    }
 
     @Test
     @DisplayName("[IT] 4006 updateOptionStatus - 修改成功，回傳 200")

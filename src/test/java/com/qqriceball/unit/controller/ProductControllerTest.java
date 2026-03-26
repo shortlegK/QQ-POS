@@ -7,7 +7,6 @@ import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.controller.ProductController;
 import com.qqriceball.enumeration.MessageEnum;
-import com.qqriceball.enumeration.ProductTypeEnum;
 import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
 import com.qqriceball.model.dto.product.*;
@@ -305,42 +304,42 @@ public class ProductControllerTest {
         verify(productService).getById(id);
     }
 
-    @Test
-    @DisplayName("[Unit] ProductController.getActiveProductByType() - 查詢成功，應回傳 200 及資料")
-    void testGetActiveProductByTypeSuccess() throws Exception {
-
-        Integer productType = SeedProductData.MEAT_PRODUCT.productType();
-        List<ProductVO> mockData = new ArrayList<>();
-        mockData.add(ProductTestDataFactory.getProductVO(SeedProductData.MEAT_PRODUCT));
-        mockData.add(ProductTestDataFactory.getProductVO(SeedProductData.VEG_PRODUCT));
-
-        when(productService.getActiveProductByType(any())).thenReturn(mockData);
-
-        mockMvc.perform(
-                        get("/products/active")
-                                .param("productType", String.valueOf(productType))
-                ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
-                .andExpect(jsonPath("$.data").exists());
-
-        verify(productService).getActiveProductByType(any(ProductActiveQueryDTO.class));
-
-    }
-
-    @Test
-    @DisplayName("[Unit] ProductController.getActiveProductByType() - 查詢參數超出範圍，應回傳 400")
-    void testGetActiveProductByTypeBadRequest() throws Exception {
-
-        Integer productType = 3;
-
-        mockMvc.perform(
-                get("/products/active")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("productType", String.valueOf(productType))
-        ).andExpect(status().isBadRequest());
-
-        verify(productService, never()).getActiveProductByType(any(ProductActiveQueryDTO.class));
-    }
+//    @Test
+//    @DisplayName("[Unit] ProductController.getActiveProductByType() - 查詢成功，應回傳 200 及資料")
+//    void testGetActiveProductByTypeSuccess() throws Exception {
+//
+//        Integer productType = SeedProductData.MEAT_PRODUCT.productType();
+//        List<ProductVO> mockData = new ArrayList<>();
+//        mockData.add(ProductTestDataFactory.getProductVO(SeedProductData.MEAT_PRODUCT));
+//        mockData.add(ProductTestDataFactory.getProductVO(SeedProductData.VEG_PRODUCT));
+//
+//        when(productService.getActiveProductByType(any())).thenReturn(mockData);
+//
+//        mockMvc.perform(
+//                        get("/products/active")
+//                                .param("productType", String.valueOf(productType))
+//                ).andExpect(status().isOk())
+//                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+//                .andExpect(jsonPath("$.data").exists());
+//
+//        verify(productService).getActiveProductByType(any(ProductActiveQueryDTO.class));
+//
+//    }
+//
+//    @Test
+//    @DisplayName("[Unit] ProductController.getActiveProductByType() - 查詢參數超出範圍，應回傳 400")
+//    void testGetActiveProductByTypeBadRequest() throws Exception {
+//
+//        Integer productType = 3;
+//
+//        mockMvc.perform(
+//                get("/products/active")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .param("productType", String.valueOf(productType))
+//        ).andExpect(status().isBadRequest());
+//
+//        verify(productService, never()).getActiveProductByType(any(ProductActiveQueryDTO.class));
+//    }
 
 
     @Test

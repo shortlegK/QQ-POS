@@ -225,21 +225,21 @@ public class ProductControllerIT extends BaseIntegrationTest{
 
     }
 
-    @Test
-    @DisplayName("[IT] 3005 getActiveProductByType - 查詢成功，應回傳 200 及資料")
-    void testGetActiveProductByTypeSuccess() throws Exception {
-        ProductTypeEnum productType = ProductTypeEnum.DRINKS;
-
-        mockMvc.perform(
-                        get("/products/active")
-                                .header("Authorization", "Bearer " + tokenManager)
-                                .param("productType", String.valueOf(productType.getCode()))
-                ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
-                .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data[*].productType").value(everyItem(equalTo(productType.getCode()))))
-                .andExpect(jsonPath("$.data[*].status").value(everyItem(equalTo(StatusEnum.ACTIVE.getCode()))));
-    }
+//    @Test
+//    @DisplayName("[IT] 3005 getActiveProductByType - 查詢成功，應回傳 200 及資料")
+//    void testGetActiveProductByTypeSuccess() throws Exception {
+//        ProductTypeEnum productType = ProductTypeEnum.DRINKS;
+//
+//        mockMvc.perform(
+//                        get("/products/active")
+//                                .header("Authorization", "Bearer " + tokenManager)
+//                                .param("productType", String.valueOf(productType.getCode()))
+//                ).andExpect(status().isOk())
+//                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+//                .andExpect(jsonPath("$.data").isArray())
+//                .andExpect(jsonPath("$.data[*].productType").value(everyItem(equalTo(productType.getCode()))))
+//                .andExpect(jsonPath("$.data[*].status").value(everyItem(equalTo(StatusEnum.ACTIVE.getCode()))));
+//    }
 
     @Test
     @DisplayName("[IT] 3006 updateProductStatus - 更新成功，應回傳 200")

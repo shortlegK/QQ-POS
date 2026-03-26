@@ -15,6 +15,7 @@ import com.qqriceball.model.dto.order.*;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.order.OrderDetailVO;
 import com.qqriceball.model.vo.order.OrderSummaryVO;
+import com.qqriceball.model.vo.order.catalog.OrderCatalogVO;
 import com.qqriceball.service.EmpService;
 import com.qqriceball.service.OrderService;
 import com.qqriceball.testData.order.SeedOrderData;
@@ -621,5 +622,22 @@ public class OrderControllerTest {
                 .andExpect(jsonPath("$.code").value(MessageEnum.BAD_REQUEST.getCode()));
 
         verify(orderService, never()).updateStatusByOrderNo(anyString(), any(OrderStatusDTO.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OrderController.getOrderCatalog() - 查詢訂單可用產品目錄成功，應回傳 200 及資料")
+    void testGetOrderCatalogSuccess() throws Exception {
+        OrderCatalogVO mockCatalog = new OrderCatalogVO(
+                OrderTestDataFactory.getOrderableProductList(List.of(SeedProductData.MEAT_PRODUCT)),List.of());
+
+        when(orderService.getCatalog()).thenReturn(mockCatalog);
+
+        mockMvc.perform(
+                        get("/orders/catalog")
+                                .contentType(MediaType.APPLICATION_JSON)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data").exists());
+        verify(orderService).getCatalog();
     }
 }

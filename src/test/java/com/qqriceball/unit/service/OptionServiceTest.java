@@ -29,9 +29,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -326,23 +323,23 @@ public class OptionServiceTest {
         verify(optionMapper).getById(id);
     }
 
-    @Test
-    @DisplayName("[Unit] OptionService.getActiveOptionsByType() - 查詢成功，應回傳資料")
-    void testGetActiveOptionsByTypeSuccess() {
-
-        OptionActiveQueryDTO optionActiveQueryDTO = OptionTestDataFactory.getOptionActiveQueryDTO(OptionTypeEnum.SPICE_LEVEL.getCode());
-
-        List<OptionVO> mockData = new ArrayList<>();
-        mockData.add(OptionTestDataFactory.getOptionVO(SeedOptionData.HOT_SPICY));
-        mockData.add(OptionTestDataFactory.getOptionVO(SeedOptionData.MEDIUM_SPICY));
-
-        when(optionMapper.getActiveOptionsByType(any(OptionActiveQueryDTO.class))).thenReturn(mockData);
-
-        List<OptionVO> result = optionService.getActiveOptionsByType(optionActiveQueryDTO);
-
-        assertEquals(mockData, result,"回傳資料應與 mock 資料相同");
-        verify(optionMapper).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
-    }
+//    @Test
+//    @DisplayName("[Unit] OptionService.getActiveOptionsByType() - 查詢成功，應回傳資料")
+//    void testGetActiveOptionsByTypeSuccess() {
+//
+//        OptionActiveQueryDTO optionActiveQueryDTO = OptionTestDataFactory.getOptionActiveQueryDTO(OptionTypeEnum.SPICE_LEVEL.getCode());
+//
+//        List<OptionVO> mockData = new ArrayList<>();
+//        mockData.add(OptionTestDataFactory.getOptionVO(SeedOptionData.HOT_SPICY));
+//        mockData.add(OptionTestDataFactory.getOptionVO(SeedOptionData.MEDIUM_SPICY));
+//
+//        when(optionMapper.getActiveOptionsByType(any(OptionActiveQueryDTO.class))).thenReturn(mockData);
+//
+//        List<OptionVO> result = optionService.getActiveOptionsByType(optionActiveQueryDTO);
+//
+//        assertEquals(mockData, result,"回傳資料應與 mock 資料相同");
+//        verify(optionMapper).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
+//    }
 
     @Test
     @DisplayName("[Unit] OptionService.updateStatus - 修改產品細節選項上架狀態成功，應呼叫 OptionMapper.updateById() 傳入參數")

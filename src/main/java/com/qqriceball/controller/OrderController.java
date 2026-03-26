@@ -10,6 +10,7 @@ import com.qqriceball.model.dto.order.OrderStatusDTO;
 import com.qqriceball.model.vo.EmpVO;
 import com.qqriceball.model.vo.order.OrderDetailVO;
 import com.qqriceball.model.vo.order.OrderSummaryVO;
+import com.qqriceball.model.vo.order.catalog.OrderCatalogVO;
 import com.qqriceball.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -102,4 +103,16 @@ public class OrderController {
         orderService.updateStatusByOrderNo(orderNo, orderStatusDTO);
         return Result.success();
     }
+
+    @Operation(summary = "5006 取得可訂購商品及選項目錄")
+    @GetMapping("/catalog")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "查詢成功"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<OrderCatalogVO> getOrderCatalog(@AuthenticationPrincipal EmpVO currentEmp) {
+        log.info("5006 取得可訂購商品及選項目錄,操作 id:{}", currentEmp.getId());
+        return Result.success(orderService.getCatalog());
+    }
+
 }
