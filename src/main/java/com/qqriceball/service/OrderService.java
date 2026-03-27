@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -94,7 +95,7 @@ public class OrderService {
         String orderNo = this.generateOrderNo(pickupTime);
 
         // 3. 建立訂單主表
-        Order order = this.buildOrder(orderNo, preparedOrder.total(),pickupTime);
+        Order order = this.buildOrder(orderNo, preparedOrder.total(),pickupTime, orderCreateDTO.getNotes());
         orderMapper.insert(order);
 
         // 4. 建立訂單明細與選項
@@ -148,7 +149,7 @@ public class OrderService {
         this.deleteOrderItemsAndOptions(existingOrder);
 
         // 6. 修改訂單主表
-        Order order = this.buildOrder(existingOrder.getOrderNo(), preparedOrder.total(),pickupTime);
+        Order order = this.buildOrder(existingOrder.getOrderNo(), preparedOrder.total(),pickupTime, orderEditDTO.getNotes());
         orderMapper.updateByOrderNo(order);
 
         // 7. 建立訂單明細與選項
@@ -253,6 +254,7 @@ public class OrderService {
                 OrderItemOption orderItemOption = this.buildOrderItemOption(option);
                 optionsDraftList.add(orderItemOption);
                 optionTotal += option.getPrice();
+
             }
 
             // 5. 依據 productType 確認必填 option 是否皆已設定完成
@@ -373,12 +375,13 @@ public class OrderService {
         return orderItem;
     }
 
-    private Order buildOrder(String orderNo, Integer total,LocalDateTime pickupTime) {
+    private Order buildOrder(String orderNo, Integer total,LocalDateTime pickupTime,String notes) {
         Order order = new Order();
         order.setOrderNo(orderNo);
         order.setPickupTime(pickupTime);
         order.setTotal(total);
         order.setStatus(OrderStatusEnum.MAKING.getCode());
+        order.setNotes(notes);
         return order;
     }
 

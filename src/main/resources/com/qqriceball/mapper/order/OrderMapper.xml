@@ -6,13 +6,13 @@
 
     <!--新增訂單主表-->
     <insert id="insert" parameterType="com.qqriceball.model.entity.order.Order" useGeneratedKeys="true" keyProperty="id">
-        insert into orders(order_no, pickup_time, total, status, create_id, create_time, update_id, update_time)
-        values (#{orderNo},#{pickupTime},#{total},#{status},#{createId}, #{createTime}, #{updateId}, #{updateTime})
+        insert into orders(order_no, pickup_time, total, status, notes, create_id, create_time, update_id, update_time)
+        values (#{orderNo},#{pickupTime},#{total},#{status},#{notes},#{createId}, #{createTime}, #{updateId}, #{updateTime})
     </insert>
 
     <!--分頁查詢訂單-->
     <select id="pageQuery" resultType="com.qqriceball.model.vo.order.OrderDetailVO">
-        select o.id, o.order_no, o.pickup_time, o.total, o.status,
+        select o.id, o.order_no, o.pickup_time, o.total, o.status, o.notes,
                creator.name as createName, o.create_time,
                updater.name as updateName, o.update_time
         from orders o
@@ -28,12 +28,12 @@
             AND o.pickup_time &gt;= CONCAT(#{startDate}, ' 00:00:00')
             AND o.pickup_time &lt;= CONCAT(#{endDate}, ' 23:59:59')
         </where>
-        order by o.status, o.order_no
+        order by FIELD(o.status, 1, 0, 2, 3), o.pickup_time
     </select>
 
     <!-- 根據 orderNo 查詢訂單詳情-->
     <select id="getByOrderNo" resultType="com.qqriceball.model.vo.order.OrderDetailVO">
-        select o.id, o.order_no, o.pickup_time, o.total, o.status,
+        select o.id, o.order_no, o.pickup_time, o.total, o.status, o.notes,
                creator.name as createName, o.create_time,
                updater.name as updateName, o.update_time
         from orders o
@@ -48,6 +48,7 @@
         <set>
             <if test = "pickupTime != null"> pickup_time = #{pickupTime}, </if>
             <if test = "status != null"> status = #{status}, </if>
+            <if test = "notes != null"> notes = #{notes}, </if>
             <if test = "total != null"> total = #{total}, </if>
             <if test = "updateId != null"> update_id = #{updateId},</if>
             <if test = "updateTime != null"> update_time = #{updateTime} </if>

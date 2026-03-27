@@ -34,18 +34,25 @@ public class OrderControllerIT extends BaseIntegrationTest {
     @DisplayName("[IT] 5001 createOrder - 使用管理權限帳號，建立訂單成功，回傳 200 及資料")
     void testCreateOrderWithManagerSuccess() throws Exception {
 
-        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        List<Integer> optionIdsList1 = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        List<Integer> optionIdsList2 = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
 
         Integer productQuantity = 2;
-        OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, optionIdsList);
+        OrderItemDTO orderItemDTO1 = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, optionIdsList1);
+        OrderItemDTO orderItemDTO2 = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, productQuantity, optionIdsList2);
+
+        String notes = "請不要放辣椒";
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         LocalDateTime expectedPickupTime = LocalDateTime.now().plusMinutes(15).truncatedTo(ChronoUnit.MINUTES);
         orderCreateDTO.setPickupTime(expectedPickupTime);
-        orderCreateDTO.setItems(List.of(orderItemDTO));
+        orderCreateDTO.setItems(List.of(orderItemDTO1, orderItemDTO2));
+        orderCreateDTO.setNotes(notes);
+
 
         Integer expectedTotal = OrderTestDataFactory.calculateTotalPrice(SeedProductData.MEAT_PRODUCT, productQuantity,
-                OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+                OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON)
+                + OrderTestDataFactory.calculateTotalPrice(SeedProductData.DRINK_PRODUCT, productQuantity,OrderTestDataFactory.DRINK_OPTIONS);
 
         String jsonBody = objectMapper.writeValueAsString(orderCreateDTO);
         MvcResult result = mockMvc.perform(
@@ -58,6 +65,8 @@ public class OrderControllerIT extends BaseIntegrationTest {
                 .andExpect(jsonPath("$.data.total").value(expectedTotal))
                 .andExpect(jsonPath("$.data.pickupTime").value(expectedPickupTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
                 .andExpect(jsonPath("$.data.status").value(OrderStatusEnum.MAKING.getCode()))
+                .andExpect(jsonPath("$.data.total").value(expectedTotal))
+                .andExpect(jsonPath("$.data.notes").value(notes))
                 .andReturn();
 
         // 驗證 orderNo 格式
@@ -107,6 +116,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
                 .andExpect(jsonPath("$.data.total").value(expectedTotal))
                 .andExpect(jsonPath("$.data.pickupTime").value(expectedPickupTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
                 .andExpect(jsonPath("$.data.status").value(OrderStatusEnum.MAKING.getCode()))
+                .andExpect(jsonPath("$.data.total").value(expectedTotal))
                 .andReturn();
 
         // 驗證 orderNo 格式

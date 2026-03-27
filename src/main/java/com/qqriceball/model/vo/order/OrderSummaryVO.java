@@ -28,4 +28,7 @@ public class OrderSummaryVO {
     @Schema(description = "訂單狀態(0: 製作中, 1: 待領取, 2: 已領取, 3: 已取消)")
     private Integer status;
 
+    @Schema(description = "訂單備註")
+    private String notes;
+
 }

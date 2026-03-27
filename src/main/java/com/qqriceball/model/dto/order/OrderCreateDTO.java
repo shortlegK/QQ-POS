@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -13,11 +14,15 @@ import java.util.List;
 @Schema(description = "訂單建立資料")
 public class OrderCreateDTO {
 
-    @Schema(description = "預計取餐時間 yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "預計取餐時間 yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime pickupTime;
 
     @Schema(description = "訂單商品列表")
     @NotEmpty(message = "請輸入訂單商品")
     private List<@Valid OrderItemDTO> items;
+
+    @Schema(description = "訂單備註")
+    @Size(max = 200, message = "訂單備註最大長度為 200")
+    private String notes;
 }

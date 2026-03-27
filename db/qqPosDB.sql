@@ -60,6 +60,7 @@ create table if not exists orders
     pickup_time datetime                                   not null comment '預計取餐時間',
     total       int unsigned                               not null comment '訂單總金額',
     status      tinyint unsigned default '0'               not null comment '訂單狀態(0:製作中, 1:待領取, 2:已領取, 3:已取消)',
+    notes       varchar(200)                               null comment '訂單備註',
     create_id   int unsigned                              not null comment '建立人員 id',
     create_time datetime         default CURRENT_TIMESTAMP not null comment '建立時間',
     update_id   int unsigned                              not null comment '更新人員 id',
