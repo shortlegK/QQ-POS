@@ -27,7 +27,7 @@ public interface OptionMapper {
     @AutoFill(value = OperationType.UPDATE)
     void cleanDefaultByOptionType(Integer optionType);
 
-    @Select("select id, title, option_type, price from options where status = 1 and option_type = #{optionType}")
+    @Select("select id, title, option_type, price, is_default from options where status = 1 and option_type = #{optionType}")
     List<OrderableOptionVO> getActiveOptionsByType(Integer optionType);
 
 }
