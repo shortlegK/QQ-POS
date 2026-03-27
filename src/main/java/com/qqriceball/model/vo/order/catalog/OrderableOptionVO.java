@@ -20,4 +20,7 @@ public class OrderableOptionVO {
     @Schema(description = "售價")
     private Integer price;
 
+    @Schema(description = "是否為預設值 (0:否, 1:是)")
+    private Integer isDefault;
+
 }
