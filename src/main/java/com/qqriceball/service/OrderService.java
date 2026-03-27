@@ -109,6 +109,12 @@ public class OrderService {
         PageHelper.startPage(orderPageQueryDTO.getPage(),
                 orderPageQueryDTO.getPageSize());
 
+        if (orderPageQueryDTO.getOrderNo() == null && orderPageQueryDTO.getStartDate() == null
+                && orderPageQueryDTO.getEndDate() == null){
+            orderPageQueryDTO.setStartDate(LocalDate.now());
+            orderPageQueryDTO.setEndDate(LocalDate.now());
+        }
+
         List<OrderDetailVO> orderList = orderMapper.pageQuery(orderPageQueryDTO);
 
         for(OrderDetailVO order: orderList){

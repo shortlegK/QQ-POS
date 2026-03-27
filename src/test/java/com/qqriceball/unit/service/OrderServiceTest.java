@@ -463,6 +463,58 @@ public class OrderServiceTest {
     }
 
     @Test
+    @DisplayName("[Unit] OrderService.pageQuery() - 查詢指定編號，未設定起迄日期，應呼叫 orderMapper.pageQuery 傳入指定 orderNo")
+    void testPageQueryWithOrderNo() {
+        String orderNo = SeedOrderData.orderMaking.orderNo();
+
+        OrderPageQueryDTO orderPageQueryDTO = OrderTestDataFactory.getOrderPageQueryDTO(1, 10, orderNo, null, null, null);
+
+        Page<OrderDetailVO> mockPage = new Page<>(1, 10);
+        mockPage.add(OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON));
+
+        when(orderMapper.pageQuery(any(OrderPageQueryDTO.class))).thenReturn(mockPage);
+
+        PageResult result = orderService.pageQuery(orderPageQueryDTO);
+
+        ArgumentCaptor<OrderPageQueryDTO> queryCaptor = ArgumentCaptor.forClass(OrderPageQueryDTO.class);
+        verify(orderMapper).pageQuery(queryCaptor.capture());
+        OrderPageQueryDTO capturedQuery = queryCaptor.getValue();
+
+        assertAll(
+                () -> assertEquals(orderNo, capturedQuery.getOrderNo(), "應依據傳入的 orderNo 查詢"),
+                () -> assertEquals(mockPage.getResult(), result.getRecords(), "list 應為 mock page 的 result")
+        );
+    }
+
+    @Test
+    @DisplayName("[Unit] OrderService.pageQuery() - 查詢未設定 orderNo、起迄日期，應呼叫 orderMapper.pageQuery 傳入當天日期")
+    void testPageQueryWithoutOrderNoAndDate() {
+        LocalDate today = LocalDate.now();
+
+        OrderPageQueryDTO orderPageQueryDTO = OrderTestDataFactory.getOrderPageQueryDTO(1, 10, null, null, null, null);
+
+        Page<OrderDetailVO> mockPage = new Page<>(1, 10);
+        mockPage.add(OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON));
+
+        when(orderMapper.pageQuery(any(OrderPageQueryDTO.class))).thenReturn(mockPage);
+
+        PageResult result = orderService.pageQuery(orderPageQueryDTO);
+
+        ArgumentCaptor<OrderPageQueryDTO> queryCaptor = ArgumentCaptor.forClass(OrderPageQueryDTO.class);
+        verify(orderMapper).pageQuery(queryCaptor.capture());
+        OrderPageQueryDTO capturedQuery = queryCaptor.getValue();
+
+        assertAll(
+                () -> assertEquals(today, capturedQuery.getStartDate(), "當未設定起迄日期，startDate 應為當天日期"),
+                () -> assertEquals(today, capturedQuery.getEndDate(), "當未設定起迄日期，endDate 應為當天日期"),
+                () -> assertEquals(mockPage.getResult(), result.getRecords(), "list 應為 mock page 的 result")
+        );
+    }
+
+
+    @Test
     @DisplayName("[Unit] OrderService.updateByOrderNo() - 更新訂單資料，應呼叫 orderMapper.updateByOrderNo 傳入參數")
     void testUpdateByOrderNoSuccess() {
         List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);

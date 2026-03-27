@@ -8,7 +8,14 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-@Schema(description = "產品細節選項分頁查詢資料")
+@Schema(description = """
+                      訂單分頁查詢資料
+                      查詢規則：
+                      - orderNo、startDate、endDate 皆為選填
+                      - 若三者皆未填寫，預設查詢當日資料
+                      - 若僅填寫 orderNo，不限日期範圍進行查詢
+                      - 若填寫 startDate 和 endDate，則查詢該日期範圍內的資料
+                      """)
 public class OrderPageQueryDTO {
 
     @Schema(description = "訂單編號")
@@ -20,12 +27,10 @@ public class OrderPageQueryDTO {
     private Integer status;
 
     @Schema(description = "起始日期 yyyy-MM-dd")
-    @NotNull(message = "請輸入起始日期")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
 
     @Schema(description = "結束日期 yyyy-MM-dd")
-    @NotNull(message = "請輸入結束日期")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 

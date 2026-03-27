@@ -370,28 +370,6 @@ public class OrderControllerTest {
     }
 
     @Test
-    @DisplayName("[Unit] OrderController.pageQueryOrder() - 查詢訂單列表，缺少必填日期參數應回傳 400")
-    void testPageQueryOrderMissingDate() throws Exception {
-
-        Integer page = 1;
-        Integer pageSize = 2;
-        LocalDate startDate = LocalDate.now();
-
-
-        OrderPageQueryDTO orderPageQueryDTO = OrderTestDataFactory.getOrderPageQueryDTO(page, pageSize,
-                null, null, startDate, null);
-
-        mockMvc.perform(
-                get("/orders/page")
-                        .param("page", orderPageQueryDTO.getPage().toString())
-                        .param("pageSize", orderPageQueryDTO.getPageSize().toString())
-                        .param("startDate", orderPageQueryDTO.getStartDate().toString())
-        ).andExpect(status().isBadRequest());
-
-        verify(orderService, never()).pageQuery(any(OrderPageQueryDTO.class));
-    }
-
-    @Test
     @DisplayName("[Unit] OrderController.updateByOrderNo() - 更新訂單資料成功，應回傳 200 及資料")
     void testUpdateOrderByOrderNoSuccess() throws Exception {
 
