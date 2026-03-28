@@ -20,7 +20,7 @@
         left join emps updater on o.update_id = updater.id
         <where>
             <if test="orderNo != null and orderNo != ''">
-                AND o.order_no = #{orderNo}
+                AND o.order_no like concat('%',#{orderNo},'%')
             </if>
             <if test="status != null">
                 AND o.status = #{status}
