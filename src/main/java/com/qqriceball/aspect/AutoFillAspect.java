@@ -11,7 +11,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -43,8 +42,13 @@ public class AutoFillAspect {
         }
 
         Object entity = args[0];
-        log.debug("[AutoFillAspect] Entity 類別: {}", entity == null ? "null" : entity.getClass().getName());
 
+        if (entity == null) {
+            log.debug("[AutoFillAspect] entity 為 null，跳過自動填充");
+            return;
+        }
+
+        log.debug("[AutoFillAspect] Entity 類別: {}", entity.getClass().getName());
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -59,7 +63,7 @@ public class AutoFillAspect {
             } else if (principal instanceof Emp) {
                 operatorId = ((Emp) principal).getId();
             } else {
-                log.debug("[AutoFillAspect] 無法從 principal 取得 id，principal: {}", String.valueOf(principal));
+                log.debug("[AutoFillAspect] 無法從 principal 取得 id，principal: {}", principal);
             }
         }
 
@@ -68,7 +72,6 @@ public class AutoFillAspect {
             return;
         }
 
-        BeanWrapperImpl wrapper = new BeanWrapperImpl(entity);
         if(operationType == OperationType.INSERT){
             try {
                 Method setCreateId = entity.getClass().getDeclaredMethod(AutoFillEnum.SET_CREATE_ID.getMessage(), Integer.class);
