@@ -324,7 +324,7 @@ public class OrderControllerTest {
 
         List<OrderDetailVO> mockData = new ArrayList<>();
         mockData.add(OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
-                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON));
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM));
 
         Long total = 1L;
         PageResult mockResult = new PageResult(total, orderPageQueryDTO.getPage(),
@@ -471,7 +471,7 @@ public class OrderControllerTest {
         String expectedOrderNo = SeedOrderData.orderMaking.orderNo();
 
         OrderDetailVO mockOrderDetail = OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
-                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
 
         when(orderService.getByOrderNo(anyString())).thenReturn(mockOrderDetail);
 

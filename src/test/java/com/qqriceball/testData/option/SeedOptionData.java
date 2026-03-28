@@ -56,8 +56,18 @@ public class SeedOptionData {
             new TestOption(12,"雞蛋",OptionTypeEnum.ADD_ON.getCode(),
                     DefaultEnum.NO.getCode(),10, StatusEnum.ACTIVE.getCode());
 
-        public static final TestOption ADD_ON_INACTIVE =
-            new TestOption(13,"起司",OptionTypeEnum.ADD_ON.getCode(),
-                    DefaultEnum.NO.getCode(),10, StatusEnum.INACTIVE.getCode());
+    public static final TestOption ADD_ON_INACTIVE =
+        new TestOption(13,"起司",OptionTypeEnum.ADD_ON.getCode(),
+                DefaultEnum.NO.getCode(),10, StatusEnum.INACTIVE.getCode());
+
+    // INGREDIENT_EXCLUSION
+
+    public static final TestOption NO_ONION =
+            new TestOption(14,"不加洋蔥",OptionTypeEnum.NO_INGREDIENT.getCode(),
+                    DefaultEnum.NO.getCode(),0, StatusEnum.ACTIVE.getCode());
+
+     public static final TestOption EXCLUSION_INACTIVE =
+            new TestOption(15,"不加香菜",OptionTypeEnum.NO_INGREDIENT.getCode(),
+                    DefaultEnum.NO.getCode(),0, StatusEnum.INACTIVE.getCode());
 
 }

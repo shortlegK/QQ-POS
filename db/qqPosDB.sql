@@ -39,7 +39,7 @@ create table if not exists options
     id          int unsigned auto_increment comment 'id'
         primary key,
     title       varchar(20)                                not null comment '選項名稱',
-    option_type tinyint unsigned                           not null comment '選項類型(0:米飯種類, 1:飯量, 2:辣度, 3:加料種類, 4:飲品溫度)',
+    option_type tinyint unsigned                           not null comment '選項類型(0:米飯種類, 1:飯量, 2:辣度, 3:加料種類, 4:飲品溫度, 5:去除配料)',
     is_default  tinyint unsigned                           not null comment '是否為選項類別預設值(0:否, 1:是)',
     price       int unsigned     default '0'               not null comment '價格',
     status      tinyint unsigned default '1'               not null comment '啟用狀態(1:啟用, 0:停用)',
@@ -90,7 +90,7 @@ create table if not exists order_item_options
         primary key,
     order_item_id int unsigned     not null comment '訂單商品 id',
     option_id     tinyint unsigned not null comment '細節選項 id',
-    option_type   tinyint unsigned not null comment '選項類型(0:米飯種類, 1:飯量, 2:辣度, 3:加料種類, 4:飲品溫度)',
+    option_type   tinyint unsigned not null comment '選項類型(0:米飯種類, 1:飯量, 2:辣度, 3:加料種類, 4:飲品溫度, 5:去除配料)',
     option_title  varchar(20)      not null comment '明細選項名稱',
     option_price  int unsigned     not null comment '明細選項售價'
 )

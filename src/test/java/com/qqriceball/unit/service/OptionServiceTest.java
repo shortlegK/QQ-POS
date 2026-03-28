@@ -89,7 +89,7 @@ public class OptionServiceTest {
 
     @Test
     @DisplayName("[Unit] OptionService.create() - 建立選項 OptionType 為 AddOn 預設設定錯誤，應拋出 BadRequestArgsException")
-    void testCreateOptionDefaultSettingError() {
+    void testCreateOptionAddOnDefaultSettingError() {
 
         OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.EGG);
         optionCreateDTO.setOptionType(OptionTypeEnum.ADD_ON.getCode());
@@ -99,6 +99,23 @@ public class OptionServiceTest {
                 () -> optionService.create(optionCreateDTO));
 
         assertEquals(MessageEnum.OPTION_ADD_ON_DEFAULT_ERROR.getMessage(), ex.getMessage());
+
+        verify(optionMapper, never()).cleanDefaultByOptionType(any(Integer.class));
+        verify(optionMapper, never()).insert(any(Option.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] OptionService.create() - 建立選項 OptionType 為 NoIngredient 預設設定錯誤，應拋出 BadRequestArgsException")
+    void testCreateOptionNoIngredientDefaultSettingError() {
+
+        OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.EGG);
+        optionCreateDTO.setOptionType(OptionTypeEnum.NO_INGREDIENT.getCode());
+        optionCreateDTO.setIsDefault(DefaultEnum.YES.getCode());
+
+        BadRequestArgsException ex = assertThrows(BadRequestArgsException.class,
+                () -> optionService.create(optionCreateDTO));
+
+        assertEquals(MessageEnum.OPTION_NO_INGREDIENT_DEFAULT_ERROR.getMessage(), ex.getMessage());
 
         verify(optionMapper, never()).cleanDefaultByOptionType(any(Integer.class));
         verify(optionMapper, never()).insert(any(Option.class));

@@ -127,6 +127,11 @@ public class OptionService {
             log.error("加料類選項不可設為預設, defaultSetting: {}", defaultSetting);
             throw new BadRequestArgsException(MessageEnum.OPTION_ADD_ON_DEFAULT_ERROR);
         }
+
+        if(optionType == OptionTypeEnum.NO_INGREDIENT.getCode() && defaultSetting == DefaultEnum.YES.getCode()){
+            log.error("去除配料類選項不可設為預設, defaultSetting: {}", defaultSetting);
+            throw new BadRequestArgsException(MessageEnum.OPTION_NO_INGREDIENT_DEFAULT_ERROR);
+        }
     }
 
 

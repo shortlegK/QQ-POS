@@ -48,11 +48,11 @@ public class OrderService {
             Map.of(
                     ProductTypeEnum.MEAT,
                     Set.of(OptionTypeEnum.RICE_TYPE, OptionTypeEnum.RICE_SIZE,
-                            OptionTypeEnum.SPICE_LEVEL, OptionTypeEnum.ADD_ON
+                            OptionTypeEnum.SPICE_LEVEL, OptionTypeEnum.ADD_ON, OptionTypeEnum.NO_INGREDIENT
                     ),
                     ProductTypeEnum.VEGAN,
                     Set.of(OptionTypeEnum.RICE_TYPE, OptionTypeEnum.RICE_SIZE,
-                            OptionTypeEnum.SPICE_LEVEL, OptionTypeEnum.ADD_ON
+                            OptionTypeEnum.SPICE_LEVEL, OptionTypeEnum.ADD_ON, OptionTypeEnum.NO_INGREDIENT
                     ),
                     ProductTypeEnum.DRINKS,
                     Set.of(OptionTypeEnum.DRINK_TEMPERATURE

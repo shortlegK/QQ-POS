@@ -28,6 +28,7 @@ public enum MessageEnum {
     OPTION_NOT_EXIST(40001, "找不到指定的選項，請確認後再試。"),
     OPTION_ALREADY_EXISTS(40002, "選項名稱已存在，請使用其他名稱。"),
     OPTION_ADD_ON_DEFAULT_ERROR(40003, "加料類選項不可設為預設，請重新設定。"),
+    OPTION_NO_INGREDIENT_DEFAULT_ERROR(40004, "去除配料類選項不可設為預設，請重新設定。"),
 
     // 訂單相關
     ORDER_NOT_EXIST(50001, "找不到指定的訂單，請確認後再試。"),

@@ -189,24 +189,6 @@ public class ProductServiceTest {
         verify(productMapper).getById(id);
     }
 
-//    @Test
-//    @DisplayName("[Unit] ProductService.getActiveProductByType() - 查詢成功，應回傳資料")
-//    void testGetActiveProductByTypeSuccess() {
-//
-//        ProductActiveQueryDTO productActiveQueryDTO = ProductTestDataFactory.getProductActiveQueryDTO(ProductTypeEnum.DRINKS.getCode());
-//
-//        ProductVO data1 = ProductTestDataFactory.getProductVO(SeedProductData.DRINK_PRODUCT);
-//        List<ProductVO> mockData = new ArrayList<>();
-//        mockData.add(data1);
-//
-//        when(productMapper.getActiveProductByType(any(ProductActiveQueryDTO.class))).thenReturn(mockData);
-//
-//        List<ProductVO> result = productService.getActiveProductByType(productActiveQueryDTO);
-//
-//        assertEquals(mockData, result, "回傳資料應與 mock 資料相同");
-//        verify(productMapper).getActiveProductByType(any(ProductActiveQueryDTO.class));
-//    }
-
     @Test
     @DisplayName("[Unit] ProductService.updateStatus() - 更新產品上架狀態，應呼叫 ProductMapper.updateById 傳入參數")
     void testUpdateStatusSuccess(){

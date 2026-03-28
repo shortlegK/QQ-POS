@@ -34,7 +34,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
     @DisplayName("[IT] 5001 createOrder - 使用管理權限帳號，建立訂單成功，回傳 200 及資料")
     void testCreateOrderWithManagerSuccess() throws Exception {
 
-        List<Integer> optionIdsList1 = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        List<Integer> optionIdsList1 = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
         List<Integer> optionIdsList2 = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
 
         Integer productQuantity = 2;
@@ -51,7 +51,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
 
 
         Integer expectedTotal = OrderTestDataFactory.calculateTotalPrice(SeedProductData.MEAT_PRODUCT, productQuantity,
-                OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON)
+                OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM)
                 + OrderTestDataFactory.calculateTotalPrice(SeedProductData.DRINK_PRODUCT, productQuantity,OrderTestDataFactory.DRINK_OPTIONS);
 
         String jsonBody = objectMapper.writeValueAsString(orderCreateDTO);
@@ -84,7 +84,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
     @DisplayName("[IT] 5001 createOrder - 使用一般權限帳號，建立訂單成功(含有重複的加料選項)，回傳 200 及資料")
     void testCreateOrderWithStaffSuccess() throws Exception {
 
-        List<Integer> optionIdsList0 = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        List<Integer> optionIdsList0 = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
         optionIdsList0.add(SeedOptionData.EGG.id()); // 重複加料選項
         List<Integer> optionIdsList2 = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
 
@@ -98,7 +98,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         orderCreateDTO.setItems(List.of(orderItem0, orderItem1));
 
         Integer item0Total = OrderTestDataFactory.calculateTotalPrice(SeedProductData.MEAT_PRODUCT, productQuantity,
-                OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON) + SeedOptionData.EGG.price() * productQuantity; // 加上重複加料選項的價格
+                OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM) + SeedOptionData.EGG.price() * productQuantity; // 加上重複加料選項的價格
 
         Integer item1Total = OrderTestDataFactory.calculateTotalPrice(SeedProductData.DRINK_PRODUCT, productQuantity,
                 OrderTestDataFactory.DRINK_OPTIONS);
@@ -134,7 +134,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
     @DisplayName("[IT] 5001 createOrder - 建立訂單，查無產品資料，應回傳 404")
     void testCreateOrderProductNotFound() throws Exception {
 
-        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
 
         Integer productQuantity = 2;
         OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, optionIdsList);
@@ -183,7 +183,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
     @DisplayName("[IT] 5001 createOrder - 建立訂單，產品已下架，應回傳 409")
     void testCreateOrderProductUnavailable() throws Exception {
 
-        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
 
         Integer productQuantity = 2;
         OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_INACTIVE, productQuantity, optionIdsList);
@@ -311,13 +311,13 @@ public class OrderControllerIT extends BaseIntegrationTest {
         orderEditDTO.setPickupTime(expectedPickupTime);
         orderEditDTO.setOrderNo(expectedOrderNo);
 
-        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
         Integer productQuantity = 4;
         OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, productQuantity, optionIdsList);
         orderEditDTO.setItems(List.of(orderItemDTO));
 
         Integer expectedTotal = OrderTestDataFactory.calculateTotalPrice(SeedProductData.MEAT_PRODUCT, productQuantity,
-                OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+                OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
 
         String jsonBody = objectMapper.writeValueAsString(orderEditDTO);
         mockMvc.perform(
@@ -341,7 +341,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         orderEditDTO.setPickupTime(expectedPickupTime);
         orderEditDTO.setOrderNo("NotExistOrderNo");
 
-        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
         OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 1, optionIdsList);
         orderEditDTO.setItems(List.of(orderItemDTO));
 
@@ -364,7 +364,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         orderEditDTO.setPickupTime(expectedPickupTime);
         orderEditDTO.setOrderNo(orderNo);
 
-        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
         OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 1, optionIdsList);
         orderEditDTO.setItems(List.of(orderItemDTO));
 

@@ -7,6 +7,7 @@ import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.controller.ProductController;
 import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.enumeration.ProductTypeEnum;
 import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
 import com.qqriceball.model.dto.product.*;
@@ -257,7 +258,7 @@ public class ProductControllerTest {
     @DisplayName("[Unit] ProductController.updateProductById() - 修改參數錯誤，應回傳 400")
     void testUpdateProductByIdBadRequest() throws Exception {
         ProductEditDTO productEditDTO = ProductTestDataFactory.getProductEditDTO(SeedProductData.MEAT_PRODUCT);
-        productEditDTO.setProductType(3);
+        productEditDTO.setProductType(ProductTypeEnum.values().length);
 
         String jsonBody = objectMapper.writeValueAsString(productEditDTO);
         mockMvc.perform(

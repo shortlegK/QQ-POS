@@ -18,7 +18,7 @@ public class SpringDocConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("飯糰點餐系統 API")
-                        .version("1.0.0")
+                        .version("1.0.4")
                         .description("提供點餐、查詢訂單等功能的後端 API 文件"))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName,

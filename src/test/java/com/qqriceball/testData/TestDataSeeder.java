@@ -103,12 +103,14 @@ public class TestDataSeeder implements ApplicationRunner {
         createOption(SeedOptionData.TEMP_INACTIVE);
         createOption(SeedOptionData.EGG);
         createOption(SeedOptionData.ADD_ON_INACTIVE);
+        createOption(SeedOptionData.NO_ONION);
+        createOption(SeedOptionData.EXCLUSION_INACTIVE);
 
-        createOrder(SeedOrderData.orderMaking,SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
-        createOrder(SeedOrderData.orderMakingNextWeek,SeedProductData.VEG_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        createOrder(SeedOrderData.orderMaking,SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
+        createOrder(SeedOrderData.orderMakingNextWeek,SeedProductData.VEG_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
         createOrder(SeedOrderData.orderReady,SeedProductData.DRINK_PRODUCT,OrderTestDataFactory.DRINK_OPTIONS);
-        createOrder(SeedOrderData.orderPickedUp,SeedProductData.MEAT_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
-        createOrder(SeedOrderData.orderCancel,SeedProductData.VEG_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        createOrder(SeedOrderData.orderPickedUp,SeedProductData.MEAT_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
+        createOrder(SeedOrderData.orderCancel,SeedProductData.VEG_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
 
         log.info("完成 TestDataSeeder，測試資料已建立完成");
     }

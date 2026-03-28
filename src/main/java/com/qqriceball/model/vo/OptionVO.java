@@ -17,7 +17,7 @@ public class OptionVO {
     @Schema(description = "名稱")
     private String title;
 
-    @Schema(description = "選項類型(0:米飯種類, 1:飯量, 2:辣度, 3:加料種類, 4:飲品溫度)")
+    @Schema(description = "選項類型(0:米飯種類, 1:飯量, 2:辣度, 3:加料種類, 4:飲品溫度, 5:去除配料)")
     private Integer optionType;
 
     @Schema(description = "是否為預設值 (0:否, 1:是)")

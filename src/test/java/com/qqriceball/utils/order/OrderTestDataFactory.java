@@ -20,11 +20,12 @@ import java.util.List;
 
 public class OrderTestDataFactory {
 
-    public static final List<TestOption> FOOD_OPTIONS_WITH_ADD_ON = List.of(
+    public static final List<TestOption> FOOD_OPTIONS_WITH_OPTIONAL_ITEM = List.of(
             SeedOptionData.LARGE_SIZE,
             SeedOptionData.MEDIUM_SPICY,
             SeedOptionData.PURPLE_RICE,
-            SeedOptionData.EGG
+            SeedOptionData.EGG,
+            SeedOptionData.NO_ONION
     );
 
     public static final List<TestOption> FOOD_OPTIONS_WITHOUT_SPICE = List.of(

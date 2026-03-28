@@ -124,7 +124,7 @@ public class OrderServiceTest {
     @Test
     @DisplayName("[Unit] OrderService.create() - 建立訂單，重複設定加料選項，totalPrice 應正確計算，重複的加料選項應計算一次")
     void testCreateDuplicateAddOnOption() {
-        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
         optionIdsList.add(SeedOptionData.EGG.id());
         OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 1, optionIdsList);
 
@@ -134,7 +134,7 @@ public class OrderServiceTest {
         ProductVO mockProduct = ProductTestDataFactory.getProductVO(SeedProductData.MEAT_PRODUCT);
 
         Integer expectedTotal = OrderTestDataFactory.calculateTotalPrice(SeedProductData.MEAT_PRODUCT, 1,
-                OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON) + SeedOptionData.EGG.price();
+                OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM) + SeedOptionData.EGG.price();
 
         when(productMapper.getById(any(Integer.class))).thenReturn(mockProduct);
 
@@ -142,7 +142,8 @@ public class OrderServiceTest {
                 .thenReturn(OptionTestDataFactory.getOptionVO(SeedOptionData.MILD_SPICY))
                 .thenReturn(OptionTestDataFactory.getOptionVO(SeedOptionData.PURPLE_RICE))
                 .thenReturn(OptionTestDataFactory.getOptionVO(SeedOptionData.EGG))
-                .thenReturn(OptionTestDataFactory.getOptionVO(SeedOptionData.EGG));
+                .thenReturn(OptionTestDataFactory.getOptionVO(SeedOptionData.EGG))
+                .thenReturn(OptionTestDataFactory.getOptionVO(SeedOptionData.NO_ONION));
 
         OrderSummaryVO summaryVO = orderService.create(orderCreateDTO);
         assertEquals(expectedTotal, summaryVO.getTotal(), "totalPrice 應為產品價格加上選項價格乘以數量的總和，重複的加料選項應計算一次");
@@ -317,7 +318,7 @@ public class OrderServiceTest {
     @DisplayName("[Unit] OrderService.create() - 建立訂單，食物設定重複的單選選項應拋出 BadRequestArgsException")
     void testCreateFoodSingleOptionDuplicate() {
 
-        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
         OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 2, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
@@ -347,7 +348,7 @@ public class OrderServiceTest {
     @Test
     @DisplayName("[Unit] OrderService.create() - 建立訂單，飲品設定重複的單選選項應拋出 BadRequestArgsException")
     void testCreateDrinkSingleOptionDuplicate() {
-        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+        List<Integer> optionIdsList = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
         OrderItemDTO orderItemDTO = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, 2, optionIdsList);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
@@ -449,7 +450,7 @@ public class OrderServiceTest {
 
         Page<OrderDetailVO> mockPage = new Page<>(page, pageSize);
         mockPage.add(OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
-                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON));
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM));
 
         when(orderMapper.pageQuery(any(OrderPageQueryDTO.class))).thenReturn(mockPage);
 
@@ -471,7 +472,7 @@ public class OrderServiceTest {
 
         Page<OrderDetailVO> mockPage = new Page<>(1, 10);
         mockPage.add(OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
-                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON));
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM));
 
         when(orderMapper.pageQuery(any(OrderPageQueryDTO.class))).thenReturn(mockPage);
 
@@ -496,7 +497,7 @@ public class OrderServiceTest {
 
         Page<OrderDetailVO> mockPage = new Page<>(1, 10);
         mockPage.add(OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
-                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON));
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM));
 
         when(orderMapper.pageQuery(any(OrderPageQueryDTO.class))).thenReturn(mockPage);
 
@@ -534,7 +535,7 @@ public class OrderServiceTest {
         OptionVO option = OptionTestDataFactory.getOptionVO(SeedOptionData.COLD);
 
         OrderDetailVO mockExistingOrder = OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
-                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
 
         Integer mockOrderId = mockExistingOrder.getId();
         Integer mockItem0Id = mockExistingOrder.getItems().get(0).getId();
@@ -599,7 +600,7 @@ public class OrderServiceTest {
         orderEditDTO.setOrderNo(SeedOrderData.orderMaking.orderNo());
 
         OrderDetailVO mockExistingOrder = OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderReady,
-                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
 
         when(orderMapper.getByOrderNo(any(String.class))).thenReturn(mockExistingOrder);
 
@@ -615,7 +616,7 @@ public class OrderServiceTest {
         String expectedOrderNo = SeedOrderData.orderMaking.orderNo();
 
         OrderDetailVO mockOrderDetail = OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
-                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
         List<OrderItemVO> mockItemList = mockOrderDetail.getItems();
         List<OrderItemOptionVO> mockOptionList = mockItemList.get(0).getOptions();
 
@@ -674,7 +675,7 @@ public class OrderServiceTest {
         orderStatusDTO.setStatus(newStatus);
 
         OrderDetailVO mockExistingOrder = OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
-                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
 
         when(orderMapper.getByOrderNo(any(String.class))).thenReturn(mockExistingOrder);
 
@@ -718,7 +719,7 @@ public class OrderServiceTest {
         orderStatusDTO.setStatus(newStatus);
 
         OrderDetailVO mockExistingOrder = OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderMaking,
-                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
 
         when(orderMapper.getByOrderNo(any(String.class))).thenReturn(mockExistingOrder);
 
@@ -739,7 +740,7 @@ public class OrderServiceTest {
         orderStatusDTO.setStatus(newStatus);
 
         OrderDetailVO mockExistingOrder = OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderReady,
-                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
 
         when(orderMapper.getByOrderNo(any(String.class))).thenReturn(mockExistingOrder);
 
@@ -761,7 +762,7 @@ public class OrderServiceTest {
         orderStatusDTO.setStatus(newStatus);
 
         OrderDetailVO mockExistingOrder = OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderPickedUp,
-                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
 
         when(orderMapper.getByOrderNo(any(String.class))).thenReturn(mockExistingOrder);
 
@@ -782,7 +783,7 @@ public class OrderServiceTest {
         orderStatusDTO.setStatus(newStatus);
 
         OrderDetailVO mockExistingOrder = OrderTestDataFactory.getOrderDetailVO(SeedOrderData.orderCancel,
-                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_ADD_ON);
+                SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
 
         when(orderMapper.getByOrderNo(any(String.class))).thenReturn(mockExistingOrder);
 
@@ -810,7 +811,7 @@ public class OrderServiceTest {
         OrderCatalogVO result = orderService.getCatalog();
 
         verify(productMapper).getActiveProducts();
-        verify(optionMapper, times(9)).getActiveOptionsByType(anyInt());
+        verify(optionMapper, times(11)).getActiveOptionsByType(anyInt()); // OrderService ALLOWED_OPTIONS List 的 Enum 總數
 
         assertAll(
                 () -> assertEquals(mockProductList, result.getProducts(), "回傳的產品列表應與 mockProductList 相同"),

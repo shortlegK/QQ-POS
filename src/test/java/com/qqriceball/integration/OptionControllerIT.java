@@ -109,7 +109,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
 
     @Test
     @DisplayName("[IT] 4001 createOption - 建立選項 OptionType 為 AddOn 預設設定錯誤，回傳 400 及指定訊息")
-    void testCreateOptionDefaultSettingError() throws Exception{
+    void testCreateOptionAddOnDefaultSettingError() throws Exception{
 
         OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.EGG);
         optionCreateDTO.setTitle(TestDataGenerator.getUnique(optionCreateDTO.getTitle()));
@@ -125,6 +125,27 @@ public class OptionControllerIT extends BaseIntegrationTest{
         ).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(MessageEnum.OPTION_ADD_ON_DEFAULT_ERROR.getCode()))
                 .andExpect(jsonPath("$.msg").value(MessageEnum.OPTION_ADD_ON_DEFAULT_ERROR.getMessage()))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    @DisplayName("[IT] 4001 createOption - 建立選項 OptionType 為 NoIngredient 預設設定錯誤，回傳 400 及指定訊息")
+    void testCreateOptionNoIngredientDefaultSettingError() throws Exception{
+
+        OptionCreateDTO optionCreateDTO = OptionTestDataFactory.getOptionCreateDTO(SeedOptionData.EGG);
+        optionCreateDTO.setTitle(TestDataGenerator.getUnique(optionCreateDTO.getTitle()));
+        optionCreateDTO.setOptionType(OptionTypeEnum.NO_INGREDIENT.getCode());
+        optionCreateDTO.setIsDefault(DefaultEnum.YES.getCode());
+
+        String jsonBody = objectMapper.writeValueAsString(optionCreateDTO);
+        mockMvc.perform(
+                        post("/options")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody)
+                ).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(MessageEnum.OPTION_NO_INGREDIENT_DEFAULT_ERROR.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.OPTION_NO_INGREDIENT_DEFAULT_ERROR.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
@@ -448,22 +469,6 @@ public class OptionControllerIT extends BaseIntegrationTest{
                 .andExpect(jsonPath("$.msg").value(MessageEnum.OPTION_ALREADY_EXISTS.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty());
     }
-
-//    @Test
-//    @DisplayName("[IT] 4005 getActiveOptionsByType - 查詢成功，回傳 200 及資料")
-//    void testGetActiveOptionsByTypeSuccess() throws Exception{
-//        OptionTypeEnum optionType = OptionTypeEnum.RICE_SIZE;
-//
-//        mockMvc.perform(
-//                get("/options/active")
-//                        .header("Authorization", "Bearer " + tokenManager)
-//                        .param("optionType", String.valueOf(optionType.getCode()))
-//        ).andExpect(status().isOk())
-//                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
-//                .andExpect(jsonPath("$.data").isArray())
-//                .andExpect(jsonPath("$.data[*].optionType").value(everyItem(equalTo(optionType.getCode()))))
-//                .andExpect(jsonPath("$.data[*].status").value(everyItem(equalTo(StatusEnum.ACTIVE.getCode()))));
-//    }
 
     @Test
     @DisplayName("[IT] 4006 updateOptionStatus - 修改成功，回傳 200")
