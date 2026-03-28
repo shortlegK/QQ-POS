@@ -3,8 +3,9 @@ package com.qqriceball.controller;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.common.result.Result;
 import com.qqriceball.model.dto.product.*;
-import com.qqriceball.model.vo.EmpVO;
-import com.qqriceball.model.vo.ProductVO;
+import com.qqriceball.model.vo.emp.EmpVO;
+import com.qqriceball.model.vo.product.ProductTypeVO;
+import com.qqriceball.model.vo.product.ProductVO;
 import com.qqriceball.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/products")
@@ -100,6 +103,17 @@ public class ProductController {
         log.info("3006 修改產品上架狀態,操作 id:{},id:{},active:{}",currentEmp.getId(),id,productStatusDTO);
         productService.updateStatus(id, productStatusDTO);
         return Result.success();
+    }
+
+    @Operation(summary = "3007 取得所有產品類型")
+    @GetMapping("/types")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "查詢成功"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<List<ProductTypeVO>> getAllProductTypes(@AuthenticationPrincipal EmpVO currentEmp){
+        log.info("3007 取得所有產品類型,操作 id:{}",currentEmp.getId());
+        return Result.success(productService.getProductTypes());
     }
 
 }

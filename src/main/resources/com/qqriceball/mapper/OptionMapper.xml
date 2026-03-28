@@ -11,7 +11,7 @@
     </insert>
 
     <!--分頁查詢-->
-    <select id="pageQuery" resultType="com.qqriceball.model.vo.OptionVO">
+    <select id="pageQuery" resultType="com.qqriceball.model.vo.option.OptionVO">
         select id, title, option_type,is_default, price, status
         from options
         <where>

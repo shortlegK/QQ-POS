@@ -9,7 +9,7 @@ import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.model.dto.emp.EmpLoginDTO;
 import com.qqriceball.model.entity.Emp;
 import com.qqriceball.controller.LoginController;
-import com.qqriceball.model.vo.EmpVO;
+import com.qqriceball.model.vo.emp.EmpVO;
 import com.qqriceball.service.EmpService;
 import com.qqriceball.testData.emp.SeedUserData;
 import com.qqriceball.utils.emp.EmpTestDataFactory;

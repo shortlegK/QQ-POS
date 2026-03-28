@@ -15,7 +15,8 @@ import com.qqriceball.model.dto.option.*;
 
 import com.qqriceball.model.entity.Option;
 
-import com.qqriceball.model.vo.OptionVO;
+import com.qqriceball.model.vo.option.OptionTypeVO;
+import com.qqriceball.model.vo.option.OptionVO;
 import com.qqriceball.service.OptionService;
 import com.qqriceball.testData.option.SeedOptionData;
 import com.qqriceball.testData.product.SeedProductData;
@@ -28,6 +29,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -340,24 +343,6 @@ public class OptionServiceTest {
         verify(optionMapper).getById(id);
     }
 
-//    @Test
-//    @DisplayName("[Unit] OptionService.getActiveOptionsByType() - 查詢成功，應回傳資料")
-//    void testGetActiveOptionsByTypeSuccess() {
-//
-//        OptionActiveQueryDTO optionActiveQueryDTO = OptionTestDataFactory.getOptionActiveQueryDTO(OptionTypeEnum.SPICE_LEVEL.getCode());
-//
-//        List<OptionVO> mockData = new ArrayList<>();
-//        mockData.add(OptionTestDataFactory.getOptionVO(SeedOptionData.HOT_SPICY));
-//        mockData.add(OptionTestDataFactory.getOptionVO(SeedOptionData.MEDIUM_SPICY));
-//
-//        when(optionMapper.getActiveOptionsByType(any(OptionActiveQueryDTO.class))).thenReturn(mockData);
-//
-//        List<OptionVO> result = optionService.getActiveOptionsByType(optionActiveQueryDTO);
-//
-//        assertEquals(mockData, result,"回傳資料應與 mock 資料相同");
-//        verify(optionMapper).getActiveOptionsByType(any(OptionActiveQueryDTO.class));
-//    }
-
     @Test
     @DisplayName("[Unit] OptionService.updateStatus - 修改產品細節選項上架狀態成功，應呼叫 OptionMapper.updateById() 傳入參數")
     void testUpdateOptionStatusSuccess() {
@@ -393,6 +378,27 @@ public class OptionServiceTest {
                 () -> optionService.updateStatus(id, optionStatusDTO));
 
         verify(optionMapper).getById(id);
+    }
+
+    @Test
+    @DisplayName("[Unit] OptionService.getOptionTypes() - 取得選項類型列表成功，應回傳所有選項類型資料")
+    void testGetOptionTypesSuccess() {
+
+        List<OptionTypeVO> result = optionService.getOptionTypes();
+
+        assertEquals(OptionTypeEnum.values().length, result.size(), "回傳的選項類型數量應與 OptionTypeEnum 定義的數量相同");
+
+        for (OptionTypeEnum typeEnum : OptionTypeEnum.values()){
+            boolean found = false;
+
+            for(OptionTypeVO vo : result){
+                if(vo.getOptionType().equals(typeEnum.getCode()) && vo.getOptionTypeName().equals(typeEnum.getDesc())){
+                    found = true;
+                    break;
+                }
+            }
+            assertTrue(found, typeEnum.getDesc()+" 類型應存在於回傳的選項類型列表中");
+        }
     }
 
 }

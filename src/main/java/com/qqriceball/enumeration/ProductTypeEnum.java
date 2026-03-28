@@ -5,9 +5,8 @@ import lombok.Getter;
 @Getter
 public enum ProductTypeEnum {
 
-    //(0 - 葷飯糰,1 - 素飯糰 ,2 - 飲品 )
-    MEAT(0,"葷食飯糰"),
-    VEGAN(1,"素食飯糰"),
+    MEAT(0,"葷食"),
+    VEGAN(1,"素食"),
     DRINKS(2,"飲品");
 
     private final int code;

@@ -7,7 +7,7 @@ import com.qqriceball.controller.AccountController;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
 import com.qqriceball.model.dto.emp.EmpUpdatePasswordDTO;
-import com.qqriceball.model.vo.EmpVO;
+import com.qqriceball.model.vo.emp.EmpVO;
 import com.qqriceball.service.EmpService;
 import com.qqriceball.testData.emp.SeedUserData;
 import com.qqriceball.utils.TestDataGenerator;

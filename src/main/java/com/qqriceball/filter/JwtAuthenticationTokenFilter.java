@@ -8,7 +8,7 @@ import com.qqriceball.common.result.Result;
 import com.qqriceball.common.utils.JwtUtil;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.RoleEnum;
-import com.qqriceball.model.vo.EmpVO;
+import com.qqriceball.model.vo.emp.EmpVO;
 import com.qqriceball.service.EmpService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;

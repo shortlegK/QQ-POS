@@ -4,8 +4,9 @@ package com.qqriceball.controller;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.common.result.Result;
 import com.qqriceball.model.dto.option.*;
-import com.qqriceball.model.vo.EmpVO;
-import com.qqriceball.model.vo.OptionVO;
+import com.qqriceball.model.vo.emp.EmpVO;
+import com.qqriceball.model.vo.option.OptionTypeVO;
+import com.qqriceball.model.vo.option.OptionVO;
 import com.qqriceball.service.OptionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/options")
@@ -102,4 +105,14 @@ public class OptionController {
         return Result.success();
     }
 
+    @Operation(summary = "4007 取得所有選項類型")
+    @GetMapping("/types")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "查詢成功"),
+            @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
+    })
+    public Result<List<OptionTypeVO>> getOptionTypes(@AuthenticationPrincipal EmpVO currentEmp){
+        log.info("4007 取得所有選項類型,操作id:{}", currentEmp.getId());
+        return Result.success(optionService.getOptionTypes());
+    }
 }

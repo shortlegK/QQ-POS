@@ -12,7 +12,7 @@ import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.OrderStatusEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
 import com.qqriceball.model.dto.order.*;
-import com.qqriceball.model.vo.EmpVO;
+import com.qqriceball.model.vo.emp.EmpVO;
 import com.qqriceball.model.vo.order.OrderDetailVO;
 import com.qqriceball.model.vo.order.OrderSummaryVO;
 import com.qqriceball.model.vo.order.catalog.OrderCatalogVO;

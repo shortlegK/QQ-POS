@@ -3,7 +3,7 @@ package com.qqriceball.aspect;
 import com.qqriceball.enumeration.AutoFillEnum;
 import com.qqriceball.enumeration.OperationType;
 import com.qqriceball.model.entity.Emp;
-import com.qqriceball.model.vo.EmpVO;
+import com.qqriceball.model.vo.emp.EmpVO;
 import com.qqriceball.annotation.AutoFill;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;

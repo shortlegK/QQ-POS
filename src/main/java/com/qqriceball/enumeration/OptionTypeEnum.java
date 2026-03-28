@@ -9,8 +9,8 @@ public enum OptionTypeEnum {
     RICE_SIZE(1,"飯量",true),
     SPICE_LEVEL(2,"辣度",true),
     ADD_ON(3,"加料",false),
-    DRINK_TEMPERATURE(4,"飲品溫度",true),
-    NO_INGREDIENT(5,"去除配料",false);
+    DRINK_TEMPERATURE(4,"溫度",true),
+    NO_INGREDIENT(5,"去除",false);
 
     private final int code;
     private final String desc;

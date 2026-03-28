@@ -11,7 +11,8 @@ import com.qqriceball.model.dto.option.OptionCreateDTO;
 import com.qqriceball.model.dto.option.OptionEditDTO;
 import com.qqriceball.model.dto.option.OptionPageQueryDTO;
 import com.qqriceball.model.dto.option.OptionStatusDTO;
-import com.qqriceball.model.vo.OptionVO;
+import com.qqriceball.model.vo.option.OptionTypeVO;
+import com.qqriceball.model.vo.option.OptionVO;
 import com.qqriceball.testData.option.SeedOptionData;
 import com.qqriceball.utils.TestDataGenerator;
 import com.qqriceball.utils.option.OptionTestDataFactory;
@@ -21,6 +22,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -507,4 +510,20 @@ public class OptionControllerIT extends BaseIntegrationTest{
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
+    @Test
+    @DisplayName("[IT] 4007 getOptionTypes - 取得所有選項類型成功，回傳 200 及資料")
+    void testGetOptionTypesSuccess() throws Exception{
+
+        MvcResult result = mockMvc.perform(
+                get("/options/types")
+                        .header("Authorization", "Bearer " + tokenManager)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data").isArray())
+                .andReturn();
+
+        List<OptionTypeVO> optionTypes = JsonPath.read(result.getResponse().getContentAsString(), "$.data");
+
+        assertEquals(OptionTypeEnum.values().length, optionTypes.size(), "回傳的選項類型數量應與 Enum 定義的數量一致");
+    }
 }

@@ -15,8 +15,8 @@ import com.qqriceball.model.dto.order.*;
 import com.qqriceball.model.entity.order.Order;
 import com.qqriceball.model.entity.order.OrderItem;
 import com.qqriceball.model.entity.order.OrderItemOption;
-import com.qqriceball.model.vo.OptionVO;
-import com.qqriceball.model.vo.ProductVO;
+import com.qqriceball.model.vo.option.OptionVO;
+import com.qqriceball.model.vo.product.ProductVO;
 import com.qqriceball.model.vo.order.OrderDetailVO;
 import com.qqriceball.model.vo.order.OrderItemOptionVO;
 import com.qqriceball.model.vo.order.OrderItemVO;
@@ -221,11 +221,11 @@ public class OrderService {
                     case DRINKS -> REQUIRED_DRINK_OPTIONS.contains(optionType);
                 };
 
-                optionGroups.add(new OptionGroupVO(optionType.getCode(), required,
+                optionGroups.add(new OptionGroupVO(optionType.getCode(), optionType.getDesc(), required,
                         optionType.isSingleSelect(), orderableOptions));
             }
 
-            optionConfigs.add(new ProductOptionConfigVO(productType.getCode(), optionGroups));
+            optionConfigs.add(new ProductOptionConfigVO(productType.getCode(), productType.getDesc(), optionGroups));
         }
 
         return new OrderCatalogVO(orderableProducts, optionConfigs);

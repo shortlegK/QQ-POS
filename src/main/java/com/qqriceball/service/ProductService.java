@@ -6,16 +6,19 @@ import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.enumeration.ProductTypeEnum;
 import com.qqriceball.model.dto.product.*;
 import com.qqriceball.model.entity.Product;
 import com.qqriceball.mapper.ProductMapper;
-import com.qqriceball.model.vo.ProductVO;
+import com.qqriceball.model.vo.product.ProductTypeVO;
+import com.qqriceball.model.vo.product.ProductVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -96,5 +99,14 @@ public class ProductService {
         product.setId(id);
         product.setStatus(productStatusDTO.getStatus());
         productMapper.updateById(product);
+    }
+
+    public List<ProductTypeVO> getProductTypes(){
+        List<ProductTypeVO> productTypes = new ArrayList<>();
+
+        for(ProductTypeEnum typeEnum : ProductTypeEnum.values()){
+            productTypes.add(new ProductTypeVO(typeEnum.getCode(), typeEnum.getDesc()));
+        }
+        return productTypes;
     }
 }

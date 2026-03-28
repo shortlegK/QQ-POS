@@ -4,7 +4,7 @@ import com.qqriceball.enumeration.OperationType;
 import com.qqriceball.model.dto.product.ProductPageQueryDTO;
 import com.qqriceball.model.entity.Product;
 import com.qqriceball.annotation.AutoFill;
-import com.qqriceball.model.vo.ProductVO;
+import com.qqriceball.model.vo.product.ProductVO;
 import com.qqriceball.model.vo.order.catalog.OrderableProductVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;

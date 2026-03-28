@@ -11,7 +11,7 @@
     </insert>
 
     <!--分頁查詢-->
-    <select id="pageQuery" resultType="com.qqriceball.model.vo.ProductVO">
+    <select id="pageQuery" resultType="com.qqriceball.model.vo.product.ProductVO">
         select id, title, product_type, price, status
         from products
         <where>

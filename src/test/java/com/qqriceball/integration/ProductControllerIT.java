@@ -1,5 +1,6 @@
 package com.qqriceball.integration;
 
+import com.jayway.jsonpath.JsonPath;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.enumeration.ProductTypeEnum;
 import com.qqriceball.enumeration.StatusEnum;
@@ -7,14 +8,19 @@ import com.qqriceball.model.dto.product.ProductCreateDTO;
 import com.qqriceball.model.dto.product.ProductEditDTO;
 import com.qqriceball.model.dto.product.ProductPageQueryDTO;
 import com.qqriceball.model.dto.product.ProductStatusDTO;
+import com.qqriceball.model.vo.product.ProductTypeVO;
 import com.qqriceball.testData.product.SeedProductData;
 import com.qqriceball.utils.TestDataGenerator;
 import com.qqriceball.utils.product.ProductTestDataFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -267,6 +273,23 @@ public class ProductControllerIT extends BaseIntegrationTest{
                 .andExpect(jsonPath("$.code").value(MessageEnum.PRODUCT_NOT_EXIST.getCode()))
                 .andExpect(jsonPath("$.msg").value(MessageEnum.PRODUCT_NOT_EXIST.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    @DisplayName("[IT] 3007 getAllProductTypes - 成功取得產品類型，應回傳 200 及資料")
+    void testGetAllProductTypesSuccess() throws Exception {
+
+        MvcResult result = mockMvc.perform(
+                        get("/products/types")
+                                .header("Authorization", "Bearer " + tokenManager))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data").isArray())
+                .andReturn();
+
+        List<ProductTypeVO> productTypes = JsonPath.read(result.getResponse().getContentAsString(), "$.data");
+
+        assertEquals(ProductTypeEnum.values().length, productTypes.size(), "回傳的產品類型數量應與 Enum 定義的數量一致");
     }
 
 }

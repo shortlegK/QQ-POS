@@ -5,12 +5,14 @@ import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.exception.AlreadyExistsException;
 import com.qqriceball.common.result.PageResult;
 import com.qqriceball.enumeration.MessageEnum;
+import com.qqriceball.enumeration.ProductTypeEnum;
 import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.model.dto.product.*;
+import com.qqriceball.model.vo.product.ProductTypeVO;
 import com.qqriceball.testData.product.SeedProductData;
 import com.qqriceball.mapper.ProductMapper;
 import com.qqriceball.model.entity.Product;
-import com.qqriceball.model.vo.ProductVO;
+import com.qqriceball.model.vo.product.ProductVO;
 import com.qqriceball.service.ProductService;
 import com.qqriceball.utils.product.ProductTestDataFactory;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +23,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -226,5 +230,26 @@ public class ProductServiceTest {
                 () -> productService.updateStatus(id,productStatusDTO));
 
         verify(productMapper,never()).updateById(any(Product.class));
+    }
+
+    @Test
+    @DisplayName("[Unit] ProductService.getProductTypes() -取得產品類型列表成功，應回傳所有產品類型資料")
+    void testGetProductTypesSuccess(){
+        List<ProductTypeVO> result = productService.getProductTypes();
+
+        assertEquals(ProductTypeEnum.values().length, result.size(), "回傳的產品類型數量應與 ProductTypeEnum 定義的數量相同");
+
+        for(ProductTypeEnum typeEnum : ProductTypeEnum.values()){
+            boolean found = false;
+
+            for(ProductTypeVO vo : result){
+                if(vo.getProductType().equals(typeEnum.getCode()) && vo.getProductTypeName().equals(typeEnum.getDesc())){
+                    found = true;
+                    break;
+                }
+            }
+            assertTrue(found, typeEnum.getDesc() + " 類型應包含在回傳的產品類型列表中");
+
+        }
     }
 }

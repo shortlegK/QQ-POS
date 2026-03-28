@@ -1,4 +1,4 @@
-package com.qqriceball.model.vo;
+package com.qqriceball.model.vo.emp;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

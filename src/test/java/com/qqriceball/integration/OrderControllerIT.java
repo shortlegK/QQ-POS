@@ -486,7 +486,9 @@ public class OrderControllerIT extends BaseIntegrationTest {
                 .andExpect(jsonPath("$.data.optionConfigs").isArray())
                 .andExpect(jsonPath("$.data.optionConfigs").isNotEmpty())
                 .andExpect(jsonPath("$.data.optionConfigs[*].optionGroups").isArray())
-                .andExpect(jsonPath("$.data.optionConfigs[*].optionGroups").isNotEmpty());
+                .andExpect(jsonPath("$.data.optionConfigs[*].optionGroups").isNotEmpty())
+                .andExpect(jsonPath("$.data.optionConfigs[*].productTypeName").isNotEmpty())
+                .andExpect(jsonPath("$.data.optionConfigs[*].optionGroups[*].optionTypeName").isNotEmpty());
     }
 
     @Test

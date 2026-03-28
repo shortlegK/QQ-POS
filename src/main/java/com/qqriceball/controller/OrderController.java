@@ -7,7 +7,7 @@ import com.qqriceball.model.dto.order.OrderCreateDTO;
 import com.qqriceball.model.dto.order.OrderEditDTO;
 import com.qqriceball.model.dto.order.OrderPageQueryDTO;
 import com.qqriceball.model.dto.order.OrderStatusDTO;
-import com.qqriceball.model.vo.EmpVO;
+import com.qqriceball.model.vo.emp.EmpVO;
 import com.qqriceball.model.vo.order.OrderDetailVO;
 import com.qqriceball.model.vo.order.OrderSummaryVO;
 import com.qqriceball.model.vo.order.catalog.OrderCatalogVO;

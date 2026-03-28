@@ -3,7 +3,7 @@ package com.qqriceball.utils.option;
 import com.qqriceball.model.dto.option.OptionCreateDTO;
 import com.qqriceball.model.dto.option.OptionEditDTO;
 import com.qqriceball.model.dto.option.OptionPageQueryDTO;
-import com.qqriceball.model.vo.OptionVO;
+import com.qqriceball.model.vo.option.OptionVO;
 import com.qqriceball.testData.option.TestOption;
 import org.springframework.beans.BeanUtils;
 

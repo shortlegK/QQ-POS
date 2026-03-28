@@ -16,6 +16,9 @@ public class ProductOptionConfigVO {
     @Schema(description = "商品類型(0:葷食, 1:素食, 2:飲品)")
     private Integer productType;
 
+    @Schema(description = "商品類型名稱")
+    private String productTypeName;
+
     @Schema(description = "細節選項群組列表")
     private List<OptionGroupVO> optionGroups;
 

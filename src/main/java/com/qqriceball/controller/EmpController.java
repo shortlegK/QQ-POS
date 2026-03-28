@@ -7,7 +7,7 @@ import com.qqriceball.model.dto.emp.EmpCreateDTO;
 import com.qqriceball.model.dto.emp.EmpEditDTO;
 import com.qqriceball.model.dto.emp.EmpPageQueryDTO;
 import com.qqriceball.model.dto.emp.EmpStatusDTO;
-import com.qqriceball.model.vo.EmpVO;
+import com.qqriceball.model.vo.emp.EmpVO;
 import com.qqriceball.service.EmpService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

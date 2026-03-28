@@ -3,7 +3,7 @@ package com.qqriceball.utils.emp;
 import com.qqriceball.enumeration.StatusEnum;
 import com.qqriceball.model.dto.emp.*;
 import com.qqriceball.model.entity.Emp;
-import com.qqriceball.model.vo.EmpVO;
+import com.qqriceball.model.vo.emp.EmpVO;
 import com.qqriceball.testData.emp.TestAccount;
 import org.springframework.beans.BeanUtils;
 

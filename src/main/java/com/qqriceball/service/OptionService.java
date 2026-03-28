@@ -13,7 +13,8 @@ import com.qqriceball.enumeration.OptionTypeEnum;
 import com.qqriceball.mapper.OptionMapper;
 import com.qqriceball.model.dto.option.*;
 import com.qqriceball.model.entity.Option;
-import com.qqriceball.model.vo.OptionVO;
+import com.qqriceball.model.vo.option.OptionTypeVO;
+import com.qqriceball.model.vo.option.OptionVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -120,6 +122,15 @@ public class OptionService {
         option.setId(id);
         option.setStatus(optionStatusDTO.getStatus());
         optionMapper.updateById(option);
+    }
+
+    public List<OptionTypeVO> getOptionTypes(){
+        List<OptionTypeVO> optionTypes = new ArrayList<>();
+
+        for(OptionTypeEnum typeEnum : OptionTypeEnum.values()){
+            optionTypes.add(new OptionTypeVO(typeEnum.getCode(), typeEnum.getDesc()));
+        }
+        return optionTypes;
     }
 
     private void checkDefaultSetting(Integer optionType, Integer defaultSetting) {
