@@ -350,15 +350,14 @@ public class OrderService {
 
     private String generateOrderNo(LocalDateTime pickupTime) {
         int sequence = 1;
-        String start = pickupTime.format(ORDER_DATE_FORMAT);
-        String end = pickupTime.plusDays(1).format(ORDER_DATE_FORMAT);
-        String maxOrderNo = orderMapper.getMaxOrderNoByPickupTime(start, end);
+        String pickedDate = pickupTime.format(ORDER_DATE_FORMAT);
+        String maxOrderNo = orderMapper.getMaxOrderNoByPickupTime(pickedDate);
 
         if (maxOrderNo != null) {
             String maxOrderSeq = maxOrderNo.substring(8);
             sequence = Integer.parseInt(maxOrderSeq) + 1;
         }
-        return start + String.format("%04d", sequence);
+        return pickedDate + String.format("%04d", sequence);
     }
 
     private OrderItemOption buildOrderItemOption(OptionVO option) {

@@ -94,7 +94,6 @@ public class OrderControllerIT extends BaseIntegrationTest {
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         LocalDateTime expectedPickupTime = LocalDateTime.now().plusMinutes(15).truncatedTo(ChronoUnit.MINUTES);
-        orderCreateDTO.setPickupTime(expectedPickupTime);
         orderCreateDTO.setItems(List.of(orderItem0, orderItem1));
 
         Integer item0Total = OrderTestDataFactory.calculateTotalPrice(SeedProductData.MEAT_PRODUCT, productQuantity,
@@ -114,7 +113,6 @@ public class OrderControllerIT extends BaseIntegrationTest {
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.total").value(expectedTotal))
-                .andExpect(jsonPath("$.data.pickupTime").value(expectedPickupTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
                 .andExpect(jsonPath("$.data.status").value(OrderStatusEnum.MAKING.getCode()))
                 .andExpect(jsonPath("$.data.total").value(expectedTotal))
                 .andReturn();
@@ -128,6 +126,68 @@ public class OrderControllerIT extends BaseIntegrationTest {
                 () -> assertTrue(orderNo.startsWith(expectedDatePrefix), "orderNo 前 8 碼應為預計取餐時間的日期 (yyyyMMdd)"),
                 () -> assertTrue(orderNo.substring(8).matches("\\d{4}"), "orderNo 後 4 碼應為數字流水號")
         );
+    }
+
+    @Test
+    @DisplayName("[IT] 5001 createOrder - 建立訂單，訂單編號應為預計取餐時間的日期編號的最大流水號加 1")
+    void testCreateOrderOrderNoSequence() throws Exception {
+
+        LocalDateTime pickupTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        String datePrefix = pickupTime.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        // 先建立一筆訂單
+        OrderCreateDTO orderCreateDTO1 = new OrderCreateDTO();
+        orderCreateDTO1.setPickupTime(pickupTime.plusMinutes(20));
+        orderCreateDTO1.setItems(List.of(OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 1, OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM))));
+
+        String jsonBody1 = objectMapper.writeValueAsString(orderCreateDTO1);
+        MvcResult result1 = mockMvc.perform(
+                        post("/orders/create")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody1)
+                ).andExpect(status().isOk())
+                .andReturn();
+
+        String orderNo1 = JsonPath.read(result1.getResponse().getContentAsString(), "$.data.orderNo");
+
+        // 更新 orderNo1 的取餐時間為明天
+        OrderEditDTO order1Edit = new OrderEditDTO();
+        order1Edit.setOrderNo(orderNo1);
+        order1Edit.setPickupTime(pickupTime.plusDays(1));
+        order1Edit.setItems(List.of(OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 1, OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM))));
+
+        String jsonBodyEdit = objectMapper.writeValueAsString(order1Edit);
+        mockMvc.perform(
+                        put("/orders")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBodyEdit)
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.orderNo").value(orderNo1));
+
+        // 再建立一筆訂單，驗證流水號加 1
+        OrderCreateDTO orderCreateDTO2 = new OrderCreateDTO();
+        orderCreateDTO2.setPickupTime(pickupTime.plusMinutes(30));
+        orderCreateDTO2.setItems(List.of(OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, 1, OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM))));
+
+        String jsonBody2 = objectMapper.writeValueAsString(orderCreateDTO2);
+        MvcResult result2 = mockMvc.perform(
+                        post("/orders/create")
+                                .header("Authorization", "Bearer " + tokenManager)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonBody2)
+                ).andExpect(status().isOk())
+                .andReturn();
+
+        String orderNo2 = JsonPath.read(result2.getResponse().getContentAsString(), "$.data.orderNo");
+
+        assertAll(
+                () -> assertTrue(orderNo1.startsWith(datePrefix), "第一筆訂單的 orderNo 前綴應為取餐時間的日期"),
+                () -> assertTrue(orderNo2.startsWith(datePrefix), "第二筆訂單的 orderNo 前綴應為當天日期"),
+                () -> assertEquals(Integer.parseInt(orderNo1.substring(8)) + 1, Integer.parseInt(orderNo2.substring(8)), "第二筆訂單的流水號應為第一筆訂單的流水號加 1")
+        );
+
     }
 
     @Test

@@ -14,10 +14,9 @@ import java.util.List;
 public interface OrderMapper {
 
     @Select("SELECT order_no FROM orders " +
-            "WHERE DATE_FORMAT(pickup_time, '%Y%m%d') >= #{start} " +
-            "AND DATE_FORMAT(pickup_time, '%Y%m%d') < #{end} " +
+            "WHERE order_no LIKE CONCAT(#{pickedDate},'%')" +
             "ORDER BY order_no DESC LIMIT 1")
-    String getMaxOrderNoByPickupTime(String start,String end);
+    String getMaxOrderNoByPickupTime(String pickedDate);
 
     @AutoFill(value = OperationType.INSERT)
     void insert(Order order);
