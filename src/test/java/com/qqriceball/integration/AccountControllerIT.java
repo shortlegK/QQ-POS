@@ -5,10 +5,14 @@ import com.qqriceball.model.dto.emp.EmpLoginDTO;
 import com.qqriceball.model.dto.emp.EmpUpdatePasswordDTO;
 import com.qqriceball.testData.emp.SeedUserData;
 import com.qqriceball.utils.emp.EmpTestDataFactory;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -24,23 +28,37 @@ public class AccountControllerIT extends BaseIntegrationTest{
 
         String jsonBody = objectMapper.writeValueAsString(updatePasswordDTO);
 
-        mockMvc.perform(
+       MvcResult result =  mockMvc.perform(
                 patch("/accounts/password")
-                        .header("Authorization", "Bearer " + tokenStaff)
+                         .cookie(cookieStaff)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
                 ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.token").isString());
+               .andReturn();
 
-        // 使用新密碼登入
+       Cookie cookie = result.getResponse().getCookie("access_token");
+       assertNotNull(cookie);
+       assertAll(
+               () -> assertTrue(cookie.isHttpOnly()),
+               () -> assertFalse(cookie.getValue().isBlank())
+       );
+
+       // 使用新密碼登入
         EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.STAFF.username(), SeedUserData.STAFF.password()+"new");
         String loginJsonBody = objectMapper.writeValueAsString(empLoginDTO);
-        mockMvc.perform(
+        MvcResult result2 = mockMvc.perform(
                 post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(loginJsonBody)
                 ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.token").isString());
+                .andReturn();
+
+        Cookie cookie2 = result2.getResponse().getCookie("access_token");
+        assertNotNull(cookie2);
+        assertAll(
+                () -> assertTrue(cookie2.isHttpOnly()),
+                () -> assertFalse(cookie2.getValue().isBlank())
+        );
     }
 
     @Test
@@ -51,23 +69,37 @@ public class AccountControllerIT extends BaseIntegrationTest{
 
         String jsonBody = objectMapper.writeValueAsString(updatePasswordDTO);
 
-        mockMvc.perform(
+        MvcResult result = mockMvc.perform(
                         patch("/accounts/password")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.token").isString());
+                .andReturn();
+
+        Cookie cookie = result.getResponse().getCookie("access_token");
+        assertNotNull(cookie);
+        assertAll(
+                () -> assertTrue(cookie.isHttpOnly()),
+                () -> assertFalse(cookie.getValue().isBlank())
+        );
 
         // 使用新密碼登入
         EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.MANAGER.username(), SeedUserData.MANAGER.password()+"new");
         String loginJsonBody = objectMapper.writeValueAsString(empLoginDTO);
-        mockMvc.perform(
+        MvcResult result2 = mockMvc.perform(
                         post("/login")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(loginJsonBody)
                 ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.token").isString());
+                .andReturn();
+
+        Cookie cookie2 = result2.getResponse().getCookie("access_token");
+        assertNotNull(cookie2);
+        assertAll(
+                () -> assertTrue(cookie2.isHttpOnly()),
+                () -> assertFalse(cookie2.getValue().isBlank())
+        );
     }
 
     @Test
@@ -80,7 +112,7 @@ public class AccountControllerIT extends BaseIntegrationTest{
 
         mockMvc.perform(
                         patch("/accounts/password")
-                                .header("Authorization", "Bearer " + tokenStaff)
+                                 .cookie(cookieStaff)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isBadRequest())

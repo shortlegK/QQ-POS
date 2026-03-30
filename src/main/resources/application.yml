@@ -8,8 +8,7 @@ spring:
 
 qq-pos:
   jwt:
-    ttl-millis: 7200000
-    token-name: Authorization
+    ttl-millis: 1200000
 
 mybatis:
   configuration:

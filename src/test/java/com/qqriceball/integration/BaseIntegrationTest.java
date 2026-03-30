@@ -2,11 +2,11 @@ package com.qqriceball.integration;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.JsonPath;
 import com.qqriceball.model.dto.emp.EmpLoginDTO;
 import com.qqriceball.testData.emp.SeedUserData;
 import com.qqriceball.testData.emp.TestAccount;
 import com.qqriceball.utils.emp.EmpTestDataFactory;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,32 +35,33 @@ public abstract class BaseIntegrationTest {
     @Autowired
     protected ObjectMapper objectMapper;
 
-    protected String tokenManager;
-    protected String tokenStaff;
+    protected Cookie cookieManager;
+    protected Cookie cookieStaff;
 
     @BeforeAll
     void setUp() throws Exception {
-        tokenManager = getToken(SeedUserData.MANAGER);
-        tokenStaff = getToken(SeedUserData.STAFF);
+        cookieManager = getAuthCookie(SeedUserData.MANAGER);
+        cookieStaff = getAuthCookie(SeedUserData.STAFF);
 
         assertAll(
-                () -> assertFalse(tokenManager.isBlank()),
-                () -> assertFalse(tokenStaff.isBlank())
+                () -> assertNotNull(cookieManager),
+                () -> assertNotNull(cookieStaff)
         );
     }
 
-    private String getToken(TestAccount account) throws Exception {
-        EmpLoginDTO loginDTO = EmpTestDataFactory.getEmpLoginDTO(
-                account.username(), account.password());
+    private jakarta.servlet.http.Cookie getAuthCookie(TestAccount account) throws Exception{
+
+        EmpLoginDTO loginDTO = EmpTestDataFactory.getEmpLoginDTO(account.username(), account.password());
 
         String jsonBody = objectMapper.writeValueAsString(loginDTO);
         MvcResult result = mockMvc.perform(
-                        post("/login")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(jsonBody))
-                .andExpect(status().isOk())
+                post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                ).andExpect(status().isOk())
                 .andReturn();
 
-        return JsonPath.read(result.getResponse().getContentAsString(), "$.data.token");
+        return result.getResponse().getCookie("access_token");
+
     }
 }

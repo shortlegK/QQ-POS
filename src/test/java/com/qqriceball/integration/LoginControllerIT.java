@@ -1,18 +1,19 @@
 package com.qqriceball.integration;
 
-import com.jayway.jsonpath.JsonPath;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.testData.emp.SeedUserData;
 import com.qqriceball.model.dto.emp.EmpLoginDTO;
 import com.qqriceball.utils.emp.EmpTestDataFactory;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.http.MediaType;
 
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -27,18 +28,22 @@ public class LoginControllerIT extends BaseIntegrationTest{
                 SeedUserData.TESTER.username(), SeedUserData.TESTER.password());
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
-        ResultActions resultActions = mockMvc.perform(
+        MvcResult result = mockMvc.perform(
                 post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-        );
-
-        resultActions
-                .andExpect(status().isOk())
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.id").isNotEmpty())
                 .andExpect(jsonPath("$.data.username").value(SeedUserData.TESTER.username()))
-                .andExpect(jsonPath("$.data.token").isNotEmpty());
+                .andReturn();
+
+        Cookie cookie = result.getResponse().getCookie("access_token");
+        assertNotNull(cookie);
+        assertAll(
+                () -> assertTrue(cookie.isHttpOnly()),
+                () -> assertFalse(cookie.getValue().isBlank())
+        );
     }
 
     @Test
@@ -49,14 +54,11 @@ public class LoginControllerIT extends BaseIntegrationTest{
                 "userPassword");
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-        );
-
-        resultActions
-                .andExpect(status().isNotFound())
+                ).andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXISTS.getCode()))
                 .andExpect(jsonPath("$.msg").value(MessageEnum.ACCOUNT_NOT_EXISTS.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty());
@@ -70,14 +72,11 @@ public class LoginControllerIT extends BaseIntegrationTest{
         EmpLoginDTO empLoginDTO = EmpTestDataFactory.getEmpLoginDTO(SeedUserData.MANAGER.username(), "wrongPassword");
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-        );
-
-        resultActions
-                .andExpect(status().isUnauthorized())
+                ).andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value(MessageEnum.PASSWORD_ERROR.getCode()))
                 .andExpect(jsonPath("$.msg").value(MessageEnum.PASSWORD_ERROR.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty());
@@ -92,14 +91,11 @@ public class LoginControllerIT extends BaseIntegrationTest{
                 SeedUserData.INACTIVE.username(), SeedUserData.INACTIVE.password());
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-        );
-
-        resultActions
-                .andExpect(status().isForbidden())
+                ).andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_INACTIVE.getCode()))
                 .andExpect(jsonPath("$.msg").value(MessageEnum.ACCOUNT_INACTIVE.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty());
@@ -113,14 +109,11 @@ public class LoginControllerIT extends BaseIntegrationTest{
         empLoginDTO.setPassword("password");
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-        );
-
-        resultActions
-                .andExpect(status().isBadRequest())
+        ).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(MessageEnum.BAD_REQUEST.getCode()))
                 .andExpect(jsonPath("$.msg").isNotEmpty());
     }
@@ -130,10 +123,9 @@ public class LoginControllerIT extends BaseIntegrationTest{
     @DisplayName("[IT] 1002 logout - 登出成功，應回傳 200")
     void testLogoutSuccess() throws Exception {
 
-        ResultActions resultActions = mockMvc.perform(
-                post("/logout"));
-
-        resultActions.andExpect(status().isOk());
+        mockMvc.perform(
+                post("/logout"))
+                .andExpect(status().isOk());
 
     }
 
@@ -152,29 +144,32 @@ public class LoginControllerIT extends BaseIntegrationTest{
                 ).andExpect(status().isOk())
                 .andReturn();
 
-        String loginResponse = resultLogin.getResponse().getContentAsString();
-        String token = JsonPath.read(loginResponse, "$.data.token");
+        Cookie cookieToken = resultLogin.getResponse().getCookie("access_token");
 
-        mockMvc.perform(
+        MvcResult result = mockMvc.perform(
                 post("/token/refresh")
-                        .header("Authorization", "Bearer " + token)
+                        .cookie(cookieToken)
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
-                .andExpect(jsonPath("$.data.token").isNotEmpty());
+                .andReturn();
+
+        Cookie cookie = result.getResponse().getCookie("access_token");
+        assertNotNull(cookie);
+        assertAll(
+                () -> assertTrue(cookie.isHttpOnly()),
+                () -> assertFalse(cookie.getValue().isBlank())
+        );
     }
 
     @Test
     @DisplayName("[IT] 1003 refreshToken - token 無效，應回傳 401 及指定訊息")
     void testRefreshTokenInvalidToken() throws Exception {
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 post("/token/refresh")
-                        .header("Authorization", "Bearer invalidToken")
-        );
-
-        resultActions
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value(MessageEnum.TOKEN_INVALID.getCode()))
-                .andExpect(jsonPath("$.msg").value(MessageEnum.TOKEN_INVALID.getMessage()))
+                        .cookie( new Cookie("access_token","invalidToken"))
+                ).andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value(MessageEnum.UNAUTHORIZED.getCode()))
+                .andExpect(jsonPath("$.msg").value(MessageEnum.UNAUTHORIZED.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 

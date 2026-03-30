@@ -3,6 +3,7 @@ package com.qqriceball.unit.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qqriceball.common.exception.BadRequestArgsException;
 import com.qqriceball.common.properties.JwtProperties;
+import com.qqriceball.common.utils.CookieHelper;
 import com.qqriceball.controller.AccountController;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.handler.GlobalExceptionHandler;
@@ -12,6 +13,7 @@ import com.qqriceball.service.EmpService;
 import com.qqriceball.testData.emp.SeedUserData;
 import com.qqriceball.utils.TestDataGenerator;
 import com.qqriceball.utils.emp.EmpTestDataFactory;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +28,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -35,7 +39,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class,CookieHelper.class})
 @WebMvcTest(AccountController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class AccountControllerTest {
@@ -76,15 +80,26 @@ public class AccountControllerTest {
 
         when(jwtProperties.getSecretKey()).thenReturn(secretKey);
         when(jwtProperties.getTtlMillis()).thenReturn(3600000L);
+        when(jwtProperties.getCookieName()).thenReturn("access_token");
+        when(jwtProperties.isCookieSecure()).thenReturn(false);
+        when(jwtProperties.getCookieSameSite()).thenReturn("Strict");
 
         String jsonBody = objectMapper.writeValueAsString(empUpdatePasswordDTO);
-        mockMvc.perform(
+        MvcResult result = mockMvc.perform(
                 patch("/accounts/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
-                .andExpect(jsonPath("$.data.token").exists());
+                .andReturn();
+
+        Cookie cookie = result.getResponse().getCookie("access_token");
+        assertNotNull(cookie);
+        assertAll(
+                () -> assertTrue(cookie.isHttpOnly()),
+                () -> assertFalse(cookie.getValue().isBlank())
+        );
+
     }
 
     @Test

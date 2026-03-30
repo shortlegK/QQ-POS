@@ -8,6 +8,11 @@ logging:
 qq-pos:
   jwt:
     secret-key: ${JWT_SECRET_KEY_PROD}
+    cookie-secure: true
+    cookie-same-site: None
+  cors:
+    allowed-origins:
+      - ${CORS_ALLOWED_ORIGINS}
 
 spring:
   datasource:

@@ -10,8 +10,11 @@ spring:
 qq-pos:
   jwt:
     secret-key: ${JWT_SECRET_KEY_TEST}
-#    issuer: ${JWT_ISSUER_TEST}
-#    audience: ${JWT_AUDIENCE_TEST}
+    cookie-secure: false
+    cookie-same-site: Strict
+  cors:
+    allowed-origins:
+      - http://localhost:3000
 
 logging:
   file:

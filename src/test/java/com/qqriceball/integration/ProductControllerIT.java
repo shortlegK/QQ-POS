@@ -39,7 +39,7 @@ public class ProductControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(productCreateDTO);
         mockMvc.perform(
                 post("/products")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
                 ).andExpect(status().isOk())
@@ -62,14 +62,14 @@ public class ProductControllerIT extends BaseIntegrationTest{
 
         mockMvc.perform(
                 post("/products")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
         ).andExpect(status().isOk());
 
         mockMvc.perform(
                         post("/products")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isConflict())
@@ -89,7 +89,7 @@ public class ProductControllerIT extends BaseIntegrationTest{
         queryDTO.setProductType(SeedProductData.VEG_PRODUCT.productType());
         mockMvc.perform(
                 get("/products/page")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .param("page", queryDTO.getPage().toString())
                         .param("pageSize", queryDTO.getPageSize().toString())
                         .param("productType", queryDTO.getProductType().toString())
@@ -112,7 +112,7 @@ public class ProductControllerIT extends BaseIntegrationTest{
 
         mockMvc.perform(
                         get("/products/page")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .param("status", queryDTO.getStatus().toString())
                                 .param("productType", queryDTO.getProductType().toString())
                 ).andExpect(status().isOk())
@@ -134,7 +134,7 @@ public class ProductControllerIT extends BaseIntegrationTest{
 
         mockMvc.perform(
                         get("/products/page")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .param("title", queryDTO.getTitle())
                                 .param("status", queryDTO.getStatus().toString())
                                 .param("productType", queryDTO.getProductType().toString())
@@ -157,7 +157,7 @@ public class ProductControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(productEditDTO);
         mockMvc.perform(
                 put("/products")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
                 ).andExpect(status().isOk())
@@ -176,7 +176,7 @@ public class ProductControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(productEditDTO);
         mockMvc.perform(
                         put("/products")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isNotFound())
@@ -195,7 +195,7 @@ public class ProductControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(productEditDTO);
         mockMvc.perform(
                         put("/products")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isConflict())
@@ -212,7 +212,7 @@ public class ProductControllerIT extends BaseIntegrationTest{
 
         mockMvc.perform(
                         get("/products/{id}", id)
-                                .header("Authorization", "Bearer " + tokenManager))
+                                 .cookie(cookieManager))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(MessageEnum.PRODUCT_NOT_EXIST.getCode()));
     }
@@ -223,7 +223,7 @@ public class ProductControllerIT extends BaseIntegrationTest{
         Integer id = SeedProductData.VEG_PRODUCT.id();
         mockMvc.perform(
                         get("/products/{id}", id)
-                                .header("Authorization", "Bearer " + tokenManager))
+                                 .cookie(cookieManager))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.id").value(id))
@@ -241,14 +241,14 @@ public class ProductControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(productStatusDTO);
         mockMvc.perform(
                 patch("/products/{id}/status",id)
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
         ).andExpect(status().isOk());
 
         mockMvc.perform(
                 get("/products/{id}", id)
-                        .header("Authorization", "Bearer " + tokenManager))
+                         .cookie(cookieManager))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.id").value(id))
@@ -266,7 +266,7 @@ public class ProductControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(productStatusDTO);
         mockMvc.perform(
                         patch("/products/{id}/status",id)
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isNotFound())
@@ -281,7 +281,7 @@ public class ProductControllerIT extends BaseIntegrationTest{
 
         MvcResult result = mockMvc.perform(
                         get("/products/types")
-                                .header("Authorization", "Bearer " + tokenManager))
+                                 .cookie(cookieManager))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data").isArray())

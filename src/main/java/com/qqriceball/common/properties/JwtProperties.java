@@ -11,9 +11,9 @@ public class JwtProperties {
 
     private String secretKey;
     private long ttlMillis;
-    private String tokenName;
-    private String tokenPrefix = "Bearer ";
-
+    private String cookieName = "access_token";
+    private boolean cookieSecure;
+    private String cookieSameSite;
 }
 
 

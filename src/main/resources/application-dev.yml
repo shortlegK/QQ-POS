@@ -7,12 +7,16 @@ logging:
     # 紀錄更詳細的日誌
     root: info
     com.qqriceball.mapper: debug
+#    org.springframework.security: debug
 
 qq-pos:
   jwt:
     secret-key: ${JWT_SECRET_KEY_DEV}
-    # issuer: ${JWT_ISSUER_DEV}
-    # audience: ${JWT_AUDIENCE_DEV}
+    cookie-secure: false
+    cookie-same-site: Strict
+  cors:
+    allowed-origins:
+        - http://localhost:3000
 
 spring:
   datasource:

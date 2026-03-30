@@ -11,13 +11,14 @@ public enum MessageEnum {
     PASSWORD_ERROR(10001, "帳號或密碼錯誤。"),
     ACCOUNT_NOT_EXISTS(10002, "帳號或密碼錯誤。"),
     ACCOUNT_INACTIVE(10003, "您的帳號目前已被停用，如有疑問請聯繫管理員。"),
-    TOKEN_INVALID(10004, "登入已過期，請重新登入。"),
     USERNAME_ALREADY_EXISTS(10005,"此帳號已被使用，請使用其他帳號。"),
     OLD_PASSWORD_ERROR(10006,"舊密碼輸入錯誤，請再試一次。"),
 
     // 通用錯誤
     UNKNOWN_ERROR(20001, "系統發生未預期的錯誤，請稍後再試。"),
     BAD_REQUEST(20002, "請求資料格式有誤，請確認後再試。"),
+    FORBIDDEN(20003, "您目前沒有此操作權限，如有需要請聯繫管理員。"),
+    UNAUTHORIZED(20004, "您尚未登入或登入已失效，請重新登入。"),
 
     // 產品相關
     PRODUCT_NOT_EXIST(30001, "找不到指定的產品，請確認後再試。"),

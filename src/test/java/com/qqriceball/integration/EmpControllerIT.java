@@ -8,6 +8,7 @@ import com.qqriceball.model.dto.emp.*;
 import com.qqriceball.testData.emp.SeedUserData;
 import com.qqriceball.utils.TestDataGenerator;
 import com.qqriceball.utils.emp.EmpTestDataFactory;
+import jakarta.servlet.http.Cookie;
 import org.hamcrest.core.StringContains;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.BeanUtils;
@@ -18,6 +19,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDate;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -40,7 +43,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
         mockMvc.perform(
                 post("/emps")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody))
                 .andExpect(status().isOk());
@@ -48,7 +51,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
         // 再次建立相同帳號，應無法建立
         mockMvc.perform(
                 post("/emps")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
                 ).andExpect(status().isConflict())
@@ -68,7 +71,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
         mockMvc.perform(
                 post("/emps")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
                 ).andExpect(status().isBadRequest())
@@ -85,7 +88,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
         mockMvc.perform(
                         post("/emps")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody))
                 .andExpect(status().isBadRequest());
@@ -102,15 +105,12 @@ public class EmpControllerIT extends BaseIntegrationTest{
         EmpCreateDTO empCreateDTO = EmpTestDataFactory.getEmpCreateDTO(username, password, RoleEnum.MANAGER.getCode());
 
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 post("/emps")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-        );
-
-        resultActions
-                .andExpect(status().isOk())
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.msg").value(MessageEnum.SUCCESS.getMessage()))
                 .andExpect(jsonPath("$.data.name").value(username));
@@ -120,19 +120,22 @@ public class EmpControllerIT extends BaseIntegrationTest{
 
 
         jsonBody = objectMapper.writeValueAsString(empLoginDTO);
-        resultActions = mockMvc.perform(
+        MvcResult result = mockMvc.perform(
                 post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-        );
-
-        resultActions
-                .andExpect(status().isOk())
+        ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.id").isNotEmpty())
                 .andExpect(jsonPath("$.data.username").value(empLoginDTO.getUsername()))
-                .andExpect(jsonPath("$.data.token").isNotEmpty());
+                .andReturn();
 
+        Cookie cookie = result.getResponse().getCookie("access_token");
+        assertAll(
+                () -> assertNotNull(cookie),
+                () -> assertTrue(cookie.isHttpOnly()),
+                () -> assertFalse(cookie.getValue().isBlank())
+        );
     }
 
 
@@ -146,7 +149,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(empCreateDTO);
         mockMvc.perform(
                 post("/emps")
-                        .header("Authorization", "Bearer " + tokenStaff)
+                         .cookie(cookieStaff)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
         ).andExpect(status().isForbidden());
@@ -155,14 +158,11 @@ public class EmpControllerIT extends BaseIntegrationTest{
                 empCreateDTO.getPassword());
 
         jsonBody = objectMapper.writeValueAsString(empLoginDTO);
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-        );
-
-        resultActions
-                .andExpect(status().isNotFound())
+                ).andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXISTS.getCode()))
                 .andExpect(jsonPath("$.msg").value(MessageEnum.ACCOUNT_NOT_EXISTS.getMessage()))
                 .andExpect(jsonPath("$.data").isEmpty());
@@ -177,15 +177,12 @@ public class EmpControllerIT extends BaseIntegrationTest{
         empStatusDTO.setStatus(StatusEnum.INACTIVE.getCode());
 
         String jsonBody = objectMapper.writeValueAsString(empStatusDTO);
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 patch("/emps/{id}/status",id)
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-        );
-
-        resultActions
-                .andExpect(status().isNotFound())
+                ).andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXISTS.getCode()));
     }
 
@@ -195,13 +192,11 @@ public class EmpControllerIT extends BaseIntegrationTest{
 
         // 查詢執行前的帳號狀態
         int id = SeedUserData.STAFF.id();
-        ResultActions beforeActionResult = mockMvc.perform(
+        MvcResult beforeResult  = mockMvc.perform(
                 get("/emps/{id}", id)
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
-        );
-        MvcResult beforeResult = beforeActionResult
-                .andExpect(status().isOk())
+        ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.status").isNotEmpty())
                 .andReturn();
 
@@ -216,7 +211,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(empStatusDTO);
         mockMvc.perform(
                 patch("/emps/{id}/status",id)
-                        .header("Authorization", "Bearer " + tokenStaff)
+                         .cookie(cookieStaff)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
         ).andExpect(status().isForbidden());
@@ -224,7 +219,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
         // 查詢執行後的帳號狀態，確認與執行前相同
        mockMvc.perform(
                 get("/emps/{id}", id)
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isOk())
                .andExpect(jsonPath("$.data.status").value(beforeStatus));
@@ -245,7 +240,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
         String createJsonBody = objectMapper.writeValueAsString(empCreateDTO);
         mockMvc.perform(
                 post("/emps")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createJsonBody))
                 .andExpect(status().isOk());
@@ -260,10 +255,11 @@ public class EmpControllerIT extends BaseIntegrationTest{
                                 .content(loginJsonBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.username").value(empCreateDTO.getUsername()))
-                .andExpect(jsonPath("$.data.name").value(empCreateDTO.getName())).andReturn();
+                .andExpect(jsonPath("$.data.name").value(empCreateDTO.getName()))
+                .andReturn();
 
         int id = JsonPath.read(result.getResponse().getContentAsString(), "$.data.id");
-        String tokenTestUser = JsonPath.read(result.getResponse().getContentAsString(),"$.data.token");
+        Cookie cookieTestUser = result.getResponse().getCookie("access_token");
 
         // 變更狀態為停用
         EmpStatusDTO empStatusDTO = new EmpStatusDTO();
@@ -272,7 +268,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
         String inactiveJsonBody = objectMapper.writeValueAsString(empStatusDTO);
         mockMvc.perform(
                 patch("/emps/{id}/status",id)
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(inactiveJsonBody)
         ).andExpect(status().isOk());
@@ -280,7 +276,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
         // 查詢執行後的帳號狀態為停用
         mockMvc.perform(
                 get("/emps/{id}", id)
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.status").value(empStatusDTO.getStatus()));
@@ -288,7 +284,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
         // 確認已停用帳號 token 無法使用
         mockMvc.perform(
                         get("/emps/{id}", id)
-                                .header("Authorization", "Bearer " + tokenTestUser)
+                                .cookie(cookieTestUser)
                                 .contentType(MediaType.APPLICATION_JSON)
                 ).andExpect(status().isForbidden()
         );
@@ -299,7 +295,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
         String activeJsonBody = objectMapper.writeValueAsString(empStatusDTO);
         mockMvc.perform(
                 patch("/emps/{id}/status",id)
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(activeJsonBody)
         ).andExpect(status().isOk());
@@ -307,7 +303,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
         // 查詢執行後的帳號狀態為啟用
         mockMvc.perform(
                         get("/emps/{id}", id)
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.status").value(empStatusDTO.getStatus())
@@ -321,7 +317,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
 
         mockMvc.perform(
                         get("/emps/{id}", Integer.MAX_VALUE)
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                 ).andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.data").isEmpty());
     }
@@ -332,7 +328,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
 
         mockMvc.perform(
                         get("/emps/{id}", SeedUserData.TESTER.id())
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
         ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(SeedUserData.TESTER.id()))
                 .andExpect(jsonPath("$.data.username").value(SeedUserData.TESTER.username())
@@ -352,7 +348,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(empEditDTO);
         mockMvc.perform(
                         put("/emps")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isNotFound())
@@ -371,7 +367,7 @@ public class EmpControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(empEditDTO);
         mockMvc.perform(
                         put("/emps")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isOk())
@@ -388,16 +384,13 @@ public class EmpControllerIT extends BaseIntegrationTest{
         queryDTO.setPageSize(5);
         queryDTO.setName(SeedUserData.TESTER.name());
 
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 get("/emps/page")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .param("page", queryDTO.getPage().toString())
                         .param("pageSize", queryDTO.getPageSize().toString())
                         .param("name", queryDTO.getName())
-        );
-
-        resultActions
-                .andExpect(status().isOk())
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.total").isNumber())
                 .andExpect(jsonPath("$.data.page").value(queryDTO.getPage()))
@@ -417,16 +410,13 @@ public class EmpControllerIT extends BaseIntegrationTest{
         queryDTO.setPageSize(5);
         queryDTO.setStatus(StatusEnum.INACTIVE.getCode());
 
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 get("/emps/page")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .param("page", queryDTO.getPage().toString())
                         .param("pageSize", queryDTO.getPageSize().toString())
                         .param("status", queryDTO.getStatus().toString())
-        );
-
-        resultActions
-                .andExpect(status().isOk())
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.total").isNumber())
                 .andExpect(jsonPath("$.data.page").value(queryDTO.getPage()))
@@ -447,17 +437,14 @@ public class EmpControllerIT extends BaseIntegrationTest{
         queryDTO.setName(keyword);
         queryDTO.setStatus(StatusEnum.ACTIVE.getCode());
 
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 get("/emps/page")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .param("page", queryDTO.getPage().toString())
                         .param("pageSize", queryDTO.getPageSize().toString())
                         .param("name", queryDTO.getName())
                         .param("status", queryDTO.getStatus().toString())
-        );
-
-        resultActions
-                .andExpect(status().isOk())
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.total").isNumber())
                 .andExpect(jsonPath("$.data.page").value(queryDTO.getPage()))

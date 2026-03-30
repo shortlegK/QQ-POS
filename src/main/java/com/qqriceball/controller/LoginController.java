@@ -2,17 +2,18 @@ package com.qqriceball.controller;
 
 import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.Result;
+import com.qqriceball.common.utils.CookieHelper;
 import com.qqriceball.common.utils.JwtUtil;
 import com.qqriceball.model.dto.emp.EmpLoginDTO;
 import com.qqriceball.model.entity.Emp;
 import com.qqriceball.model.vo.emp.EmpLoginVO;
 import com.qqriceball.model.vo.emp.EmpVO;
-import com.qqriceball.model.vo.emp.TokenVO;
 import com.qqriceball.service.EmpService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +29,13 @@ public class LoginController {
 
     private final JwtProperties jwtProperties;
     private final EmpService empService;
+    private final CookieHelper cookieHelper;
 
     @Autowired
-    public LoginController(JwtProperties jwtProperties,EmpService empService) {
+    public LoginController(JwtProperties jwtProperties,EmpService empService, CookieHelper cookieHelper) {
         this.jwtProperties = jwtProperties;
         this.empService = empService;
+        this.cookieHelper = cookieHelper;
     }
 
     @Operation(summary = "1001 登入帳號")
@@ -43,7 +46,8 @@ public class LoginController {
             @ApiResponse(responseCode = "403", description = "帳號已停用"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
-    public Result<EmpLoginVO> login(@Valid @RequestBody EmpLoginDTO empLoginDTO) {
+    public Result<EmpLoginVO> login(@Valid @RequestBody EmpLoginDTO empLoginDTO,
+                                    HttpServletResponse response) {
 
         log.info("1001 登入帳號:{}", empLoginDTO);
 
@@ -56,13 +60,15 @@ public class LoginController {
                 emp.getUsername(),
                 jwtProperties.getTtlMillis());
 
+        cookieHelper.setTokenCookie(response,token);
+
         EmpLoginVO empLoginVO = EmpLoginVO.builder()
                 .id(emp.getId())
                 .username(emp.getUsername())
                 .name(emp.getName())
                 .role(emp.getRole())
-                .token(token)
                 .build();
+
         return Result.success(empLoginVO);
     }
 
@@ -72,7 +78,8 @@ public class LoginController {
             @ApiResponse(responseCode = "200", description = "登出成功"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
-    public Result<String> logout() {
+    public Result<String> logout(HttpServletResponse response) {
+        cookieHelper.clearTokenCookie(response);
         return Result.success();
     }
 
@@ -82,7 +89,8 @@ public class LoginController {
             @ApiResponse(responseCode = "200", description = "執行成功"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
-    public Result<TokenVO> refreshToken(@AuthenticationPrincipal EmpVO currentEmp) {
+    public Result<Void> refreshToken(@AuthenticationPrincipal EmpVO currentEmp,
+                                     HttpServletResponse response) {
         log.info("1003 刷新 Token,操作id:{}", currentEmp.getId());
             String token = JwtUtil.generateToken(
                     jwtProperties.getSecretKey(),
@@ -90,10 +98,9 @@ public class LoginController {
                     currentEmp.getUsername(),
                     jwtProperties.getTtlMillis());
 
-            TokenVO tokenVO = TokenVO.builder()
-                    .token(token)
-                    .build();
-        return Result.success(tokenVO);
+            cookieHelper.setTokenCookie(response,token);
+
+        return Result.success();
     }
 
 }

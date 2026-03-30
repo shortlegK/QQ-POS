@@ -47,7 +47,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(optionCreateDTO);
         mockMvc.perform(
                 post("/options")
-                        .header("Authorization", "Bearer " + tokenManager)
+                        .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
                 ).andExpect(status().isOk())
@@ -69,7 +69,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(firstDefaultOption);
         MvcResult firstResult = mockMvc.perform(
                 post("/options")
-                        .header("Authorization", "Bearer " + tokenManager)
+                        .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
         ).andExpect(status().isOk())
@@ -90,7 +90,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBody2 = objectMapper.writeValueAsString(secondDefaultOption);
         mockMvc.perform(
                 post("/options")
-                        .header("Authorization", "Bearer " + tokenManager)
+                        .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody2)
         ).andExpect(status().isOk())
@@ -122,7 +122,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(optionCreateDTO);
         mockMvc.perform(
                 post("/options")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
         ).andExpect(status().isBadRequest())
@@ -143,7 +143,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(optionCreateDTO);
         mockMvc.perform(
                         post("/options")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isBadRequest())
@@ -161,14 +161,14 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(optionCreateDTO);
         mockMvc.perform(
                 post("/options")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
         ).andExpect(status().isOk());
 
         mockMvc.perform(
                 post("/options")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
         ).andExpect(status().isConflict())
@@ -186,7 +186,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(optionCreateDTO);
         mockMvc.perform(
                 post("/options")
-                        .header("Authorization", "Bearer " + tokenStaff)
+                         .cookie(cookieStaff)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
         ).andExpect(status().isForbidden());
@@ -200,7 +200,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
 
         mockMvc.perform(
                 get("/options/page")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .param("page", optionPageQueryDTO.getPage().toString())
                         .param("pageSize",optionPageQueryDTO.getPageSize().toString())
                         .param("optionType",String.valueOf(optionPageQueryDTO.getOptionType()))
@@ -221,7 +221,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
 
         mockMvc.perform(
                 get("/options/page")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .param("page", optionPageQueryDTO.getPage().toString())
                         .param("pageSize",optionPageQueryDTO.getPageSize().toString())
                         .param("status", String.valueOf(optionPageQueryDTO.getStatus()))
@@ -246,7 +246,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
 
         mockMvc.perform(
                 get("/options/page")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .param("page", optionPageQueryDTO.getPage().toString())
                         .param("pageSize",optionPageQueryDTO.getPageSize().toString())
                         .param("status", String.valueOf(optionPageQueryDTO.getStatus()))
@@ -272,7 +272,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(optionEditDTO);
         mockMvc.perform(
                 put("/options")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
         ).andExpect(status().isOk())
@@ -293,7 +293,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(optionEditDTO);
         mockMvc.perform(
                 put("/options")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
         ).andExpect(status().isBadRequest())
@@ -314,7 +314,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(firstDefaultOption);
         MvcResult result = mockMvc.perform(
                         post("/options")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isOk())
@@ -330,7 +330,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBody2 = objectMapper.writeValueAsString(secondDefaultOption);
         MvcResult result2 = mockMvc.perform(
                         post("/options")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody2)
                 ).andExpect(status().isOk())
@@ -347,7 +347,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBodyEdit = objectMapper.writeValueAsString(optionEditDTO);
         mockMvc.perform(
                 put("/options")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBodyEdit)
         ).andExpect(status().isOk())
@@ -379,7 +379,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(firstDefaultOption);
         MvcResult result = mockMvc.perform(
                         post("/options")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isOk())
@@ -396,7 +396,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBody2 = objectMapper.writeValueAsString(secondOption);
         MvcResult result2 = mockMvc.perform(
                         post("/options")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody2)
                 ).andExpect(status().isOk())
@@ -414,7 +414,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBodyEdit = objectMapper.writeValueAsString(optionEditDTO);
         mockMvc.perform(
                 put("/options")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBodyEdit)
         ).andExpect(status().isOk())
@@ -445,7 +445,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(optionEditDTO);
         mockMvc.perform(
                 put("/options")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
         ).andExpect(status().isNotFound())
@@ -464,7 +464,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
 
         mockMvc.perform(
                 put("/options")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
         ).andExpect(status().isConflict())
@@ -483,7 +483,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(optionStatusDTO);
         mockMvc.perform(
                 patch("/options/{id}/status", optionVO.getId())
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
         ).andExpect(status().isOk());
@@ -501,7 +501,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
         String jsonBody = objectMapper.writeValueAsString(optionStatusDTO);
         mockMvc.perform(
                         patch("/options/{id}/status", Integer.MAX_VALUE)
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isNotFound())
@@ -516,7 +516,7 @@ public class OptionControllerIT extends BaseIntegrationTest{
 
         MvcResult result = mockMvc.perform(
                 get("/options/types")
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data").isArray())

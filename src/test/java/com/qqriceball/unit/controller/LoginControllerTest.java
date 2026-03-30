@@ -5,6 +5,7 @@ import com.qqriceball.common.exception.AccountInactiveException;
 import com.qqriceball.common.exception.ResourceNotFoundException;
 import com.qqriceball.common.exception.PasswordErrorException;
 import com.qqriceball.common.properties.JwtProperties;
+import com.qqriceball.common.utils.CookieHelper;
 import com.qqriceball.enumeration.MessageEnum;
 import com.qqriceball.model.dto.emp.EmpLoginDTO;
 import com.qqriceball.model.entity.Emp;
@@ -13,25 +14,29 @@ import com.qqriceball.model.vo.emp.EmpVO;
 import com.qqriceball.service.EmpService;
 import com.qqriceball.testData.emp.SeedUserData;
 import com.qqriceball.utils.emp.EmpTestDataFactory;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.MvcResult;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
+@Import(CookieHelper.class)
 @WebMvcTest(LoginController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class LoginControllerTest {
@@ -63,27 +68,33 @@ class LoginControllerTest {
 
         when(jwtProperties.getSecretKey()).thenReturn(secretKey);
         when(jwtProperties.getTtlMillis()).thenReturn(3600000L);
+        when(jwtProperties.getCookieName()).thenReturn("access_token");
+        when(jwtProperties.isCookieSecure()).thenReturn(false);
+        when(jwtProperties.getCookieSameSite()).thenReturn("Strict");
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
-        ResultActions resultActions = mockMvc.perform(
+        MvcResult result = mockMvc.perform(
                 post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-        );
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andExpect(jsonPath("$.data.id").isNotEmpty())
+                .andExpect(jsonPath("$.data.username").value(empLoginDTO.getUsername()))
+                .andReturn();
 
-        resultActions.andExpect(status().isOk());
+        Cookie cookie = result.getResponse().getCookie("access_token");
+
+        assertNotNull(cookie);
+        assertAll(
+                () -> assertTrue(cookie.isHttpOnly()),
+                () -> assertFalse(cookie.getValue().isBlank())
+        );
 
         verify(empService).login(argThat(dto ->
                 empLoginDTO.getUsername().equals(dto.getUsername()) &&
                         empLoginDTO.getPassword().equals(dto.getPassword())
         ));
-
-        resultActions
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
-                .andExpect(jsonPath("$.data.id").isNotEmpty())
-                .andExpect(jsonPath("$.data.username").value(empLoginDTO.getUsername()))
-                .andExpect(jsonPath("$.data.token").isNotEmpty());
     }
 
     @Test
@@ -96,14 +107,11 @@ class LoginControllerTest {
                 .thenThrow(new ResourceNotFoundException(MessageEnum.ACCOUNT_NOT_EXISTS));
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-        );
-
-        resultActions
-                .andExpect(status().isNotFound())
+                ).andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_NOT_EXISTS.getCode()));
 
     }
@@ -119,17 +127,12 @@ class LoginControllerTest {
                 .thenThrow(new PasswordErrorException(MessageEnum.PASSWORD_ERROR));
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-        );
-
-        resultActions
-                .andExpect(status().isUnauthorized())
+                ).andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value(MessageEnum.PASSWORD_ERROR.getCode()));
-
-
     }
 
     @Test
@@ -143,14 +146,11 @@ class LoginControllerTest {
                 .thenThrow(new AccountInactiveException(MessageEnum.ACCOUNT_INACTIVE));
 
         String jsonBody = objectMapper.writeValueAsString(empLoginDTO);
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
-        );
-
-        resultActions
-                .andExpect(status().isForbidden())
+                ).andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value(MessageEnum.ACCOUNT_INACTIVE.getCode()));
 
     }
@@ -158,21 +158,27 @@ class LoginControllerTest {
 
     @Test
     @DisplayName("[Unit] LoginController.logout() - 登出帳號成功應回傳 200")
-    void logout() throws  Exception {
+    void testLogout() throws  Exception {
 
-        ResultActions resultActions = mockMvc.perform(
+        when(jwtProperties.getCookieName()).thenReturn("access_token");
+        when(jwtProperties.isCookieSecure()).thenReturn(false);
+        when(jwtProperties.getCookieSameSite()).thenReturn("Strict");
+
+        MvcResult result = mockMvc.perform(
                 post("/logout")
-        );
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
+                .andReturn();
 
-        resultActions
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()));
+        Cookie cookie = result.getResponse().getCookie("access_token");
+        assertNotNull(cookie);
+        assertEquals(0, cookie.getMaxAge());
 
     }
 
     @Test
     @DisplayName("[Unit] LoginController.refreshToken() - 刷新 Token 成功應回傳 200")
-    void refreshToken() throws Exception {
+    void testRefreshTokenSuccess() throws Exception {
 
         EmpVO emp = new EmpVO();
         emp.setId(99);
@@ -184,13 +190,22 @@ class LoginControllerTest {
 
         when(jwtProperties.getSecretKey()).thenReturn(secretKey);
         when(jwtProperties.getTtlMillis()).thenReturn(3600000L);
+        when(jwtProperties.getCookieName()).thenReturn("access_token");
+        when(jwtProperties.isCookieSecure()).thenReturn(false);
+        when(jwtProperties.getCookieSameSite()).thenReturn("Strict");
 
-        mockMvc.perform(
+        MvcResult result = mockMvc.perform(
                 post("/token/refresh")
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
-                .andExpect(jsonPath("$.data.token").isNotEmpty())
-                .andExpect(jsonPath("$.data.token").isString());
+                .andReturn();
+
+        Cookie cookie = result.getResponse().getCookie("access_token");
+        assertNotNull(cookie);
+        assertAll(
+                () -> assertTrue(cookie.isHttpOnly()),
+                () -> assertFalse(cookie.getValue().isBlank())
+        );
 
         SecurityContextHolder.clearContext();
     }

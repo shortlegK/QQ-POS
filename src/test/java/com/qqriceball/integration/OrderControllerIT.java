@@ -57,7 +57,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         String jsonBody = objectMapper.writeValueAsString(orderCreateDTO);
         MvcResult result = mockMvc.perform(
                         post("/orders/create")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isOk())
@@ -107,7 +107,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         String jsonBody = objectMapper.writeValueAsString(orderCreateDTO);
         MvcResult result = mockMvc.perform(
                         post("/orders/create")
-                                .header("Authorization", "Bearer " + tokenStaff)
+                                 .cookie(cookieStaff)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isOk())
@@ -143,7 +143,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         String jsonBody1 = objectMapper.writeValueAsString(orderCreateDTO1);
         MvcResult result1 = mockMvc.perform(
                         post("/orders/create")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody1)
                 ).andExpect(status().isOk())
@@ -160,7 +160,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         String jsonBodyEdit = objectMapper.writeValueAsString(order1Edit);
         mockMvc.perform(
                         put("/orders")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBodyEdit)
                 ).andExpect(status().isOk())
@@ -174,7 +174,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         String jsonBody2 = objectMapper.writeValueAsString(orderCreateDTO2);
         MvcResult result2 = mockMvc.perform(
                         post("/orders/create")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody2)
                 ).andExpect(status().isOk())
@@ -207,7 +207,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         String jsonBody = objectMapper.writeValueAsString(orderCreateDTO);
         mockMvc.perform(
                         post("/orders/create")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isNotFound())
@@ -231,7 +231,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         String jsonBody = objectMapper.writeValueAsString(orderCreateDTO);
         mockMvc.perform(
                         post("/orders/create")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isNotFound())
@@ -256,7 +256,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         String jsonBody = objectMapper.writeValueAsString(orderCreateDTO);
         mockMvc.perform(
                         post("/orders/create")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isConflict())
@@ -280,7 +280,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         String jsonBody = objectMapper.writeValueAsString(orderCreateDTO);
         mockMvc.perform(
                         post("/orders/create")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isConflict())
@@ -297,7 +297,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
 
         mockMvc.perform(
                         get("/orders/page")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .param("startDate", startDate.toString())
                                 .param("endDate", endDate.toString())
                                 .param("page", "1")
@@ -319,7 +319,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
 
         mockMvc.perform(
                         get("/orders/page")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .param("status", OrderStatusEnum.MAKING.getCode()+"")
                                 .param("startDate", LocalDate.now().toString())
                                 .param("endDate", LocalDate.now().toString())
@@ -343,7 +343,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
 
         mockMvc.perform(
                         get("/orders/page")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .param("orderNo", orderNo)
                                 .param("startDate", LocalDate.now().toString())
                                 .param("endDate", LocalDate.now().toString())
@@ -382,7 +382,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         String jsonBody = objectMapper.writeValueAsString(orderEditDTO);
         mockMvc.perform(
                         put("/orders")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isOk())
@@ -408,7 +408,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         String jsonBody = objectMapper.writeValueAsString(orderEditDTO);
         mockMvc.perform(
                         put("/orders")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isNotFound())
@@ -431,7 +431,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         String jsonBody = objectMapper.writeValueAsString(orderEditDTO);
         mockMvc.perform(
                         put("/orders")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isConflict())
@@ -449,7 +449,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
 
         mockMvc.perform(
                         get("/orders/{orderNo}", orderNo)
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.orderNo").value(orderNo))
@@ -469,7 +469,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
 
         mockMvc.perform(
                 get("/orders/{orderNo}", orderNo)
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                 ).andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(MessageEnum.ORDER_NOT_EXIST.getCode()));
     }
@@ -484,7 +484,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         String jsonBody = objectMapper.writeValueAsString(orderStatusDTO);
         mockMvc.perform(
                         patch("/orders/{orderNo}/status",orderNo)
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isOk())
@@ -493,7 +493,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         // 驗證訂單狀態已更新
         mockMvc.perform(
                         get("/orders/{orderNo}", orderNo)
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.status").value(orderStatusDTO.getStatus()));
     }
@@ -508,7 +508,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         String jsonBody = objectMapper.writeValueAsString(orderStatusDTO);
         mockMvc.perform(
                 patch("/orders/{orderNo}/status",orderNo)
-                        .header("Authorization", "Bearer " + tokenManager)
+                         .cookie(cookieManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
                 ).andExpect(status().isNotFound())
@@ -525,7 +525,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
         String jsonBody = objectMapper.writeValueAsString(orderStatusDTO);
         mockMvc.perform(
                         patch("/orders/{orderNo}/status",orderNo)
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(jsonBody)
                 ).andExpect(status().isBadRequest())
@@ -538,7 +538,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
 
         mockMvc.perform(
                         get("/orders/catalog")
-                                .header("Authorization", "Bearer " + tokenManager)
+                                 .cookie(cookieManager)
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.products").isArray())
@@ -557,7 +557,7 @@ public class OrderControllerIT extends BaseIntegrationTest {
 
         mockMvc.perform(
                         get("/orders/catalog")
-                                .header("Authorization", "Bearer " + tokenStaff)
+                                 .cookie(cookieStaff)
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data.products").isArray())

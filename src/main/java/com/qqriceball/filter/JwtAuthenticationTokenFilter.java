@@ -11,8 +11,10 @@ import com.qqriceball.enumeration.RoleEnum;
 import com.qqriceball.model.vo.emp.EmpVO;
 import com.qqriceball.service.EmpService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -50,14 +52,12 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
-        String header = request.getHeader(jwtProperties.getTokenName());
+        String token = extractTokenFromCookie(request);
 
-        if (!StringUtils.hasText(header) || !header.startsWith(jwtProperties.getTokenPrefix())) {
+        if (!StringUtils.hasText(token)) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        String token = header.substring(jwtProperties.getTokenPrefix().length());
 
         try {
             Claims claims = JwtUtil.parseToken(jwtProperties.getSecretKey(), token);
@@ -84,21 +84,32 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             log.warn("JWT 驗證失敗：帳號不存在");
             writeError(response, HttpStatus.UNAUTHORIZED, MessageEnum.ACCOUNT_NOT_EXISTS);
             return;
-        }catch (AccountInactiveException e){
+        }catch (AccountInactiveException e) {
             log.warn("JWT 驗證失敗：帳號已停用");
             writeError(response, HttpStatus.FORBIDDEN, MessageEnum.ACCOUNT_INACTIVE);
+            return;
+        }catch (ExpiredJwtException e){
+            log.warn("JWT Token 已過期或無效, msg = {}", e.getMessage());
+            writeError(response, HttpStatus.UNAUTHORIZED, MessageEnum.UNAUTHORIZED);
             return;
         } catch (Exception e) {
             // token 過期、簽名錯誤、格式錯誤等
             log.warn("JWT Token 解析或驗證失敗, type = {}, msg = {}",
                     e.getClass().getSimpleName(), e.getMessage());
-            writeError(response, HttpStatus.UNAUTHORIZED, MessageEnum.TOKEN_INVALID);
+            writeError(response, HttpStatus.UNAUTHORIZED, MessageEnum.UNAUTHORIZED);
             return;
         }
 
         filterChain.doFilter(request, response);
     }
 
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        // 放行登入、登出、API 文件相關資源
+        return path.equals("/login") ||
+                path.equals("/logout");
+    }
 
     private void writeError(HttpServletResponse response,
                             HttpStatus status,
@@ -109,4 +120,17 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         String json = objectMapper.writeValueAsString(body);
         response.getWriter().write(json);
     }
+
+    private String extractTokenFromCookie(HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return null;
+
+        for(Cookie cookie : cookies){
+            if (jwtProperties.getCookieName().equals(cookie.getName())){
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
 }

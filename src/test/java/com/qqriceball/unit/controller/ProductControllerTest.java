@@ -32,7 +32,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -150,17 +149,14 @@ public class ProductControllerTest {
 
         when(productService.pageQuery(any(ProductPageQueryDTO.class))).thenReturn(mockResult);
 
-        ResultActions resultActions = mockMvc.perform(
+        mockMvc.perform(
                 get("/products/page")
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("page", queryDTO.getPage().toString())
                         .param("pageSize", queryDTO.getPageSize().toString())
                         .param("title", SeedProductData.MEAT_PRODUCT.title())
                         .param("productType", String.valueOf(SeedProductData.MEAT_PRODUCT.productType()))
-        );
-
-        resultActions
-                .andExpect(status().isOk())
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data").exists());
 

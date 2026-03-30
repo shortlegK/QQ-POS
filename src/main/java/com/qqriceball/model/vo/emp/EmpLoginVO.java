@@ -25,7 +25,4 @@ public class EmpLoginVO {
     @Schema(description = "姓名")
     private String name;
 
-    @Schema(description = "token")
-    private String token;
-
 }

@@ -2,15 +2,16 @@ package com.qqriceball.controller;
 
 import com.qqriceball.common.properties.JwtProperties;
 import com.qqriceball.common.result.Result;
+import com.qqriceball.common.utils.CookieHelper;
 import com.qqriceball.common.utils.JwtUtil;
 import com.qqriceball.model.dto.emp.EmpUpdatePasswordDTO;
 import com.qqriceball.model.vo.emp.EmpVO;
-import com.qqriceball.model.vo.emp.TokenVO;
 import com.qqriceball.service.EmpService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +29,13 @@ public class AccountController {
 
     private final JwtProperties jwtProperties;
     private final EmpService empService;
+    private final CookieHelper cookieHelper;
 
     @Autowired
-    public AccountController(JwtProperties jwtProperties, EmpService empService) {
+    public AccountController(JwtProperties jwtProperties, EmpService empService, CookieHelper cookieHelper) {
         this.jwtProperties = jwtProperties;
         this.empService = empService;
+        this.cookieHelper = cookieHelper;
     }
 
     @Operation(summary = "6001 更新密碼")
@@ -43,8 +46,9 @@ public class AccountController {
             @ApiResponse(responseCode = "401", description = "未登入或 Token 無效"),
             @ApiResponse(responseCode = "500", description = "伺服器內部錯誤")
     })
-    public Result<TokenVO> updatePassword(@AuthenticationPrincipal EmpVO currentEmp,
-                                             @Valid @RequestBody EmpUpdatePasswordDTO empUpdatePasswordDTO){
+    public Result<Void> updatePassword(@AuthenticationPrincipal EmpVO currentEmp,
+                                             @Valid @RequestBody EmpUpdatePasswordDTO empUpdatePasswordDTO,
+                                       HttpServletResponse response){
         log.info("6001 員工更新密碼,操作id:{}", currentEmp.getId());
         empService.updatePassword(currentEmp.getUsername(), empUpdatePasswordDTO);
 
@@ -54,10 +58,10 @@ public class AccountController {
                 currentEmp.getUsername(),
                 jwtProperties.getTtlMillis());
 
-        TokenVO tokenVO = TokenVO.builder()
-                .token(token)
-                .build();
+        cookieHelper.setTokenCookie(response,token);
 
-        return Result.success(tokenVO);
+        return Result.success();
     }
+
+
 }
