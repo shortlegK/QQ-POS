@@ -149,7 +149,7 @@ public class OrderService {
         PreparedOrder preparedOrder = this.prepareOrderDraft(orderEditDTO.getItems());
 
         // 4. 確認 pickupTime
-        LocalDateTime pickupTime = this.validateAndGetPickupTime(orderEditDTO.getPickupTime());
+        LocalDateTime pickupTime = this.validateAndGetPickupTimeForUpdate(orderEditDTO.getPickupTime(), existingOrder.getPickupTime());
 
         // 5. 刪除原有訂單商品及選項資料
         this.deleteOrderItemsAndOptions(existingOrder);
@@ -283,6 +283,15 @@ public class OrderService {
             return LocalDateTime.now().plusMinutes(15).truncatedTo(ChronoUnit.MINUTES);
         }
         return pickupTime.truncatedTo(ChronoUnit.MINUTES);
+    }
+
+    private LocalDateTime validateAndGetPickupTimeForUpdate(LocalDateTime newTime, LocalDateTime existingTime) {
+
+        if (newTime != null && newTime.equals(existingTime)) return null;
+        if (newTime == null || newTime.isBefore(LocalDateTime.now().plusMinutes(15))) {
+            return LocalDateTime.now().plusMinutes(15).truncatedTo(ChronoUnit.MINUTES);
+        }
+        return newTime.truncatedTo(ChronoUnit.MINUTES);
     }
 
     private ProductVO getAndValidateProductStatus(Integer productId) {
