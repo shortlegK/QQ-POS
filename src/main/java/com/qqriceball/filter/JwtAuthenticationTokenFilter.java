@@ -115,6 +115,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                             HttpStatus status,
                             MessageEnum messageEnum) throws IOException {
         response.setStatus(status.value());
+        response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
         Result<Object> body = Result.error(messageEnum);
         String json = objectMapper.writeValueAsString(body);

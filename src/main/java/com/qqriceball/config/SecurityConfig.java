@@ -89,6 +89,7 @@ public class SecurityConfig {
 
     private void writeJsonResponse(HttpServletResponse res, int status, Result<Object> body) throws IOException {
         res.setStatus(status);
+        res.setCharacterEncoding("UTF-8");
         res.setContentType("application/json;charset=UTF-8");
         res.getWriter().write(objectMapper.writeValueAsString(body));
     }
