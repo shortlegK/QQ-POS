@@ -106,9 +106,12 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        // 放行登入、登出、API 文件相關資源
         return path.equals("/login") ||
-                path.equals("/logout");
+                path.equals("/logout") ||
+                path.equals("/error") ||
+                path.startsWith("/swagger-ui") ||
+                path.startsWith("/v3/api-docs") ||
+                path.startsWith("/webjars");
     }
 
     private void writeError(HttpServletResponse response,
