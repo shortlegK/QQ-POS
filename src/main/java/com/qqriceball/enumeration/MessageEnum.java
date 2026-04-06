@@ -7,7 +7,7 @@ public enum MessageEnum {
 
     SUCCESS(200, "執行成功"),
 
-    // 登入/帳號相關
+    // 登入、帳號相關
     PASSWORD_ERROR(10001, "帳號或密碼錯誤。"),
     ACCOUNT_NOT_EXISTS(10002, "帳號或密碼錯誤。"),
     ACCOUNT_INACTIVE(10003, "您的帳號目前已被停用，如有疑問請聯繫管理員。"),
@@ -41,7 +41,10 @@ public enum MessageEnum {
     SINGLE_SELECT_OPTION_QUANTITY_EXCEED(50007, "單選細節選項只能選擇一項，請重新確認。"),
     ORDER_NOT_EDITABLE(50008, "此訂單狀態已無法修改，請確認訂單狀態。"),
     ORDER_STATUS_CODE_INVALID(50009, "訂單狀態代碼無效，請重新確認。"),
-    ORDER_STATUS_TRANSITION_NOT_ALLOWED(50010, "訂單目前無法變更為指定狀態，請確認操作是否正確。");
+    ORDER_STATUS_TRANSITION_NOT_ALLOWED(50010, "訂單目前無法變更為指定狀態，請確認操作是否正確。"),
+
+    // 營收統計相關
+    PERIOD_TYPE_INVALID(70001, "統計期間類型無效，請確認後再試。");
 
     private final int code;
     private final String message;

@@ -110,6 +110,9 @@ public class TestDataSeeder implements ApplicationRunner {
         createOrder(SeedOrderData.orderMakingNextWeek,SeedProductData.VEG_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
         createOrder(SeedOrderData.orderReady,SeedProductData.DRINK_PRODUCT,OrderTestDataFactory.DRINK_OPTIONS);
         createOrder(SeedOrderData.orderPickedUp,SeedProductData.MEAT_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
+        createOrder(SeedOrderData.orderPickedUpYesterday,SeedProductData.VEG_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
+        createOrder(SeedOrderData.orderPickedUpLastWeek,SeedProductData.VEG_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
+        createOrder(SeedOrderData.orderPickedUpLastMonth,SeedProductData.DRINK_PRODUCT,OrderTestDataFactory.DRINK_OPTIONS);
         createOrder(SeedOrderData.orderCancel,SeedProductData.VEG_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
 
         log.info("完成 TestDataSeeder，測試資料已建立完成");

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qqriceball.mapper.RevenueMapper">
+
+    <!--查詢指定期間統計資料-->
+    <select id="getSummaryByPeriod" resultType="com.qqriceball.model.vo.revenue.PeriodSummaryVO">
+        select count(*) as orderCount, sum(total) as actualRevenue, ROUND(avg(total),1) as avgRevenuePerOrder
+        from orders
+        where pickup_time &gt;= CONCAT(#{startDate}, ' 00:00:00')
+          AND pickup_time &lt;= CONCAT(#{endDate}, ' 23:59:59')
+          AND status = 2
+    </select>
+
+    <!--查詢指定產品類型的銷售排行-->
+    <select id="getTopProductByType" resultType="com.qqriceball.model.vo.revenue.ProductRankVO">
+        select p.title as title, sum(o_items.quantity) as salesCount
+        from order_items as o_items
+        INNER JOIN orders as o on o.id = o_items.order_id
+        INNER JOIN products as p on p.id = o_items.product_id
+        where o.pickup_time &gt;= CONCAT(#{periodSummaryVO.startDate}, ' 00:00:00')
+          AND o.pickup_time &lt;= CONCAT(#{periodSummaryVO.endDate}, ' 23:59:59')
+          AND o.status = 2
+          AND p.product_type IN
+              <foreach collection="productTypes" item="type" open="(" separator="," close=")">
+                  #{type}
+              </foreach>
+        GROUP BY o_items.product_id
+        ORDER BY salesCount DESC
+        LIMIT 5
+    </select>
+
+    <!--查詢指定選項類型的銷售排行-->
+    <select id="getTopOptionByType" resultType="com.qqriceball.model.vo.revenue.OptionRankVO">
+        select op.title as title, Sum(items.quantity) as salesCount
+        from order_item_options as o_options
+                 INNER JOIN order_items as items on items.id = o_options.order_item_id
+                 INNER JOIN orders as o on items.order_id = o.id
+                 INNER JOIN options as op on o_options.option_id = op.id
+        where o.pickup_time &gt;= CONCAT(#{periodSummaryVO.startDate}, ' 00:00:00')
+          AND o.pickup_time &lt;= CONCAT(#{periodSummaryVO.endDate}, ' 23:59:59')
+          AND o.status = 2
+          AND op.option_type = #{optionType}
+        GROUP BY o_options.option_id
+        ORDER BY salesCount DESC
+        LIMIT 5
+    </select>
+
+</mapper>
