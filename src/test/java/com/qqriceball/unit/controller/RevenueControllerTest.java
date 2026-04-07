@@ -76,7 +76,18 @@ public class RevenueControllerTest {
                                 .param("periodType", PeriodTypeEnum.TODAY.getCode() + "")
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(MessageEnum.SUCCESS.getCode()))
-                .andExpect(jsonPath("$.data").exists());
+                .andExpect(jsonPath("$.data").exists())
+                .andExpect(jsonPath("$.data.periodType").exists())
+                .andExpect(jsonPath("$.data.thisPeriod").exists())
+                .andExpect(jsonPath("$.data.comparePeriod").exists())
+                .andExpect(jsonPath("$.data.topRiceBalls").exists())
+                .andExpect(jsonPath("$.data.topRiceBalls").isArray())
+                .andExpect(jsonPath("$.data.topDrinks").exists())
+                .andExpect(jsonPath("$.data.topDrinks").isArray())
+                .andExpect(jsonPath("$.data.topAddOns").exists())
+                .andExpect(jsonPath("$.data.topAddOns").isArray())
+                .andExpect(jsonPath("$.data.riceTypeStats").exists())
+                .andExpect(jsonPath("$.data.riceTypeStats").isArray());
         verify(revenueService).getByPeriodType(any(RevenueDTO.class));
     }
 
