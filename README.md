@@ -8,6 +8,7 @@
 ## 線上 Demo
 - **前端介面**：[qq-pos.vercel.app](https://qq-pos.vercel.app/)
 - **API 文件（Swagger UI）**：[開啟 Swagger](https://qq-pos-production.up.railway.app/swagger-ui/index.html#/)
+
 前端介面主要用於展示實際操作流程，後端則聚焦於 API、權限控管、測試與部署實作。
 
 > **測試帳號**
