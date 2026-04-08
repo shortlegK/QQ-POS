@@ -109,7 +109,7 @@ public class TestDataSeeder implements ApplicationRunner {
         createOrder(SeedOrderData.orderMaking,SeedProductData.MEAT_PRODUCT, OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
         createOrder(SeedOrderData.orderMakingNextWeek,SeedProductData.VEG_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
         createOrder(SeedOrderData.orderReady,SeedProductData.DRINK_PRODUCT,OrderTestDataFactory.DRINK_OPTIONS);
-        createOrder(SeedOrderData.orderPickedUp,SeedProductData.MEAT_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
+        createOrder(SeedOrderData.orderPickedUp,SeedProductData.MEAT_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITHOUT_ADDON);
         createOrder(SeedOrderData.orderPickedUpYesterday,SeedProductData.VEG_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
         createOrder(SeedOrderData.orderPickedUpLastWeek,SeedProductData.VEG_PRODUCT,OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
         createOrder(SeedOrderData.orderPickedUpLastMonth,SeedProductData.DRINK_PRODUCT,OrderTestDataFactory.DRINK_OPTIONS);

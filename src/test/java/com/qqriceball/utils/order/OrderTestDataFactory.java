@@ -28,6 +28,13 @@ public class OrderTestDataFactory {
             SeedOptionData.NO_ONION
     );
 
+    public static final List<TestOption> FOOD_OPTIONS_WITHOUT_ADDON = List.of(
+            SeedOptionData.LARGE_SIZE,
+            SeedOptionData.MEDIUM_SPICY,
+            SeedOptionData.WHITE_RICE,
+            SeedOptionData.NO_ONION
+    );
+
     public static final List<TestOption> FOOD_OPTIONS_WITHOUT_SPICE = List.of(
             SeedOptionData.NORMAL_SIZE,
             SeedOptionData.WHITE_RICE

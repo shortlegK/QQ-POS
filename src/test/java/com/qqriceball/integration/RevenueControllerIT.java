@@ -50,9 +50,15 @@ public class RevenueControllerIT extends BaseIntegrationTest {
         List<Integer> optionList1 = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.FOOD_OPTIONS_WITH_OPTIONAL_ITEM);
         List<Integer> optionList2 = OrderTestDataFactory.getOptionIdsList(OrderTestDataFactory.DRINK_OPTIONS);
 
-        Integer quantity = 20;
-        OrderItemDTO orderItemDTO1 = OrderTestDataFactory.getOrderItemDTO(SeedProductData.MEAT_PRODUCT, quantity, optionList1);
-        OrderItemDTO orderItemDTO2 = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, quantity, optionList2);
+        int expectedTopQuantity = 20;
+        OrderItemDTO orderItemDTO1 = OrderTestDataFactory.getOrderItemDTO(SeedProductData.VEG_PRODUCT, expectedTopQuantity, optionList1);
+        OrderItemDTO orderItemDTO2 = OrderTestDataFactory.getOrderItemDTO(SeedProductData.DRINK_PRODUCT, expectedTopQuantity, optionList2);
+        String expectedTopTitle = SeedProductData.VEG_PRODUCT.title();
+        String expectedTopRiceTypeTitle = SeedOptionData.PURPLE_RICE.title();
+
+        int expectedSecondQuantity = 1;
+        String expectedSecondTitle = SeedProductData.MEAT_PRODUCT.title();
+        String expectedSecondRicyTypeTitle = SeedOptionData.WHITE_RICE.title();
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         LocalDateTime expectedPickupTime = LocalDateTime.now().plusMinutes(15).truncatedTo(ChronoUnit.MINUTES);
@@ -106,18 +112,26 @@ public class RevenueControllerIT extends BaseIntegrationTest {
                 () -> assertEquals(expectedToday, revenueStats.getThisPeriod().getEndDate(),"thisPeriod 的 endDate 應為當日"),
                 () -> assertEquals(expectedTodayOrderCount, revenueStats.getThisPeriod().getOrderCount(),"thisPeriod 的 orderCount 應為當日訂單的筆數"),
                 () -> assertEquals(expectedTodayRevenue, revenueStats.getThisPeriod().getActualRevenue(),"thisPeriod 的 actualRevenue 應為當日訂單的總金額"),
+
                 () -> assertEquals(compareDate, revenueStats.getComparePeriod().getStartDate(),"comparePeriod 的 startDate 應為昨日"),
                 () -> assertEquals(compareDate, revenueStats.getComparePeriod().getEndDate(),"comparePeriod 的 endDate 應為昨日"),
                 () -> assertEquals(expectedCompareOrderCount,revenueStats.getComparePeriod().getOrderCount(),"comparePeriod 的 orderCount 應為昨日訂單的筆數"),
                 () -> assertEquals(expectedCompareRevenue,revenueStats.getComparePeriod().getActualRevenue(),"comparePeriod 的 actualRevenue 應為昨日訂單的總金額"),
-                () -> assertEquals(SeedProductData.MEAT_PRODUCT.title(),revenueStats.getTopRiceBalls().get(0).getTitle(),"topRiceBalls 的第一名應為 MEAT_PRODUCT"),
-                () -> assertTrue(revenueStats.getRiceTypeStats().get(0).getSalesCount() >= quantity),
-                () -> assertEquals(SeedProductData.DRINK_PRODUCT.title(),revenueStats.getTopDrinks().get(0).getTitle(),"topDrinks 的第一名應為 DRINK_PRODUCT"),
-                () -> assertTrue(revenueStats.getTopRiceBalls().get(0).getSalesCount() >= quantity),
+
+                () -> assertEquals(expectedTopTitle, revenueStats.getTopRiceBalls().get(0).getTitle(),"topRiceBalls 的第一名應為 VEG_PRODUCT"),
+                () -> assertEquals(expectedTopQuantity, revenueStats.getTopRiceBalls().get(0).getSalesCount(), "topRiceBalls 的第一名銷售數量應為測試案例建立的訂購數量"),
+                () -> assertEquals(expectedSecondTitle, revenueStats.getTopRiceBalls().get(1).getTitle(),"topRiceBalls 的第二名應為 MEAT_PRODUCT"),
+                () -> assertEquals(expectedSecondQuantity, revenueStats.getTopRiceBalls().get(1).getSalesCount(),"topRiceBalls 的第二名銷售數量應為測試種子資料的訂購數量"),
+
+                () -> assertEquals(expectedTopRiceTypeTitle, revenueStats.getRiceTypeStats().get(0).getTitle(),"riceTypeStats 的第一名應為 PURPLE_RICE"),
+                () -> assertEquals(expectedTopQuantity, revenueStats.getRiceTypeStats().get(0).getSalesCount(),"riceTypeStats 的第一名銷售數量應為測試案例建立的訂購數量"),
+                () -> assertEquals(expectedSecondRicyTypeTitle, revenueStats.getRiceTypeStats().get(1).getTitle(),"riceTypeStats 的第二名應為 WHITE_RICE"),
+                () -> assertEquals(expectedSecondQuantity, revenueStats.getRiceTypeStats().get(1).getSalesCount(),"riceTypeStats 的第二名銷售數量應為測試種子資料的訂購數量"),
+
                 () -> assertEquals(SeedOptionData.EGG.title(),revenueStats.getTopAddOns().get(0).getTitle(),"topAddOns 的第一名應為 EGG"),
-                () -> assertTrue(revenueStats.getTopDrinks().get(0).getSalesCount() >= quantity),
-                () -> assertEquals(SeedOptionData.PURPLE_RICE.title(),revenueStats.getRiceTypeStats().get(0).getTitle(),"riceTypeStats 的第一名應為 PURPLE_RICE"),
-                () -> assertTrue(revenueStats.getTopAddOns().get(0).getSalesCount() >= quantity)
+                () -> assertEquals(expectedTopQuantity, revenueStats.getTopAddOns().get(0).getSalesCount(),"topAddOns 的第一名銷售數量應為測試案例建立的訂購數量"),
+                () -> assertEquals(SeedProductData.DRINK_PRODUCT.title(), revenueStats.getTopDrinks().get(0).getTitle(),"topDrinks 的第一名應為 DRINK_PRODUCT"),
+                () -> assertEquals(expectedTopQuantity, revenueStats.getTopDrinks().get(0).getSalesCount(), "topDrinks 的第一名銷售數量應為測試案例建立的訂購數量")
         );
     }
 
